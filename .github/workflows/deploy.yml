@@ -79,12 +79,6 @@ jobs:
           docker load < ltedu-web.tar.gz
           
           # Create data directory
-          mkdir -p data
+          cd /home/www/app/ltedu
+          ./start.sh
           
-          # Restart services (using loaded images)
-          # We check for new images locally, no pull needed
-          docker compose -f docker-compose.prod.yml up -d --force-recreate
-          
-          # Clean up artifacts
-          rm ltedu-api.tar.gz ltedu-web.tar.gz
-          docker image prune -f
