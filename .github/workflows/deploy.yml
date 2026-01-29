@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_USERNAME: ltedu # Hardcoded for offline deployment (no docker hub required)
   IMAGE_NAME_API: ltedu-api
   IMAGE_NAME_WEB: ltedu-web
 
@@ -62,13 +62,14 @@ jobs:
     - name: Deploy on Server
       uses: appleboy/ssh-action@master
       env:
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_USERNAME: ${{ env.DOCKER_USERNAME }}
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         envs: DOCKER_USERNAME
         script: |
+          export DOCKER_USERNAME=$DOCKER_USERNAME
           cd ~/ltedu-deploy
           
           # Load images
