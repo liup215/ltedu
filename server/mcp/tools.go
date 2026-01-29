@@ -481,10 +481,10 @@ func (s *MCPServer) getAvailableTools() []map[string]interface{} {
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
-					"syllabusId":      map[string]interface{}{"type": "number", "description": "Syllabus ID"},
-					"stem":            map[string]interface{}{"type": "string", "description": "Question stem/content"},
-					"difficult":       map[string]interface{}{"type": "number", "description": "Difficulty level (1-5)"},
-					"pastPaperId":     map[string]interface{}{"type": "number", "description": "Past paper ID (optional)"},
+					"syllabusId":       map[string]interface{}{"type": "number", "description": "Syllabus ID"},
+					"stem":             map[string]interface{}{"type": "string", "description": "Question stem/content"},
+					"difficult":        map[string]interface{}{"type": "number", "description": "Difficulty level (1-5)"},
+					"pastPaperId":      map[string]interface{}{"type": "number", "description": "Past paper ID (optional)"},
 					"indexInPastPaper": map[string]interface{}{"type": "number", "description": "Index in past paper (optional)"},
 				},
 				"required": []string{"syllabusId", "stem"},
@@ -689,6 +689,10 @@ func (s *MCPServer) toolOrganisationGet(args map[string]interface{}) (string, er
 }
 
 func (s *MCPServer) toolOrganisationCreate(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	name := getString(args, "name", "")
 	if name == "" {
 		return "", errors.New("name is required")
@@ -703,6 +707,10 @@ func (s *MCPServer) toolOrganisationCreate(args map[string]interface{}) (string,
 }
 
 func (s *MCPServer) toolOrganisationEdit(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	id := getUint(args, "id", 0)
 	if id == 0 {
 		return "", errors.New("id is required")
@@ -725,6 +733,10 @@ func (s *MCPServer) toolOrganisationEdit(args map[string]interface{}) (string, e
 }
 
 func (s *MCPServer) toolOrganisationDelete(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	id := getUint(args, "id", 0)
 	if id == 0 {
 		return "", errors.New("id is required")
@@ -778,6 +790,10 @@ func (s *MCPServer) toolQualificationGet(args map[string]interface{}) (string, e
 }
 
 func (s *MCPServer) toolQualificationCreate(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	name := getString(args, "name", "")
 	organisationId := getUint(args, "organisationId", 0)
 
@@ -800,6 +816,10 @@ func (s *MCPServer) toolQualificationCreate(args map[string]interface{}) (string
 }
 
 func (s *MCPServer) toolQualificationEdit(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	id := getUint(args, "id", 0)
 	if id == 0 {
 		return "", errors.New("id is required")
@@ -828,6 +848,10 @@ func (s *MCPServer) toolQualificationEdit(args map[string]interface{}) (string, 
 }
 
 func (s *MCPServer) toolQualificationDelete(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	id := getUint(args, "id", 0)
 	if id == 0 {
 		return "", errors.New("id is required")
@@ -881,6 +905,10 @@ func (s *MCPServer) toolSyllabusGet(args map[string]interface{}) (string, error)
 }
 
 func (s *MCPServer) toolSyllabusCreate(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	name := getString(args, "name", "")
 	qualificationId := getUint(args, "qualificationId", 0)
 	code := getString(args, "code", "")
@@ -905,6 +933,10 @@ func (s *MCPServer) toolSyllabusCreate(args map[string]interface{}) (string, err
 }
 
 func (s *MCPServer) toolSyllabusEdit(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	id := getUint(args, "id", 0)
 	if id == 0 {
 		return "", errors.New("id is required")
@@ -936,6 +968,10 @@ func (s *MCPServer) toolSyllabusEdit(args map[string]interface{}) (string, error
 }
 
 func (s *MCPServer) toolSyllabusDelete(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	id := getUint(args, "id", 0)
 	if id == 0 {
 		return "", errors.New("id is required")
@@ -978,6 +1014,10 @@ func (s *MCPServer) toolChapterGet(args map[string]interface{}) (string, error) 
 }
 
 func (s *MCPServer) toolChapterCreate(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	name := getString(args, "name", "")
 	syllabusId := getUint(args, "syllabusId", 0)
 	parentId := getUint(args, "parentId", 0)
@@ -1002,6 +1042,10 @@ func (s *MCPServer) toolChapterCreate(args map[string]interface{}) (string, erro
 }
 
 func (s *MCPServer) toolChapterEdit(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	id := getUint(args, "id", 0)
 	if id == 0 {
 		return "", errors.New("id is required")
@@ -1034,6 +1078,10 @@ func (s *MCPServer) toolChapterEdit(args map[string]interface{}) (string, error)
 }
 
 func (s *MCPServer) toolChapterDelete(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	id := getUint(args, "id", 0)
 	if id == 0 {
 		return "", errors.New("id is required")
@@ -1087,6 +1135,10 @@ func (s *MCPServer) toolPaperSeriesGet(args map[string]interface{}) (string, err
 }
 
 func (s *MCPServer) toolPaperSeriesCreate(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	name := getString(args, "name", "")
 	syllabusId := getUint(args, "syllabusId", 0)
 
@@ -1110,6 +1162,10 @@ func (s *MCPServer) toolPaperSeriesCreate(args map[string]interface{}) (string, 
 }
 
 func (s *MCPServer) toolPaperSeriesEdit(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	id := getUint(args, "id", 0)
 	if id == 0 {
 		return "", errors.New("id is required")
@@ -1138,6 +1194,10 @@ func (s *MCPServer) toolPaperSeriesEdit(args map[string]interface{}) (string, er
 }
 
 func (s *MCPServer) toolPaperSeriesDelete(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	id := getUint(args, "id", 0)
 	if id == 0 {
 		return "", errors.New("id is required")
@@ -1191,6 +1251,10 @@ func (s *MCPServer) toolPaperCodeGet(args map[string]interface{}) (string, error
 }
 
 func (s *MCPServer) toolPaperCodeCreate(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	name := getString(args, "name", "")
 	syllabusId := getUint(args, "syllabusId", 0)
 
@@ -1214,6 +1278,10 @@ func (s *MCPServer) toolPaperCodeCreate(args map[string]interface{}) (string, er
 }
 
 func (s *MCPServer) toolPaperCodeEdit(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	id := getUint(args, "id", 0)
 	if id == 0 {
 		return "", errors.New("id is required")
@@ -1242,6 +1310,10 @@ func (s *MCPServer) toolPaperCodeEdit(args map[string]interface{}) (string, erro
 }
 
 func (s *MCPServer) toolPaperCodeDelete(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	id := getUint(args, "id", 0)
 	if id == 0 {
 		return "", errors.New("id is required")
@@ -1301,6 +1373,10 @@ func (s *MCPServer) toolPastPaperGet(args map[string]interface{}) (string, error
 }
 
 func (s *MCPServer) toolPastPaperCreate(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	name := getString(args, "name", "")
 	syllabusId := getUint(args, "syllabusId", 0)
 	year := getInt(args, "year", 0)
@@ -1334,6 +1410,10 @@ func (s *MCPServer) toolPastPaperCreate(args map[string]interface{}) (string, er
 }
 
 func (s *MCPServer) toolPastPaperEdit(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	id := getUint(args, "id", 0)
 	if id == 0 {
 		return "", errors.New("id is required")
@@ -1374,6 +1454,10 @@ func (s *MCPServer) toolPastPaperEdit(args map[string]interface{}) (string, erro
 }
 
 func (s *MCPServer) toolPastPaperDelete(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	id := getUint(args, "id", 0)
 	if id == 0 {
 		return "", errors.New("id is required")
@@ -1431,6 +1515,10 @@ func (s *MCPServer) toolQuestionGet(args map[string]interface{}) (string, error)
 }
 
 func (s *MCPServer) toolQuestionCreate(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	syllabusId := getUint(args, "syllabusId", 0)
 	stem := getString(args, "stem", "")
 	difficult := getInt(args, "difficult", 1)
@@ -1460,6 +1548,10 @@ func (s *MCPServer) toolQuestionCreate(args map[string]interface{}) (string, err
 }
 
 func (s *MCPServer) toolQuestionEdit(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	id := getUint(args, "id", 0)
 	if id == 0 {
 		return "", errors.New("id is required")
@@ -1497,6 +1589,10 @@ func (s *MCPServer) toolQuestionEdit(args map[string]interface{}) (string, error
 }
 
 func (s *MCPServer) toolQuestionDelete(args map[string]interface{}) (string, error) {
+	if !s.currentUser.IsAdmin {
+		return "", errors.New("permission denied: admin access required")
+	}
+
 	id := getUint(args, "id", 0)
 	if id == 0 {
 		return "", errors.New("id is required")

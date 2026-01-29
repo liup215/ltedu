@@ -327,7 +327,7 @@ const totalPages = computed(() => Math.ceil(total.value / pageSize.value));
 onMounted(async () => {
   // Build MCP endpoint URL
   const baseUrl = await API_BASE_URL();
-  mcpEndpoint.value = `${baseUrl}/api/mcp/sse?token=YOUR_TOKEN`;
+  mcpEndpoint.value = `${baseUrl}/api/mcp?token=YOUR_TOKEN`;
   loadTokens();
 });
 
@@ -475,7 +475,7 @@ async function copyMcpEndpoint() {
 async function copyFullMcpUrl(token: string) {
   try {
     const baseUrl = await API_BASE_URL();
-    const fullUrl = `${baseUrl}/api/mcp/sse?token=${token}`;
+    const fullUrl = `${baseUrl}/api/mcp?token=${token}`;
     await navigator.clipboard.writeText(fullUrl);
     showSuccess('Full MCP URL copied to clipboard');
   } catch (error) {
