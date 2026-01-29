@@ -54,7 +54,7 @@ jobs:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        source: "deploy/docker-compose.prod.yml,ltedu-api.tar.gz,ltedu-web.tar.gz"
+        source: "ltedu-api.tar.gz,ltedu-web.tar.gz"
         target: "~/ltedu-deploy/"
         strip_components: 1
 
@@ -71,6 +71,7 @@ jobs:
         script: |
           export DOCKER_USERNAME=$DOCKER_USERNAME
           cd ~/ltedu-deploy
+          ls
           
           # Load images
           echo "Loading API image..."
