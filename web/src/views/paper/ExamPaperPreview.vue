@@ -80,7 +80,7 @@
 
             <!-- Question Parts -->
             <div v-if="q.questionContents && q.questionContents.length > 0" class="mt-4 space-y-4">
-              <div v-for="content in q.questionContents" :key="content.id" class="ml-4">
+              <div v-for="(content, idx) in q.questionContents" :key="idx" class="ml-4">
                 <div class="font-medium mb-2">
                   {{ content.partLabel }}{{ content.subpartLabel ? '.' + content.subpartLabel : '' }}
                   <span class="text-sm text-gray-500">({{ content.score }} pts)</span>
