@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"julia.environmentPath": "d:\\workspace\\ltedu",
+		"pasteImage.path": "${projectRoot}/ltedu-slide/fig",
+		"pasteImage.defaultName": "Y-MM-DD-HH-mm-ss",
+		"pasteImage.showFilePathConfirmInputBox": true,
+		"pasteImage.insertPattern": "fig/${imageFileName}"
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": []
+	}
+}

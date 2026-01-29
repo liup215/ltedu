@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.endpoint=http://host.docker.internal:2375"
+      - "--entryPoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    networks:
+      - ltedu-network
+
+  frontend:
+    image: nginx:stable-alpine3.21-slim
+    depends_on:
+      - backend
+    ports:
+      - "80"
+    volumes:
+      - ./web/dist:/usr/share/nginx/html
+      - ./web/entrypoint.sh:/entrypoint.sh 
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`frontend.localhost`)"
+      - "traefik.http.routers.frontend.entrypoints=web"
+    entrypoint: ["/bin/sh", "/entrypoint.sh"] 
+    environment:
+      - API_BASE_URL=http://backend.localhost
+      - APP_TITLE=LTEDU-APP
+    networks:
+      - ltedu-network
+
+  backend:
+    image: golang:latest
+    ports:
+      - "80"
+    environment:
+      - LTEDU_DIALECT=sqlite
+      - LTEDU_SQLITE_DB_PATH=ltedu.db
+      - LTEDU_HTTP_PORT=80
+      - LTEDU_LOGGER_LEVEL=debug
+      - LTEDU_LOGGER_ENCODING=console
+      - LTEDU_HTTP_PORT=80
+    volumes:
+      - ./ltedu_run/data:/app/data
+      - ./:/app
+    command: ["go", "run", "./main.go"]
+    working_dir: /app/cmd
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`backend.localhost`)"
+      - "traefik.http.routers.backend.entrypoints=web"
+      - "traefik.http.routers.backend.middlewares=cors"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowheaders=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
+    networks:
+      - ltedu-network
+
+networks:
+  ltedu-network:
+    driver: bridge

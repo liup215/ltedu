@@ -1,0 +1,27 @@
+# General
+.DS_Store
+.idea/
+*.log
+*.db
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Web (Frontend)
+web/node_modules/
+web/dist/
+web/dist-ssr/
+web/*.local
+web/logs/
+web/*-debug.log*
+web/*-error.log*
+
+# API (Backend)
+cmd/*
+!cmd/main.go
+**/*.exe
+conf/secrets.yaml

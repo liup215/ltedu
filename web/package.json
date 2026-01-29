@@ -1,0 +1,37 @@
+{
+  "name": "a-level-toolkit-web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@intlify/unplugin-vue-i18n": "^11.0.1",
+    "@tailwindcss/cli": "^4.1.7",
+    "@tailwindcss/vite": "^4.1.7",
+    "@types/quill": "^2.0.14",
+    "axios": "^1.9.0",
+    "docx": "^9.5.0",
+    "katex": "^0.16.22",
+    "notivue": "^2.4.5",
+    "pinia": "^3.0.2",
+    "quill": "^2.0.3",
+    "tinymce": "^7.9.1",
+    "vue": "^3.5.13",
+    "vue-i18n": "^11.1.12",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.3",
+    "@vue/tsconfig": "^0.7.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.1.7",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
+    "vue-tsc": "^2.2.8"
+  }
+}
