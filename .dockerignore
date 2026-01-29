@@ -1,0 +1,23 @@
+# Git
+.git
+.gitignore
+
+# Frontend
+web/
+web/node_modules
+web/dist
+
+# VS Code
+.vscode
+
+# Generated files
+bin/
+logs/
+*.log
+*.exe
+ltedu.db
+ltedu_run/
+
+# Docker
+docker-compose.yml
+Dockerfile

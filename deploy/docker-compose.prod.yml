@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # Traefik Reverse Example (Optional - if you have a gateway)
+  # traefik:
+  #   image: traefik:latest
+  #   ...
+
+  frontend:
+    image: ${DOCKER_USERNAME}/ltedu-web:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      - API_BASE_URL=http://backend:8080 # Internal docker network communication
+    depends_on:
+      - backend
+    networks:
+      - ltedu-network
+
+  backend:
+    image: ${DOCKER_USERNAME}/ltedu-api:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - LTEDU_DIALECT=sqlite
+      - LTEDU_SQLITE_DB_PATH=/app/data/ltedu.db
+      - LTEDU_HTTP_PORT=8080
+      - LTEDU_LOGGER_LEVEL=info
+      - LTEDU_LOGGER_ENCODING=json
+    volumes:
+      - ltedu_data:/app/data
+    networks:
+      - ltedu-network
+
+networks:
+  ltedu-network:
+    driver: bridge
+
+volumes:
+  ltedu_data:
