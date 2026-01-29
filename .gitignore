@@ -25,3 +25,5 @@ cmd/*
 !cmd/main.go
 **/*.exe
 conf/secrets.yaml
+
+ltedu_run

@@ -14,14 +14,14 @@
       ],
       "runtimeExecutable": "npm",
       "type": "node",
-      "cwd": "${workspaceFolder}/ltedu-web"
+      "cwd": "${workspaceFolder}/web"
     },
     {
-      "name": "Api",
+      "name": "api",
       "type": "go",
       "request": "launch",
       "mode": "auto",
-      "program": "${workspaceFolder}/ltedu-api/cmd/main.go",
+      "program": "${workspaceFolder}/cmd/main.go",
       "env": {
         "LTEDU_DIALECT": "sqlite",
         "LTEDU_SQLITE_DB_PATH": "${workspaceFolder}/ltedu_run/data/ltedu.db",
@@ -35,9 +35,9 @@
   ],
   "compounds": [
     {
-      "name": "All",
+      "name": "all",
       "configurations": [
-        "Api",
+        "api",
         // "client",
         "web"
       ]
