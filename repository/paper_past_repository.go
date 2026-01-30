@@ -2,6 +2,7 @@ package repository
 
 import (
 	"edu/model"
+
 	"gorm.io/gorm"
 )
 
@@ -42,8 +43,14 @@ func (r *pastPaperRepository) FindByID(id uint) (*model.PastPaper, error) {
 		Preload("Syllabus").
 		Preload("Syllabus.Qualification").
 		Preload("Syllabus.Qualification.Organisation").
-		Preload("PaperSeries").
 		Preload("PaperCode").
+		Preload("PaperCode.Syllabus").
+		Preload("PaperCode.Syllabus.Qualification").
+		Preload("PaperCode.Syllabus.Qualification.Organisation").
+		Preload("PaperSeries").
+		Preload("PaperSeries.Syllabus").
+		Preload("PaperSeries.Syllabus.Qualification").
+		Preload("PaperSeries.Syllabus.Qualification.Organisation").
 		First(&paper).Error
 	if gorm.ErrRecordNotFound == err {
 		return nil, nil
@@ -82,8 +89,14 @@ func (r *pastPaperRepository) FindPage(query *model.PastPaperQuery, offset, limi
 		Preload("Syllabus").
 		Preload("Syllabus.Qualification").
 		Preload("Syllabus.Qualification.Organisation").
-		Preload("PaperSeries").
 		Preload("PaperCode").
+		Preload("PaperCode.Syllabus").
+		Preload("PaperCode.Syllabus.Qualification").
+		Preload("PaperCode.Syllabus.Qualification.Organisation").
+		Preload("PaperSeries").
+		Preload("PaperSeries.Syllabus").
+		Preload("PaperSeries.Syllabus.Qualification").
+		Preload("PaperSeries.Syllabus.Qualification.Organisation").
 		Order("id DESC").
 		Offset(offset).
 		Limit(limit).
@@ -120,8 +133,14 @@ func (r *pastPaperRepository) FindAll(query *model.PastPaperQuery) ([]*model.Pas
 		Preload("Syllabus").
 		Preload("Syllabus.Qualification").
 		Preload("Syllabus.Qualification.Organisation").
-		Preload("PaperSeries").
 		Preload("PaperCode").
+		Preload("PaperCode.Syllabus").
+		Preload("PaperCode.Syllabus.Qualification").
+		Preload("PaperCode.Syllabus.Qualification.Organisation").
+		Preload("PaperSeries").
+		Preload("PaperSeries.Syllabus").
+		Preload("PaperSeries.Syllabus.Qualification").
+		Preload("PaperSeries.Syllabus.Qualification.Organisation").
 		Order("id DESC").
 		Find(&papers).Error
 

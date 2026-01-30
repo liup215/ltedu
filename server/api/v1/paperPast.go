@@ -60,14 +60,13 @@ func (ctrl *ExamPaperController) SelectPastPaperAll(c *gin.Context) {
 }
 
 func (ctrl *ExamPaperController) CreatePastPaper(c *gin.Context) {
-
 	u, err := auth.GetCurrentUser(c)
 	if err != nil {
 		http.ErrorData(c, "无法获取当前用户信息", err.Error())
 		return
 	}
 
-	user, err := service.UserSvr.SelectUserById(u.ID)
+	_, err = service.UserSvr.SelectUserById(u.ID)
 	if err != nil {
 		http.ErrorData(c, "用户未登录！", nil)
 		return
@@ -78,20 +77,11 @@ func (ctrl *ExamPaperController) CreatePastPaper(c *gin.Context) {
 		http.ErrorData(c, "参数解析失败: "+err.Error(), nil)
 		return
 	}
-	pastPaper, err := ctrl.questionPaperSvr.CreatePastPaper(o)
+
+	_, err = ctrl.questionPaperSvr.CreatePastPaper(o)
 	if err != nil {
 		http.ErrorData(c, "试题创建失败："+err.Error(), nil)
 		return
-	}
-
-	for i := 0; i < pastPaper.QuestionNumber; i++ {
-		question := model.Question{
-			PastPaperId:      pastPaper.ID,
-			SyllabusId:       pastPaper.SyllabusId,
-			IndexInPastPaper: i + 1,
-		}
-
-		ctrl.questionSvr.CreateQuestion(question, user.ID)
 	}
 
 	http.SuccessData(c, "数据获取成功!", nil)

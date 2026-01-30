@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"edu/model"
+
 	"gorm.io/gorm"
 )
 
@@ -46,6 +47,8 @@ func (r *courseRepository) FindByID(id uint) (*model.Course, error) {
 	var course model.Course
 	err := r.db.Where("id = ?", id).
 		Preload("Syllabus").
+		Preload("Syllabus.Qualification").
+		Preload("Syllabus.Qualification.Organisation").
 		First(&course).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -71,10 +74,12 @@ func (r *courseRepository) FindList(query model.CourseQueryRequest) ([]*model.Co
 	// 分页查询
 	offset := (query.PageIndex - 1) * query.PageSize
 	err := q.
+		Preload("Syllabus").
+		Preload("Syllabus.Qualification").
+		Preload("Syllabus.Qualification.Organisation").
 		Order("id DESC").
 		Offset(offset).
 		Limit(query.PageSize).
-		Preload("Syllabus").
 		Find(&courses).Error
 
 	// 设置显示格式（移除，由Service层处理）
@@ -86,8 +91,10 @@ func (r *courseRepository) FindList(query model.CourseQueryRequest) ([]*model.Co
 func (r *courseRepository) FindBySyllabusID(syllabusID int) ([]*model.Course, error) {
 	var courses []*model.Course
 	err := r.db.Where("syllabus_id = ?", syllabusID).
-		Order("id DESC").
 		Preload("Syllabus").
+		Preload("Syllabus.Qualification").
+		Preload("Syllabus.Qualification.Organisation").
+		Order("id DESC").
 		Find(&courses).Error
 
 	return courses, err

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"edu/model"
+
 	"gorm.io/gorm"
 )
 
@@ -42,6 +43,7 @@ func (r *examPaperRepository) FindByID(id uint) (*model.ExamPaper, error) {
 		Preload("Syllabus").
 		Preload("Syllabus.Qualification").
 		Preload("Syllabus.Qualification.Organisation").
+		Preload("User").
 		First(&paper).Error
 	if gorm.ErrRecordNotFound == err {
 		return nil, nil
@@ -71,6 +73,7 @@ func (r *examPaperRepository) FindPage(query *model.ExamPaperQuery, offset, limi
 		Preload("Syllabus").
 		Preload("Syllabus.Qualification").
 		Preload("Syllabus.Qualification.Organisation").
+		Preload("User").
 		Order("id DESC").
 		Offset(offset).
 		Limit(limit).
@@ -98,6 +101,7 @@ func (r *examPaperRepository) FindAll(query *model.ExamPaperQuery) ([]*model.Exa
 		Preload("Syllabus").
 		Preload("Syllabus.Qualification").
 		Preload("Syllabus.Qualification.Organisation").
+		Preload("User").
 		Order("id DESC").
 		Find(&papers).Error
 

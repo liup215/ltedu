@@ -2,6 +2,7 @@ package repository
 
 import (
 	"edu/model"
+
 	"gorm.io/gorm"
 )
 
@@ -42,8 +43,14 @@ func (r *randomPaperRepository) FindByID(id uint) (*model.RandomPaper, error) {
 		Preload("Syllabus").
 		Preload("Syllabus.Qualification").
 		Preload("Syllabus.Qualification.Organisation").
-		Preload("PaperSeries").
 		Preload("PaperCode").
+		Preload("PaperCode.Syllabus").
+		Preload("PaperCode.Syllabus.Qualification").
+		Preload("PaperCode.Syllabus.Qualification.Organisation").
+		Preload("PaperSeries").
+		Preload("PaperSeries.Syllabus").
+		Preload("PaperSeries.Syllabus.Qualification").
+		Preload("PaperSeries.Syllabus.Qualification.Organisation").
 		First(&paper).Error
 	if gorm.ErrRecordNotFound == err {
 		return nil, nil
@@ -70,8 +77,14 @@ func (r *randomPaperRepository) FindPage(query *model.RandomPaperQuery, offset, 
 		Preload("Syllabus").
 		Preload("Syllabus.Qualification").
 		Preload("Syllabus.Qualification.Organisation").
-		Preload("PaperSeries").
 		Preload("PaperCode").
+		Preload("PaperCode.Syllabus").
+		Preload("PaperCode.Syllabus.Qualification").
+		Preload("PaperCode.Syllabus.Qualification.Organisation").
+		Preload("PaperSeries").
+		Preload("PaperSeries.Syllabus").
+		Preload("PaperSeries.Syllabus.Qualification").
+		Preload("PaperSeries.Syllabus.Qualification.Organisation").
 		Order("id DESC").
 		Offset(offset).
 		Limit(limit).
@@ -96,8 +109,14 @@ func (r *randomPaperRepository) FindAll(query *model.RandomPaperQuery) ([]*model
 		Preload("Syllabus").
 		Preload("Syllabus.Qualification").
 		Preload("Syllabus.Qualification.Organisation").
-		Preload("PaperSeries").
 		Preload("PaperCode").
+		Preload("PaperCode.Syllabus").
+		Preload("PaperCode.Syllabus.Qualification").
+		Preload("PaperCode.Syllabus.Qualification.Organisation").
+		Preload("PaperSeries").
+		Preload("PaperSeries.Syllabus").
+		Preload("PaperSeries.Syllabus.Qualification").
+		Preload("PaperSeries.Syllabus.Qualification.Organisation").
 		Order("id DESC").
 		Find(&papers).Error
 

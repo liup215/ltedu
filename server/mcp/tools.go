@@ -384,6 +384,8 @@ func (s *MCPServer) getAvailableTools() []map[string]interface{} {
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
+					"id":            map[string]interface{}{"type": "number", "description": "Filter by past paper ID"},
+					"name":          map[string]interface{}{"type": "string", "description": "Filter by past paper name (text search)"},
 					"syllabusId":    map[string]interface{}{"type": "number", "description": "Filter by syllabus ID"},
 					"year":          map[string]interface{}{"type": "number", "description": "Filter by year"},
 					"paperCodeId":   map[string]interface{}{"type": "number", "description": "Filter by paper code ID"},
@@ -456,9 +458,14 @@ func (s *MCPServer) getAvailableTools() []map[string]interface{} {
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
+					"id":          map[string]interface{}{"type": "number", "description": "Filter by question ID"},
+					"stem":        map[string]interface{}{"type": "string", "description": "Filter by question stem (text search)"},
 					"syllabusId":  map[string]interface{}{"type": "number", "description": "Filter by syllabus ID"},
 					"pastPaperId": map[string]interface{}{"type": "number", "description": "Filter by past paper ID"},
-					"difficult":   map[string]interface{}{"type": "number", "description": "Filter by difficulty"},
+					"difficult":   map[string]interface{}{"type": "number", "description": "Filter by difficulty (1-5)"},
+					"status":      map[string]interface{}{"type": "number", "description": "Filter by status (1=normal, 2=forbidden, 3=deleted)"},
+					"paperName":   map[string]interface{}{"type": "string", "description": "Filter by paper name"},
+					"chapters":    map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "number"}, "description": "Filter by chapter IDs"},
 					"pageIndex":   map[string]interface{}{"type": "number", "description": "Page index (default: 1)"},
 					"pageSize":    map[string]interface{}{"type": "number", "description": "Page size (default: 20)"},
 				},
@@ -1331,12 +1338,16 @@ func (s *MCPServer) toolPaperCodeDelete(args map[string]interface{}) (string, er
 func (s *MCPServer) toolPastPaperList(args map[string]interface{}) (string, error) {
 	pageIndex := getInt(args, "pageIndex", 1)
 	pageSize := getInt(args, "pageSize", 20)
+	id := getUint(args, "id", 0)
+	name := getString(args, "name", "")
 	syllabusId := getUint(args, "syllabusId", 0)
 	year := getInt(args, "year", 0)
 	paperCodeId := getUint(args, "paperCodeId", 0)
 	paperSeriesId := getUint(args, "paperSeriesId", 0)
 
 	query := model.PastPaperQuery{
+		ID:            id,
+		Name:          name,
 		SyllabusId:    syllabusId,
 		Year:          year,
 		PaperCodeId:   paperCodeId,
@@ -1475,14 +1486,35 @@ func (s *MCPServer) toolPastPaperDelete(args map[string]interface{}) (string, er
 func (s *MCPServer) toolQuestionList(args map[string]interface{}) (string, error) {
 	pageIndex := getInt(args, "pageIndex", 1)
 	pageSize := getInt(args, "pageSize", 20)
+	id := getUint(args, "id", 0)
+	stem := getString(args, "stem", "")
 	syllabusId := getUint(args, "syllabusId", 0)
 	pastPaperId := getUint(args, "pastPaperId", 0)
 	difficult := getInt(args, "difficult", 0)
+	status := getInt(args, "status", 0)
+	paperName := getString(args, "paperName", "")
+
+	// Parse chapters array
+	var chapters []uint
+	if chaptersVal, ok := args["chapters"]; ok {
+		if chaptersArray, ok := chaptersVal.([]interface{}); ok {
+			for _, v := range chaptersArray {
+				if num, ok := v.(float64); ok {
+					chapters = append(chapters, uint(num))
+				}
+			}
+		}
+	}
 
 	query := model.QuestionQueryRequest{
+		ID:          id,
+		Stem:        stem,
 		SyllabusId:  syllabusId,
 		PastPaperId: pastPaperId,
 		Difficult:   difficult,
+		Status:      status,
+		PaperName:   paperName,
+		Chapters:    chapters,
 		Page:        model.Page{PageIndex: pageIndex, PageSize: pageSize},
 	}
 
