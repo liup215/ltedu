@@ -4,6 +4,7 @@ import (
 	"edu/conf"
 	"edu/lib/logger"
 	"edu/lib/net/http"
+	"edu/lib/storage"
 	"edu/lib/utils"
 	"edu/model"
 	"edu/service"
@@ -63,6 +64,36 @@ func (s *AttachmentController) UploadDocument(c *gin.Context) {
 	http.SuccessData(c, "上传成功！", attachment)
 }
 
+func (s *AttachmentController) UploadImage(c *gin.Context) {
+	name := "file"
+	fileheader, err := c.FormFile(name)
+	if err != nil {
+		http.ErrorData(c, err.Error(), nil)
+		return
+	}
+
+	ext := strings.ToLower(filepath.Ext(fileheader.Filename))
+	if !utils.IsImage(ext) {
+		http.ErrorData(c, "不支持的图片类型", nil)
+		return
+	}
+
+	attachment, err := s.saveFile(c, fileheader)
+	if err != nil {
+		http.ErrorData(c, err.Error(), nil)
+		return
+	}
+	attachment.Type = model.AttachmentTypeImage
+
+	err = s.attachmentSvr.CreateAttachment(attachment)
+	if err != nil {
+		http.ErrorData(c, err.Error(), nil)
+		return
+	}
+
+	http.SuccessData(c, "上传成功！", attachment)
+}
+
 // saveFile 保存文件。文件以md5值命名以及存储
 // 同时，返回附件信息
 func (s *AttachmentController) saveFile(ctx *gin.Context, fileHeader *multipart.FileHeader, isDocument ...bool) (attachment *model.Attachment, err error) {
@@ -91,9 +122,25 @@ func (s *AttachmentController) saveFile(ctx *gin.Context, fileHeader *multipart.
 	if len(isDocument) > 0 && isDocument[0] {
 		savePathFormat = "documents/%s/%s%s"
 	}
-	savePath := fmt.Sprintf(savePathFormat, strings.Join(strings.Split(md5hash, "")[0:5], "/"), md5hash, ext)
-	os.MkdirAll(filepath.Dir(savePath), os.ModePerm)
-	err = utils.CopyFile(cachePath, savePath)
+	objectName := fmt.Sprintf(savePathFormat, strings.Join(strings.Split(md5hash, "")[0:5], "/"), md5hash, ext)
+
+	// Determine storage type
+	var store storage.Storage
+	isImg := utils.IsImage(ext)
+	if isImg {
+		cfg, _ := service.ConfigSvr.GetImageUploadConfigRaw()
+		if cfg.Disk == "" {
+			cfg.Disk = model.LTEDU_CONFIG_IMAGE_UPLOAD_DISK_PUBLIC
+		}
+		store, err = storage.NewStorage(cfg)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		store = storage.NewLocalStorage()
+	}
+
+	url, err := store.Upload(objectName, cachePath)
 	if err != nil {
 		return
 	}
@@ -104,7 +151,7 @@ func (s *AttachmentController) saveFile(ctx *gin.Context, fileHeader *multipart.
 		Ext:    ext,
 		Enable: true, // 默认都是合法的
 		Hash:   md5hash,
-		Path:   "/" + savePath,
+		Path:   url,
 	}
 
 	// 对于图片，直接获取图片的宽高

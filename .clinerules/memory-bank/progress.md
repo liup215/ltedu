@@ -2,11 +2,15 @@
 
 ## 1. Current Status
 
+- **[2026-01-30] System architecture standardization, repository pattern implementation, and deployment automation.**
+  - Formalized Web + Backend unified architecture.
+  - Implemented dedicated Repository module.
+  - Refined Docker configurations and GitHub Actions workflows.
 - [2025-09-13] All pages, dialogs, and popups in ltedu-web are fully internationalized (Chinese/English). All static text uses $t(key) with en.ts/zh.ts maintained.
 
-**Phase: Feature-Oriented Documentation & Expansion**
+**Phase: Infrastructure & Backend Refinement**
 
-Project progress is now tracked by main website features (functional modules), reflecting actual workflows and implementation status.
+The project is moving towards better performace, query capabilities, and automated deployment processes.
 
 ## 2. What Works (by Website Feature)
 
@@ -47,6 +51,12 @@ Project progress is now tracked by main website features (functional modules), r
    - **[2025-08-20] Home and quick practice pages are now public, no login required.**
 13. **Donation & VIP**:
    - **[2025-08-27] Global donation popup randomly appears (10% chance) on route change, suppressed for VIP users and admins. Popup and donation page remind users to include username in donation remark for advanced permissions.**
+14. **Backend & Infrastructure (New)**:
+   - **[2026-01-30] System Architecture**: Documented the integral Web + Backend structure and layered architecture.
+   - **[2026-01-30] Repository Module**: Implemented dedicated repository layer for data access abstraction and standardized query logic.
+   - **[2026-01-30] Chapter Filter Optimization**: Implemented `filterRoot` option in `ChapterQuery` logic.
+   - **[2026-01-30] Repository Performance**: Enhanced generic repository and API functionalities with additional Preloads and support for more query parameters.
+   - **[2026-01-30] Deployment Automation**: Refactored GitHub Actions workflow and deployment scripts for streamlined Docker-based deployment.
 
 ## 3. What's Left to Build
 

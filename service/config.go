@@ -18,7 +18,8 @@ type ConfigService struct {
 }
 
 // 图片上传设置
-func (svr *ConfigService) GetImageUploadConfig() (icfg model.ImageUploadConfig, err error) {
+// GetImageUploadConfigRaw 获取图片上传配置（包含明文密钥），仅供内部使用
+func (svr *ConfigService) GetImageUploadConfigRaw() (icfg model.ImageUploadConfig, err error) {
 	cfg, err := repository.AppConfigRepo.FirstOrCreateByKey(model.LTEDU_CONFIG_IMAGE_UPLOAD_KEY)
 	if err != nil {
 		return
@@ -28,10 +29,25 @@ func (svr *ConfigService) GetImageUploadConfig() (icfg model.ImageUploadConfig, 
 	if err != nil {
 		return
 	}
+	return
+}
 
-	icfg.CosSecretKey = "**********************"
-	icfg.OssAccessKeySecret = "**********************"
-	icfg.QiniuSecretKey = "**********************"
+// GetImageUploadConfig 获取图片上传配置（密钥已脱敏），供前端展示使用
+func (svr *ConfigService) GetImageUploadConfig() (icfg model.ImageUploadConfig, err error) {
+	icfg, err = svr.GetImageUploadConfigRaw()
+	if err != nil {
+		return
+	}
+
+	if icfg.CosSecretKey != "" {
+		icfg.CosSecretKey = "**********************"
+	}
+	if icfg.OssAccessKeySecret != "" {
+		icfg.OssAccessKeySecret = "**********************"
+	}
+	if icfg.QiniuSecretKey != "" {
+		icfg.QiniuSecretKey = "**********************"
+	}
 
 	return
 }
@@ -40,6 +56,20 @@ func (svr *ConfigService) SaveImageUploadConfig(c model.ImageUploadConfig) error
 	// 本地存储
 	if c.Disk == "" {
 		return errors.New("存储类型不能为空")
+	}
+
+	// 获取旧配置（使用 Raw 方法获取真实密钥）
+	oldCfg, _ := svr.GetImageUploadConfigRaw()
+
+	// 如果密钥是掩码，则使用旧配置的密钥
+	if c.CosSecretKey == "**********************" {
+		c.CosSecretKey = oldCfg.CosSecretKey
+	}
+	if c.OssAccessKeySecret == "**********************" {
+		c.OssAccessKeySecret = oldCfg.OssAccessKeySecret
+	}
+	if c.QiniuSecretKey == "**********************" {
+		c.QiniuSecretKey = oldCfg.QiniuSecretKey
 	}
 
 	b, err := json.Marshal(&c)
@@ -54,9 +84,8 @@ func (svr *ConfigService) SaveImageUploadConfig(c model.ImageUploadConfig) error
 }
 
 // 视频上传设置
-func (svr *ConfigService) GetVideoUploadConfig() (icfg model.VideoUploadConfig, err error) {
-	// icfg := model.VideoUploadConfig{}
-
+// GetVideoUploadConfigRaw 获取视频上传配置（包含明文密钥），仅供内部使用
+func (svr *ConfigService) GetVideoUploadConfigRaw() (icfg model.VideoUploadConfig, err error) {
 	cfg, err := repository.AppConfigRepo.FirstOrCreateByKey(model.LTEDU_CONFIG_VIDEO_UPLOAD_KEY)
 	if err != nil {
 		return icfg, err
@@ -66,10 +95,25 @@ func (svr *ConfigService) GetVideoUploadConfig() (icfg model.VideoUploadConfig, 
 	if err != nil {
 		return
 	}
+	return
+}
 
-	icfg.CosSecretKey = "**********************"
-	icfg.OssAccessKeySecret = "**********************"
-	icfg.QiniuSecretKey = "**********************"
+// GetVideoUploadConfig 获取视频上传配置（密钥已脱敏），供前端展示使用
+func (svr *ConfigService) GetVideoUploadConfig() (icfg model.VideoUploadConfig, err error) {
+	icfg, err = svr.GetVideoUploadConfigRaw()
+	if err != nil {
+		return
+	}
+
+	if icfg.CosSecretKey != "" {
+		icfg.CosSecretKey = "**********************"
+	}
+	if icfg.OssAccessKeySecret != "" {
+		icfg.OssAccessKeySecret = "**********************"
+	}
+	if icfg.QiniuSecretKey != "" {
+		icfg.QiniuSecretKey = "**********************"
+	}
 	return icfg, nil
 }
 
@@ -77,6 +121,20 @@ func (svr *ConfigService) SaveVideoUploadConfig(c model.VideoUploadConfig) error
 	// 本地存储
 	if c.Disk == "" {
 		return errors.New("存储类型不能为空")
+	}
+
+	// 获取旧配置（使用 Raw 方法获取真实密钥）
+	oldCfg, _ := svr.GetVideoUploadConfigRaw()
+
+	// 如果密钥是掩码，则使用旧配置的密钥
+	if c.CosSecretKey == "**********************" {
+		c.CosSecretKey = oldCfg.CosSecretKey
+	}
+	if c.OssAccessKeySecret == "**********************" {
+		c.OssAccessKeySecret = oldCfg.OssAccessKeySecret
+	}
+	if c.QiniuSecretKey == "**********************" {
+		c.QiniuSecretKey = oldCfg.QiniuSecretKey
 	}
 
 	b, err := json.Marshal(&c)

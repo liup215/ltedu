@@ -5,6 +5,8 @@
 - **Language**: Go
 - **Database**: SQLite
 - **Web Framework**: Gin
+- **Architecture Pattern**: Controller-Service-Repository Layered Architecture
+- **Data Access**: Repository Pattern (Custom Implementation)
 - **ORM**: GORM (with gorm/gen for type-safe queries)
 - **Authentication**: JWT
 - **Logging**: Zap

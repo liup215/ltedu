@@ -2,11 +2,15 @@
 
 ## 1. Current Focus
 
-- [2025-09-13] Full i18n (Chinese/English) support is implemented for all ltedu-web pages, dialogs, and popups. All static text uses $t(key) with en.ts/zh.ts entries maintained. Future work: maintain and expand multi-language support.
+- **System Architecture & Repository Pattern**: Formalizing the unified monorepo structure (Web + Server) and the dedicated Repository module for data access abstraction.
+- **Backend Optimization**: Improving query capabilities (e.g., `filterRoot` in ChapterQuery) and adding Preloads to repositories for better performance.
+- **Deployment & DevOps**: Refining Docker configurations and GitHub Actions workflows for automated build and deployment.
+- **MCP Integration**: Maintaining and updating Model Context Protocol (MCP) integrations.
+- **Maintenance**: Keeping documentation aligned with backend and infrastructure updates.
 
-**Phase: Feature-Oriented Documentation Update**
+**Phase: Infrastructure & Backend Refinement**
 
-The current focus is to maintain and update all Memory Bank documentation by main website features (functional modules), ensuring each feature is clearly tracked for progress and architecture.
+The project is currently focusing on backend robustness, query optimization, and streamlining the deployment process.
 
 ## 2. Main Website Features
 
@@ -59,6 +63,18 @@ The current focus is to maintain and update all Memory Bank documentation by mai
 
 ## 3. Recent Changes
 
+- **[2026-01-30] System Architecture & Repository Pattern**:
+  - Formalized the unified system architecture containing both Web (Frontend) and Server (Backend).
+  - Implemented a dedicated `repository` module with strictly typed interfaces (e.g., `IUserRepository`) to abstract GORM operations and support complex query logic.
+- **[2026-01-30] Backend Enhancements:**
+  - Added `filterRoot` option to `ChapterQuery` and enhanced filtering logic in `chapter_repository`.
+  - Enhanced generic repository and API functionalities with additional Preloads and query parameters support.
+- **[2026-01-30] Deployment & DevOps:**
+  - Refactored GitHub Actions workflow for Docker build and deployment.
+  - Updated deployment scripts to manage Docker Compose and directory structures better.
+  - Added and updated Docker configuration files for build processes.
+- **[2026-01-30] MCP Integration:**
+  - Updated MCP endpoint URL in token management to use the correct API path.
 - **[2025-08-28] Past Paper Practice feature created (PaperPractice.vue):**
   - Users can now select a past paper and start a practice session.
   - Backend returns question IDs for the selected paper; frontend loads and renders questions.

@@ -133,6 +133,7 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 
 	r.GET("/v1/syssetting/imageUpload", v1.SettingCtrl.GetImageUploadConfig)
 	r.POST("/v1/syssetting/imageUpload", v1.SettingCtrl.SaveImageUploadConfig)
+	r.POST("/v1/syssetting/image/migrate", v1.SettingCtrl.MigrateBase64Images)
 	r.GET("/v1/syssetting/videoUpload", v1.SettingCtrl.GetVideoUploadConfig)
 	r.POST("/v1/syssetting/videoUpload", v1.SettingCtrl.SaveVideoUploadConfig)
 	r.GET("/v1/syssetting/webSite", v1.SettingCtrl.GetWebSiteConfig)
@@ -202,6 +203,7 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/document/delete", v1.DocumentCtrl.DeleteDocument)
 	r.POST("/v1/document/download", v1.DocumentCtrl.DownloadDocument)
 	r.POST("/v1/upload/document", v1.AttachmentCtrl.UploadDocument)
+	r.POST("/v1/upload/image", v1.AttachmentCtrl.UploadImage)
 
 	r.POST("/v1/slide/create", v1.SlideCtrl.CreateSlide)
 	r.POST("/v1/slide/edit", v1.SlideCtrl.EditSlide)

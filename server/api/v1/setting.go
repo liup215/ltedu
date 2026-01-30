@@ -2,6 +2,7 @@ package v1
 
 import (
 	"edu/lib/net/http"
+	"edu/lib/net/http/middleware/auth"
 	"edu/model"
 	"edu/service"
 
@@ -84,4 +85,24 @@ func (svr *SettingController) SaveWebSiteConfig(c *gin.Context) {
 	}
 
 	http.SuccessData(c, "设置成功!", nil)
+}
+
+func (svr *SettingController) MigrateBase64Images(c *gin.Context) {
+	// 权限验证：仅管理员可调用
+	u, err := auth.GetCurrentUser(c)
+	if err != nil {
+		http.ErrorData(c, "Failed to get current user info", nil)
+		return
+	}
+	user, err := service.UserSvr.SelectUserById(u.ID)
+	if err != nil || user == nil || !user.IsAdmin {
+		http.ErrorData(c, "No permission, only admin can start migration", nil)
+		return
+	}
+
+	if err := service.QuestionSvr.MigrateBase64Images(); err != nil {
+		http.ErrorData(c, "迁移失败: "+err.Error(), nil)
+		return
+	}
+	http.SuccessData(c, "迁移成功!", nil)
 }

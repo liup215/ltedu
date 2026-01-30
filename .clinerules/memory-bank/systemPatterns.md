@@ -2,15 +2,48 @@
 
 ## 1. Architecture Overview
 
-LT-Edu uses a modular client-server architecture, organized by functional modules:
+LT-Edu follows a unified system architecture where both the Web application and Backend API are integral parts of the system monorepo.
 
-- **Frontend (Vue.js SPA)**: User interface for all roles, built from reusable components and views mapped to functional modules (User, Admin, Content, Course, Exam, Media, AI).
-- **Backend (Go + Gin)**: RESTful API with layered design (Model, DAO, Service, Controller), each service mapped to a functional module.
-- **Database (SQLite + GORM)**: Data persistence for all entities (users, courses, exams, media, etc.).
-- **Reverse Proxy (Traefik)**: Routes traffic to frontend/backend containers.
+- **System Structure**:
+    - **Web (Frontend)**: Vue.js + TypeScript SPA located in `web/`, serving as the user interface.
+    - **Server (Backend)**: Go + Gin API located in `server/`, `service/`, `repository/`, providing business logic and data access.
+- **Database**: SQLite + GORM for data persistence.
 - **Cloud Services**: Qiniu for media storage, Aliyun Bailian for AI features.
 
-## 2. Functional Module Patterns
+## 2. Technical Architecture implemented methods
+
+### Backend Layered Architecture
+The backend follows a strict layered architecture to ensure separation of concerns:
+
+- **Controller Layer (`server/api/v1/`)**:
+  - Handles HTTP requests and responses.
+  - Validates input and calls the Service layer.
+  - Returns formatted responses (Success/Error).
+
+- **Service Layer (`service/`)**:
+  - Encapsulates business logic.
+  - Orchestrates operations between multiple Repositories.
+  - Initialized as singleton instances (e.g., `service.UserSvr`).
+
+- **Repository Layer (`repository/`)**:
+  - **New Functional Implementation**: A dedicated `repository` module handles all data access.
+  - Defines interfaces (e.g., `IUserRepository`) and implementations (e.g., `userRepository`).
+  - Abstracts GORM queries and database operations.
+  - Supports Preloading and complex filtering (e.g., `ChapterQuery` with `filterRoot`).
+  - Initialized globally via `repository.InitRepositories(db)`.
+
+- **Model Layer (`model/`)**:
+  - Defines GORM structs and database schema.
+
+### Frontend Architecture
+The frontend (`web/src/`) follows a component-based architecture:
+
+- **Views**: Page-level components mapping to routes.
+- **Components**: Reusable UI elements.
+- **Services**: API client wrappers interacting with the backend.
+- **Stores**: Pinia state management for global data.
+
+## 3. Functional Module Patterns
 
 - **User & Access Management**: JWT authentication, Pinia state, Vue Router guards, Gin controllers, GORM models.
 - **System Administration**: Admin dashboard, user management, system settings, teacher application review (frontend views, backend services).
@@ -23,7 +56,7 @@ LT-Edu uses a modular client-server architecture, organized by functional module
 ## 3. Deployment & Infrastructure
 
 - **Containerization**: All services run in Docker containers, orchestrated by Docker Compose.
-- **CI/CD**: Build and deploy steps for frontend and backend.
+- **CI/CD**: GitHub Actions workflows handle automated build and deployment processes (Docker image generation, deployment scripts).
 - **Cloud Integration**: Specialized SDKs for storage and AI.
 
 ## 4. Design Principles
