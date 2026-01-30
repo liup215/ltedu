@@ -80,7 +80,9 @@ func (r *chapterRepository) FindPage(query *model.ChapterQuery, offset, limit in
 	if query.SyllabusId != 0 {
 		q = q.Where("syllabus_id = ?", query.SyllabusId)
 	}
-	if query.ParentId != 0 {
+	if query.FilterRoot {
+		q = q.Where("parent_id = ?", 0)
+	} else if query.ParentId != 0 {
 		q = q.Where("parent_id = ?", query.ParentId)
 	}
 

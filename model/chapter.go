@@ -30,5 +30,6 @@ type ChapterQuery struct {
 	Name       string `json:"name"`
 	SyllabusId uint   `json:"syllabusId"`
 	ParentId   uint   `json:"parentId"`
+	FilterRoot bool   `json:"filterRoot"` // If true, filter by parentId = 0 (overrides ParentId=0 check)
 	Page
 }

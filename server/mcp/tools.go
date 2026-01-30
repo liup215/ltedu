@@ -14,22 +14,24 @@ func (s *MCPServer) getAvailableTools() []map[string]interface{} {
 		// Organisation (考试局) tools
 		{
 			"name":        "organisation_list",
-			"description": "List all exam organisations (考试局列表)",
+			"description": "List all exam organisations (考试局列表). " + FieldDescOrganisation,
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
 					"pageIndex": map[string]interface{}{"type": "number", "description": "Page index (default: 1)"},
 					"pageSize":  map[string]interface{}{"type": "number", "description": "Page size (default: 20)"},
+					"fields":    map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": "Fields to return (default: id, name)"},
 				},
 			},
 		},
 		{
 			"name":        "organisation_get",
-			"description": "Get an exam organisation by ID (根据ID获取考试局)",
+			"description": "Get an exam organisation by ID (根据ID获取考试局). " + FieldDescOrganisation,
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
-					"id": map[string]interface{}{"type": "number", "description": "Organisation ID"},
+					"id":     map[string]interface{}{"type": "number", "description": "Organisation ID"},
+					"fields": map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": "Fields to return (default: id, name)"},
 				},
 				"required": []string{"id"},
 			},
@@ -72,23 +74,25 @@ func (s *MCPServer) getAvailableTools() []map[string]interface{} {
 		// Qualification (考试) tools
 		{
 			"name":        "qualification_list",
-			"description": "List all qualifications (考试列表)",
+			"description": "List all qualifications (考试列表). " + FieldDescQualification,
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
 					"organisationId": map[string]interface{}{"type": "number", "description": "Filter by organisation ID"},
 					"pageIndex":      map[string]interface{}{"type": "number", "description": "Page index (default: 1)"},
 					"pageSize":       map[string]interface{}{"type": "number", "description": "Page size (default: 20)"},
+					"fields":         map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": "Fields to return (default: id, name)"},
 				},
 			},
 		},
 		{
 			"name":        "qualification_get",
-			"description": "Get a qualification by ID (根据ID获取考试)",
+			"description": "Get a qualification by ID (根据ID获取考试). " + FieldDescQualification,
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
-					"id": map[string]interface{}{"type": "number", "description": "Qualification ID"},
+					"id":     map[string]interface{}{"type": "number", "description": "Qualification ID"},
+					"fields": map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": "Fields to return (default: id, name)"},
 				},
 				"required": []string{"id"},
 			},
@@ -133,23 +137,25 @@ func (s *MCPServer) getAvailableTools() []map[string]interface{} {
 		// Syllabus (考纲) tools
 		{
 			"name":        "syllabus_list",
-			"description": "List all syllabuses (考纲列表)",
+			"description": "List all syllabuses (考纲列表). " + FieldDescSyllabus,
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
 					"qualificationId": map[string]interface{}{"type": "number", "description": "Filter by qualification ID"},
 					"pageIndex":       map[string]interface{}{"type": "number", "description": "Page index (default: 1)"},
 					"pageSize":        map[string]interface{}{"type": "number", "description": "Page size (default: 20)"},
+					"fields":          map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": "Fields to return (default: id, name)"},
 				},
 			},
 		},
 		{
 			"name":        "syllabus_get",
-			"description": "Get a syllabus by ID (根据ID获取考纲)",
+			"description": "Get a syllabus by ID (根据ID获取考纲). " + FieldDescSyllabus,
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
-					"id": map[string]interface{}{"type": "number", "description": "Syllabus ID"},
+					"id":     map[string]interface{}{"type": "number", "description": "Syllabus ID"},
+					"fields": map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": "Fields to return (default: id, name)"},
 				},
 				"required": []string{"id"},
 			},
@@ -195,23 +201,28 @@ func (s *MCPServer) getAvailableTools() []map[string]interface{} {
 
 		// Chapter (章节) tools
 		{
-			"name":        "chapter_tree",
-			"description": "Get chapter tree for a syllabus (获取考纲的章节树)",
+			"name":        "chapter_list",
+			"description": "List chapters (章节列表). Supports lazy loading by parentId. " + FieldDescChapter,
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
 					"syllabusId": map[string]interface{}{"type": "number", "description": "Syllabus ID"},
+					"parentId":   map[string]interface{}{"type": "number", "description": "Parent chapter ID (optional, 0 or omitted for root chapters)"},
+					"pageIndex":  map[string]interface{}{"type": "number", "description": "Page index (default: 1)"},
+					"pageSize":   map[string]interface{}{"type": "number", "description": "Page size (default: 20)"},
+					"fields":     map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": "Fields to return (default: id, name)"},
 				},
 				"required": []string{"syllabusId"},
 			},
 		},
 		{
 			"name":        "chapter_get",
-			"description": "Get a chapter by ID (根据ID获取章节)",
+			"description": "Get a chapter by ID (根据ID获取章节). " + FieldDescChapter,
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
-					"id": map[string]interface{}{"type": "number", "description": "Chapter ID"},
+					"id":     map[string]interface{}{"type": "number", "description": "Chapter ID"},
+					"fields": map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": "Fields to return (default: id, name)"},
 				},
 				"required": []string{"id"},
 			},
@@ -258,23 +269,25 @@ func (s *MCPServer) getAvailableTools() []map[string]interface{} {
 		// PaperSeries (考试季) tools
 		{
 			"name":        "paper_series_list",
-			"description": "List all paper series (考试季列表)",
+			"description": "List all paper series (考试季列表). " + FieldDescPaperSeries,
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
 					"syllabusId": map[string]interface{}{"type": "number", "description": "Filter by syllabus ID"},
 					"pageIndex":  map[string]interface{}{"type": "number", "description": "Page index (default: 1)"},
 					"pageSize":   map[string]interface{}{"type": "number", "description": "Page size (default: 20)"},
+					"fields":     map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": "Fields to return (default: id, name)"},
 				},
 			},
 		},
 		{
 			"name":        "paper_series_get",
-			"description": "Get a paper series by ID (根据ID获取考试季)",
+			"description": "Get a paper series by ID (根据ID获取考试季). " + FieldDescPaperSeries,
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
-					"id": map[string]interface{}{"type": "number", "description": "Paper series ID"},
+					"id":     map[string]interface{}{"type": "number", "description": "Paper series ID"},
+					"fields": map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": "Fields to return (default: id, name)"},
 				},
 				"required": []string{"id"},
 			},
@@ -319,23 +332,25 @@ func (s *MCPServer) getAvailableTools() []map[string]interface{} {
 		// PaperCode (试卷代码) tools
 		{
 			"name":        "paper_code_list",
-			"description": "List all paper codes (试卷代码列表)",
+			"description": "List all paper codes (试卷代码列表). " + FieldDescPaperCode,
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
 					"syllabusId": map[string]interface{}{"type": "number", "description": "Filter by syllabus ID"},
 					"pageIndex":  map[string]interface{}{"type": "number", "description": "Page index (default: 1)"},
 					"pageSize":   map[string]interface{}{"type": "number", "description": "Page size (default: 20)"},
+					"fields":     map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": "Fields to return (default: id, name)"},
 				},
 			},
 		},
 		{
 			"name":        "paper_code_get",
-			"description": "Get a paper code by ID (根据ID获取试卷代码)",
+			"description": "Get a paper code by ID (根据ID获取试卷代码). " + FieldDescPaperCode,
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
-					"id": map[string]interface{}{"type": "number", "description": "Paper code ID"},
+					"id":     map[string]interface{}{"type": "number", "description": "Paper code ID"},
+					"fields": map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": "Fields to return (default: id, name)"},
 				},
 				"required": []string{"id"},
 			},
@@ -380,7 +395,7 @@ func (s *MCPServer) getAvailableTools() []map[string]interface{} {
 		// PastPaper (真题试卷) tools
 		{
 			"name":        "past_paper_list",
-			"description": "List all past papers (真题试卷列表)",
+			"description": "List all past papers (真题试卷列表). " + FieldDescPastPaper,
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -392,16 +407,18 @@ func (s *MCPServer) getAvailableTools() []map[string]interface{} {
 					"paperSeriesId": map[string]interface{}{"type": "number", "description": "Filter by paper series ID"},
 					"pageIndex":     map[string]interface{}{"type": "number", "description": "Page index (default: 1)"},
 					"pageSize":      map[string]interface{}{"type": "number", "description": "Page size (default: 20)"},
+					"fields":        map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": "Fields to return (default: id, name)"},
 				},
 			},
 		},
 		{
 			"name":        "past_paper_get",
-			"description": "Get a past paper by ID (根据ID获取真题试卷)",
+			"description": "Get a past paper by ID (根据ID获取真题试卷). " + FieldDescPastPaper,
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
-					"id": map[string]interface{}{"type": "number", "description": "Past paper ID"},
+					"id":     map[string]interface{}{"type": "number", "description": "Past paper ID"},
+					"fields": map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": "Fields to return (default: id, name)"},
 				},
 				"required": []string{"id"},
 			},
@@ -454,7 +471,7 @@ func (s *MCPServer) getAvailableTools() []map[string]interface{} {
 		// Question (试题) tools
 		{
 			"name":        "question_list",
-			"description": "List all questions (试题列表)",
+			"description": "List all questions (试题列表). " + FieldDescQuestion,
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -468,16 +485,18 @@ func (s *MCPServer) getAvailableTools() []map[string]interface{} {
 					"chapters":    map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "number"}, "description": "Filter by chapter IDs"},
 					"pageIndex":   map[string]interface{}{"type": "number", "description": "Page index (default: 1)"},
 					"pageSize":    map[string]interface{}{"type": "number", "description": "Page size (default: 20)"},
+					"fields":      map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": "Fields to return (default: id, stem)"},
 				},
 			},
 		},
 		{
 			"name":        "question_get",
-			"description": "Get a question by ID (根据ID获取试题)",
+			"description": "Get a question by ID (根据ID获取试题). " + FieldDescQuestion,
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
-					"id": map[string]interface{}{"type": "number", "description": "Question ID"},
+					"id":     map[string]interface{}{"type": "number", "description": "Question ID"},
+					"fields": map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": "Fields to return (default: id, stem)"},
 				},
 				"required": []string{"id"},
 			},
@@ -567,8 +586,8 @@ func (s *MCPServer) executeTool(name string, args map[string]interface{}) (strin
 		return s.toolSyllabusDelete(args)
 
 	// Chapter tools
-	case "chapter_tree":
-		return s.toolChapterTree(args)
+	case "chapter_list":
+		return s.toolChapterList(args)
 	case "chapter_get":
 		return s.toolChapterGet(args)
 	case "chapter_create":
@@ -662,6 +681,7 @@ func getString(args map[string]interface{}, key string, defaultVal string) strin
 func (s *MCPServer) toolOrganisationList(args map[string]interface{}) (string, error) {
 	pageIndex := getInt(args, "pageIndex", 1)
 	pageSize := getInt(args, "pageSize", 20)
+	fields := parseFields(args)
 
 	query := model.OrganisationQuery{
 		Page: model.Page{PageIndex: pageIndex, PageSize: pageSize},
@@ -674,7 +694,7 @@ func (s *MCPServer) toolOrganisationList(args map[string]interface{}) (string, e
 
 	result := map[string]interface{}{
 		"total":   total,
-		"records": records,
+		"records": filterFields(records, fields),
 	}
 	jsonData, _ := json.MarshalIndent(result, "", "  ")
 	return string(jsonData), nil
@@ -685,13 +705,14 @@ func (s *MCPServer) toolOrganisationGet(args map[string]interface{}) (string, er
 	if id == 0 {
 		return "", errors.New("id is required")
 	}
+	fields := parseFields(args)
 
 	record, err := service.QualificationSvr.SelectOrganisationById(id)
 	if err != nil {
 		return "", err
 	}
 
-	jsonData, _ := json.MarshalIndent(record, "", "  ")
+	jsonData, _ := json.MarshalIndent(filterFields(record, fields), "", "  ")
 	return string(jsonData), nil
 }
 
@@ -762,6 +783,7 @@ func (s *MCPServer) toolQualificationList(args map[string]interface{}) (string, 
 	pageIndex := getInt(args, "pageIndex", 1)
 	pageSize := getInt(args, "pageSize", 20)
 	organisationId := getUint(args, "organisationId", 0)
+	fields := parseFields(args)
 
 	query := model.QualificationQuery{
 		OrganisationId: organisationId,
@@ -775,7 +797,7 @@ func (s *MCPServer) toolQualificationList(args map[string]interface{}) (string, 
 
 	result := map[string]interface{}{
 		"total":   total,
-		"records": records,
+		"records": filterFields(records, fields),
 	}
 	jsonData, _ := json.MarshalIndent(result, "", "  ")
 	return string(jsonData), nil
@@ -786,13 +808,14 @@ func (s *MCPServer) toolQualificationGet(args map[string]interface{}) (string, e
 	if id == 0 {
 		return "", errors.New("id is required")
 	}
+	fields := parseFields(args)
 
 	record, err := service.QualificationSvr.SelectQualificationById(id)
 	if err != nil {
 		return "", err
 	}
 
-	jsonData, _ := json.MarshalIndent(record, "", "  ")
+	jsonData, _ := json.MarshalIndent(filterFields(record, fields), "", "  ")
 	return string(jsonData), nil
 }
 
@@ -877,6 +900,7 @@ func (s *MCPServer) toolSyllabusList(args map[string]interface{}) (string, error
 	pageIndex := getInt(args, "pageIndex", 1)
 	pageSize := getInt(args, "pageSize", 20)
 	qualificationId := getUint(args, "qualificationId", 0)
+	fields := parseFields(args)
 
 	query := model.SyllabusQuery{
 		QualificationId: qualificationId,
@@ -890,7 +914,7 @@ func (s *MCPServer) toolSyllabusList(args map[string]interface{}) (string, error
 
 	result := map[string]interface{}{
 		"total":   total,
-		"records": records,
+		"records": filterFields(records, fields),
 	}
 	jsonData, _ := json.MarshalIndent(result, "", "  ")
 	return string(jsonData), nil
@@ -901,13 +925,14 @@ func (s *MCPServer) toolSyllabusGet(args map[string]interface{}) (string, error)
 	if id == 0 {
 		return "", errors.New("id is required")
 	}
+	fields := parseFields(args)
 
 	record, err := service.QualificationSvr.SelectSyllabusById(id)
 	if err != nil {
 		return "", err
 	}
 
-	jsonData, _ := json.MarshalIndent(record, "", "  ")
+	jsonData, _ := json.MarshalIndent(filterFields(record, fields), "", "  ")
 	return string(jsonData), nil
 }
 
@@ -993,15 +1018,45 @@ func (s *MCPServer) toolSyllabusDelete(args map[string]interface{}) (string, err
 }
 
 // Chapter tool implementations
-func (s *MCPServer) toolChapterTree(args map[string]interface{}) (string, error) {
+func (s *MCPServer) toolChapterList(args map[string]interface{}) (string, error) {
 	syllabusId := getUint(args, "syllabusId", 0)
 	if syllabusId == 0 {
 		return "", errors.New("syllabusId is required")
 	}
+	parentId := getUint(args, "parentId", 0)
+	pageIndex := getInt(args, "pageIndex", 1)
+	pageSize := getInt(args, "pageSize", 20)
+	fields := parseFields(args)
 
-	tree := service.QualificationSvr.GetChapterTree(syllabusId)
+	// Determine FilterRoot based on parentId.
+	// If parentId is explicitly passed (even 0), we want to filter by it.
+	// In the tool logic, we'll map "no parentId implies children of root" or "root chapters"?
+	// The requirement is: "If parentId is missing/0, return root chapters."
+	// So if parentId is 0, we set FilterRoot = true.
+	// If parentId > 0, we query by ParentId normally (FilterRoot = false).
 
-	jsonData, _ := json.MarshalIndent(tree, "", "  ")
+	filterRoot := false
+	if parentId == 0 {
+		filterRoot = true
+	}
+
+	query := model.ChapterQuery{
+		SyllabusId: syllabusId,
+		ParentId:   parentId,
+		FilterRoot: filterRoot,
+		Page:       model.Page{PageIndex: pageIndex, PageSize: pageSize},
+	}
+
+	records, total, err := service.QualificationSvr.ChapterList(query)
+	if err != nil {
+		return "", err
+	}
+
+	result := map[string]interface{}{
+		"total":   total,
+		"records": filterFields(records, fields),
+	}
+	jsonData, _ := json.MarshalIndent(result, "", "  ")
 	return string(jsonData), nil
 }
 
@@ -1010,13 +1065,14 @@ func (s *MCPServer) toolChapterGet(args map[string]interface{}) (string, error) 
 	if id == 0 {
 		return "", errors.New("id is required")
 	}
+	fields := parseFields(args)
 
 	record, err := service.QualificationSvr.SelectChapterById(id)
 	if err != nil {
 		return "", err
 	}
 
-	jsonData, _ := json.MarshalIndent(record, "", "  ")
+	jsonData, _ := json.MarshalIndent(filterFields(record, fields), "", "  ")
 	return string(jsonData), nil
 }
 
@@ -1107,6 +1163,7 @@ func (s *MCPServer) toolPaperSeriesList(args map[string]interface{}) (string, er
 	pageIndex := getInt(args, "pageIndex", 1)
 	pageSize := getInt(args, "pageSize", 20)
 	syllabusId := getUint(args, "syllabusId", 0)
+	fields := parseFields(args)
 
 	query := model.PaperSeriesQuery{
 		SyllabusId: syllabusId,
@@ -1120,7 +1177,7 @@ func (s *MCPServer) toolPaperSeriesList(args map[string]interface{}) (string, er
 
 	result := map[string]interface{}{
 		"total":   total,
-		"records": records,
+		"records": filterFields(records, fields),
 	}
 	jsonData, _ := json.MarshalIndent(result, "", "  ")
 	return string(jsonData), nil
@@ -1131,13 +1188,14 @@ func (s *MCPServer) toolPaperSeriesGet(args map[string]interface{}) (string, err
 	if id == 0 {
 		return "", errors.New("id is required")
 	}
+	fields := parseFields(args)
 
 	record, err := service.QuestionPaperSvr.SelectSeriesById(id)
 	if err != nil {
 		return "", err
 	}
 
-	jsonData, _ := json.MarshalIndent(record, "", "  ")
+	jsonData, _ := json.MarshalIndent(filterFields(record, fields), "", "  ")
 	return string(jsonData), nil
 }
 
@@ -1223,6 +1281,7 @@ func (s *MCPServer) toolPaperCodeList(args map[string]interface{}) (string, erro
 	pageIndex := getInt(args, "pageIndex", 1)
 	pageSize := getInt(args, "pageSize", 20)
 	syllabusId := getUint(args, "syllabusId", 0)
+	fields := parseFields(args)
 
 	query := model.PaperCodeQuery{
 		SyllabusId: syllabusId,
@@ -1236,7 +1295,7 @@ func (s *MCPServer) toolPaperCodeList(args map[string]interface{}) (string, erro
 
 	result := map[string]interface{}{
 		"total":   total,
-		"records": records,
+		"records": filterFields(records, fields),
 	}
 	jsonData, _ := json.MarshalIndent(result, "", "  ")
 	return string(jsonData), nil
@@ -1247,13 +1306,14 @@ func (s *MCPServer) toolPaperCodeGet(args map[string]interface{}) (string, error
 	if id == 0 {
 		return "", errors.New("id is required")
 	}
+	fields := parseFields(args)
 
 	record, err := service.QuestionPaperSvr.SelectCodeById(id)
 	if err != nil {
 		return "", err
 	}
 
-	jsonData, _ := json.MarshalIndent(record, "", "  ")
+	jsonData, _ := json.MarshalIndent(filterFields(record, fields), "", "  ")
 	return string(jsonData), nil
 }
 
@@ -1344,6 +1404,7 @@ func (s *MCPServer) toolPastPaperList(args map[string]interface{}) (string, erro
 	year := getInt(args, "year", 0)
 	paperCodeId := getUint(args, "paperCodeId", 0)
 	paperSeriesId := getUint(args, "paperSeriesId", 0)
+	fields := parseFields(args)
 
 	query := model.PastPaperQuery{
 		ID:            id,
@@ -1362,7 +1423,7 @@ func (s *MCPServer) toolPastPaperList(args map[string]interface{}) (string, erro
 
 	result := map[string]interface{}{
 		"total":   total,
-		"records": records,
+		"records": filterFields(records, fields),
 	}
 	jsonData, _ := json.MarshalIndent(result, "", "  ")
 	return string(jsonData), nil
@@ -1373,13 +1434,14 @@ func (s *MCPServer) toolPastPaperGet(args map[string]interface{}) (string, error
 	if id == 0 {
 		return "", errors.New("id is required")
 	}
+	fields := parseFields(args)
 
 	record, err := service.QuestionPaperSvr.SelectPastPaperById(id)
 	if err != nil {
 		return "", err
 	}
 
-	jsonData, _ := json.MarshalIndent(record, "", "  ")
+	jsonData, _ := json.MarshalIndent(filterFields(record, fields), "", "  ")
 	return string(jsonData), nil
 }
 
@@ -1493,6 +1555,7 @@ func (s *MCPServer) toolQuestionList(args map[string]interface{}) (string, error
 	difficult := getInt(args, "difficult", 0)
 	status := getInt(args, "status", 0)
 	paperName := getString(args, "paperName", "")
+	fields := parseFields(args)
 
 	// Parse chapters array
 	var chapters []uint
@@ -1525,7 +1588,7 @@ func (s *MCPServer) toolQuestionList(args map[string]interface{}) (string, error
 
 	result := map[string]interface{}{
 		"total":   total,
-		"records": records,
+		"records": filterFields(records, fields),
 	}
 	jsonData, _ := json.MarshalIndent(result, "", "  ")
 	return string(jsonData), nil
@@ -1536,13 +1599,14 @@ func (s *MCPServer) toolQuestionGet(args map[string]interface{}) (string, error)
 	if id == 0 {
 		return "", errors.New("id is required")
 	}
+	fields := parseFields(args)
 
 	record, err := service.QuestionSvr.SelectQuestionById(id)
 	if err != nil {
 		return "", err
 	}
 
-	jsonData, _ := json.MarshalIndent(record, "", "  ")
+	jsonData, _ := json.MarshalIndent(filterFields(record, fields), "", "  ")
 	return string(jsonData), nil
 }
 
