@@ -3,11 +3,12 @@
 package service
 
 import (
-"edu/model"
-"encoding/json"
-"errors"
-"math/rand"
-"time"
+	"edu/model"
+	"edu/repository"
+	"encoding/json"
+	"errors"
+	"math/rand"
+	"time"
 )
 
 var PracticeSvr = &PracticeService{baseService: newBaseService()}
@@ -20,24 +21,37 @@ func (svr *PracticeService) GenerateQuickPractice(req model.PracticeQuickRequest
 	if req.QuestionCount <= 0 {
 		return nil, errors.New("questionCount must be greater than 0")
 	}
-
 	if req.SyllabusId == 0 {
 		return nil, errors.New("syllabusId is required")
 	}
-ids := []uint{} // TODO: 替换为实际题目ID查询逻辑
-if len(ids) == 0 {
-return nil, errors.New("no questions found for this syllabus")
-}
 
-// Step 2: Randomly select questionCount IDs
-r := rand.New(rand.NewSource(time.Now().UnixNano()))
-r.Shuffle(len(ids), func(i, j int) { ids[i], ids[j] = ids[j], ids[i] })
-if len(ids) > req.QuestionCount {
-ids = ids[:req.QuestionCount]
-}
+	// Query questions by syllabusId and status=normal
+	query := &model.QuestionQueryRequest{
+		SyllabusId: req.SyllabusId,
+		Status:     model.QUESTION_STATE_NORMAL,
+	}
+	questions, err := repository.QuestionRepo.FindAll(query)
+	if err != nil {
+		return nil, err
+	}
+	if len(questions) == 0 {
+		return nil, errors.New("no questions found for this syllabus")
+	}
 
-// 只返回选中的题目ID数组
-return ids, nil
+	// Collect question IDs
+	ids := make([]uint, len(questions))
+	for i, q := range questions {
+		ids[i] = q.ID
+	}
+
+	// Shuffle and select up to QuestionCount
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r.Shuffle(len(ids), func(i, j int) { ids[i], ids[j] = ids[j], ids[i] })
+	if len(ids) > req.QuestionCount {
+		ids = ids[:req.QuestionCount]
+	}
+
+	return ids, nil
 }
 
 func (svr *PracticeService) GeneratePaperPractice(req model.PracticePaperRequest) ([]uint, error) {
@@ -45,11 +59,26 @@ func (svr *PracticeService) GeneratePaperPractice(req model.PracticePaperRequest
 		return nil, errors.New("paperId is required")
 	}
 
-	ids := []uint{}
+	// Query questions by pastPaperId and status=normal
+	query := &model.QuestionQueryRequest{
+		PastPaperId: req.PaperId,
+		Status:      model.QUESTION_STATE_NORMAL,
+	}
+	questions, err := repository.QuestionRepo.FindAll(query)
+	if err != nil {
+		return nil, err
+	}
+	if len(questions) == 0 {
+		return nil, errors.New("no questions found for this paper")
+	}
 
-err := error(nil) // TODO: 替换为实际试卷题目ID查询逻辑
+	// Collect question IDs
+	ids := make([]uint, len(questions))
+	for i, q := range questions {
+		ids[i] = q.ID
+	}
 
-return ids, err
+	return ids, nil
 }
 
 // GradePracticeSubmission grades the student's answers and returns detailed results
@@ -59,10 +88,10 @@ func (svr *PracticeService) GradePracticeSubmission(sub model.PracticeGradeReque
 	for i, ans := range sub {
 		ids[i] = ans.QuestionID
 	}
-questions := []*model.Question{} // TODO: 替换为实际题目查询逻辑
-if len(questions) == 0 {
-return nil, errors.New("no questions found")
-}
+	questions := []*model.Question{} // TODO: 替换为实际题目查询逻辑
+	if len(questions) == 0 {
+		return nil, errors.New("no questions found")
+	}
 
 	score := 0
 	total := len(sub)
