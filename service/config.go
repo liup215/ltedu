@@ -77,7 +77,10 @@ func (svr *ConfigService) SaveImageUploadConfig(c model.ImageUploadConfig) error
 		return err
 	}
 
-	cfg, _ := repository.AppConfigRepo.FirstOrCreateByKey(model.LTEDU_CONFIG_IMAGE_UPLOAD_KEY)
+	cfg, err := repository.AppConfigRepo.FirstOrCreateByKey(model.LTEDU_CONFIG_IMAGE_UPLOAD_KEY)
+	if err != nil {
+		return err
+	}
 
 	cfg.Value = string(b)
 	return repository.AppConfigRepo.Update(cfg)
@@ -142,7 +145,11 @@ func (svr *ConfigService) SaveVideoUploadConfig(c model.VideoUploadConfig) error
 		return err
 	}
 
-	cfg, _ := repository.AppConfigRepo.FirstOrCreateByKey(model.LTEDU_CONFIG_VIDEO_UPLOAD_KEY)
+	cfg, err := repository.AppConfigRepo.FirstOrCreateByKey(model.LTEDU_CONFIG_VIDEO_UPLOAD_KEY)
+	if err != nil {
+		return err
+	}
+
 	cfg.Value = string(b)
 	return repository.AppConfigRepo.Update(cfg)
 }
@@ -166,7 +173,11 @@ func (svr *ConfigService) SaveWebSiteConfig(c model.WebSiteConfig) error {
 		return err
 	}
 
-	cfg, _ := repository.AppConfigRepo.FirstOrCreateByKey(model.LTEDU_CONFIG_WEB_SITE_KEY)
+	cfg, err := repository.AppConfigRepo.FirstOrCreateByKey(model.LTEDU_CONFIG_WEB_SITE_KEY)
+	if err != nil {
+		return err
+	}
+
 	cfg.Value = string(b)
 	return repository.AppConfigRepo.Update(cfg)
 }

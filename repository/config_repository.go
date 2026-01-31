@@ -2,6 +2,7 @@ package repository
 
 import (
 	"edu/model"
+
 	"gorm.io/gorm"
 )
 
@@ -35,7 +36,7 @@ func (r *appConfigRepository) Update(config *model.AppConfig) error {
 // FindByKey 根据key查询配置
 func (r *appConfigRepository) FindByKey(key string) (*model.AppConfig, error) {
 	var config model.AppConfig
-	err := r.db.Where("key = ?", key).First(&config).Error
+	err := r.db.Where("`key` = ?", key).First(&config).Error
 
 	if gorm.ErrRecordNotFound == err {
 		return nil, nil
@@ -46,7 +47,7 @@ func (r *appConfigRepository) FindByKey(key string) (*model.AppConfig, error) {
 // FirstOrCreateByKey 根据key查询，不存在则创建
 func (r *appConfigRepository) FirstOrCreateByKey(key string) (*model.AppConfig, error) {
 	var config model.AppConfig
-	err := r.db.Where("key = ?", key).First(&config).Error
+	err := r.db.Where("`key` = ?", key).First(&config).Error
 
 	if gorm.ErrRecordNotFound == err {
 		// 创建新配置
