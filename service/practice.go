@@ -88,7 +88,10 @@ func (svr *PracticeService) GradePracticeSubmission(sub model.PracticeGradeReque
 	for i, ans := range sub {
 		ids[i] = ans.QuestionID
 	}
-	questions := []*model.Question{} // TODO: 替换为实际题目查询逻辑
+	questions, err := repository.QuestionRepo.FindByIDs(ids)
+	if err != nil {
+		return nil, err
+	}
 	if len(questions) == 0 {
 		return nil, errors.New("no questions found")
 	}
