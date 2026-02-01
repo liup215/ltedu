@@ -31,7 +31,7 @@ func (r *questionRepository) Create(q *model.Question) error {
 }
 
 func (r *questionRepository) Update(q *model.Question) error {
-	return r.db.Model(q).Updates(q).Error
+	return r.db.Model(q).Omit("Syllabus", "PastPaper", "Chapters").Updates(q).Error
 }
 
 func (r *questionRepository) Delete(id uint) error {
