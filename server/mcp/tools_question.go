@@ -250,6 +250,12 @@ func (s *MCPServer) toolQuestionEdit(args map[string]interface{}) (string, error
 		return "", errors.New("permission denied: admin access required")
 	}
 
+	// Debug logging
+	fmt.Printf("DEBUG toolQuestionEdit args: %+v\n", args)
+	if val, ok := args["pastPaperId"]; ok {
+		fmt.Printf("DEBUG pastPaperId type: %T, value: %v\n", val, val)
+	}
+
 	id := getUint(args, "id", 0)
 	if id == 0 {
 		return "", errors.New("id is required")

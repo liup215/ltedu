@@ -2,6 +2,7 @@ package mcp
 
 import (
 	"errors"
+	"strconv"
 )
 
 // getAvailableTools returns the list of all available MCP tools
@@ -130,6 +131,11 @@ func getFloat(args map[string]interface{}, key string, defaultVal float64) float
 	if val, ok := args[key]; ok {
 		if floatVal, ok := val.(float64); ok {
 			return floatVal
+		}
+		if strVal, ok := val.(string); ok {
+			if floatVal, err := strconv.ParseFloat(strVal, 64); err == nil {
+				return floatVal
+			}
 		}
 	}
 	return defaultVal
