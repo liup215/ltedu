@@ -2,6 +2,9 @@
 
 ## 1. Current Status
 
+- **[2026-02-16] Quill editor enhanced with quill-better-table for advanced table functionality.**
+- **[2026-02-02] MCP tools expanded and question repository improved with safer update operations.**
+- **[2026-01-31] Practice question retrieval logic implemented and grading fixes applied.**
 - **[2026-01-30] System architecture standardization, repository pattern implementation, and deployment automation.**
   - Formalized Web + Backend unified architecture.
   - Implemented dedicated Repository module.
@@ -51,7 +54,11 @@ The project is moving towards better performace, query capabilities, and automat
    - **[2025-08-20] Home and quick practice pages are now public, no login required.**
 13. **Donation & VIP**:
    - **[2025-08-27] Global donation popup randomly appears (10% chance) on route change, suppressed for VIP users and admins. Popup and donation page remind users to include username in donation remark for advanced permissions.**
-14. **Backend & Infrastructure (New)**:
+14. **Backend & Infrastructure**:
+   - **[2026-02-16] Quill Editor Enhancement**: Integrated `quill-better-table` for advanced table functionality in the rich text editor.
+   - **[2026-02-02] MCP Tools**: Added tools for managing past papers, qualifications, questions, and syllabuses via Model Context Protocol.
+   - **[2026-02-02] Question Repository Safety**: Fixed repository to exclude specific fields from updates, preventing accidental data overwrites.
+   - **[2026-01-31] Practice Question Retrieval**: Implemented question retrieval logic for quick and paper practice generation; fixed grading logic in GradePracticeSubmission.
    - **[2026-01-30] System Architecture**: Documented the integral Web + Backend structure and layered architecture.
    - **[2026-01-30] Repository Module**: Implemented dedicated repository layer for data access abstraction and standardized query logic.
    - **[2026-01-30] Chapter Filter Optimization**: Implemented `filterRoot` option in `ChapterQuery` logic.

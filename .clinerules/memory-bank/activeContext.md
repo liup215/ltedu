@@ -63,6 +63,17 @@ The project is currently focusing on backend robustness, query optimization, and
 
 ## 3. Recent Changes
 
+- **[2026-02-16] Quill Editor Enhancement**:
+  - Added `quill-better-table` integration for enhanced table functionality in the Quill rich text editor.
+  - Improves content creation capabilities for courses, questions, and other rich text content.
+- **[2026-02-02] MCP Tools & Question Repository Improvements**:
+  - Added MCP tools for managing past papers, qualifications, questions, and syllabuses.
+  - Enhanced argument parsing in tools and added debug logging for question editing.
+  - Fixed question repository to exclude specific fields from updates for safer data operations.
+- **[2026-01-31] Practice Question Retrieval Logic**:
+  - Implemented question retrieval logic for quick and paper practice generation.
+  - Fixed question retrieval logic in GradePracticeSubmission for accurate grading.
+  - Improved error handling when creating or finding app configuration keys.
 - **[2026-01-30] System Architecture & Repository Pattern**:
   - Formalized the unified system architecture containing both Web (Frontend) and Server (Backend).
   - Implemented a dedicated `repository` module with strictly typed interfaces (e.g., `IUserRepository`) to abstract GORM operations and support complex query logic.
