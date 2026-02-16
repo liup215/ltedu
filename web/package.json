@@ -19,7 +19,7 @@
     "notivue": "^2.4.5",
     "pinia": "^3.0.2",
     "quill": "^2.0.3",
-    "quill-better-table": "^1.2.10",
+    "quill-table-better": "^1.2.3",
     "tinymce": "^7.9.1",
     "vue": "^3.5.13",
     "vue-i18n": "^11.1.12",

@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { shallowRef, toRaw, ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import Quill from 'quill'
-import QuillBetterTable from 'quill-better-table'
+import QuillTableBetter from 'quill-table-better'
 import { CONTENT_CHANGE_EVENT, DEFAULT_EDITOR_HEIGHT, DEFAULT_EDITOR_MIN_HEIGHT, DEFAULT_PLACEHOLDER } from '../../const/editor'
 import 'quill/dist/quill.snow.css'
-import 'quill-better-table/dist/quill-better-table.css'
+import 'quill-table-better/dist/quill-table-better.css'
 import getApiClient from '../../services/apiClient'
 import { showError } from '../../utils/notification'
 
-// Register quill-better-table module
+// Register quill-table-better module
 Quill.register({
-  'modules/better-table': QuillBetterTable
+  'modules/table-better': QuillTableBetter
 }, true)
 
 interface Props {
@@ -19,13 +19,15 @@ interface Props {
   minHeight?: string
   placeholder?: string
   readOnly?: boolean
+  tableWidth?: 'auto' | 'fixed' | 'full'
 }
 
 const props = withDefaults(defineProps<Props>(), {
   height: DEFAULT_EDITOR_HEIGHT,
   minHeight: DEFAULT_EDITOR_MIN_HEIGHT,
   placeholder: DEFAULT_PLACEHOLDER,
-  readOnly: false
+  readOnly: false,
+  tableWidth: 'auto'
 })
 
 const emit = defineEmits<{
@@ -105,20 +107,6 @@ const imageHandler = () => {
   }
 }
 
-// Table Handler - Insert a 3x3 table
-const tableHandler = () => {
-  if (quill.value) {
-    const q = toRaw(quill.value)
-    const tableModule = q.getModule('better-table') as QuillBetterTable
-    
-    // Insert a 3x3 table
-    tableModule.insertTable(3, 3)
-    
-    // Focus the editor
-    q.focus()
-  }
-}
-
 // Initialize Quill editor
 onMounted(() => {
   if (!editorEl.value) return
@@ -126,20 +114,14 @@ onMounted(() => {
   const option: any = {
     modules: {
       toolbar: false, // Disable toolbar for read-only mode
-      'better-table': {
-        operationMenu: {
-          items: {
-            insertColumnRight: { text: 'Insert Column Right' },
-            insertColumnLeft: { text: 'Insert Column Left' },
-            insertRowUp: { text: 'Insert Row Above' },
-            insertRowDown: { text: 'Insert Row Below' },
-            mergeCells: { text: 'Merge Cells' },
-            unmergeCells: { text: 'Unmerge Cells' },
-            deleteColumn: { text: 'Delete Column' },
-            deleteRow: { text: 'Delete Row' },
-            deleteTable: { text: 'Delete Table' }
-          }
-        }
+      table: false, // Disable default table module
+      'table-better': {
+        language: 'en_US',
+        menus: ['column', 'row', 'merge', 'table', 'cell', 'wrap', 'delete'],
+        toolbarTable: true // Show table button in toolbar
+      },
+      keyboard: {
+        bindings: QuillTableBetter.keyboardBindings
       }
     },
     theme: 'snow',
@@ -159,11 +141,10 @@ onMounted(() => {
         [{ 'color': [] }, { 'background': [] }],
         [{ 'align': [] }],
         ['link', 'image', 'formula'],
-        ['table-insert']  // Custom table button
+        ['table-better']  // Built-in table button from quill-table-better
       ],
       handlers: {
-        image: imageHandler,
-        'table-insert': tableHandler
+        image: imageHandler
       }
     }
   }
@@ -222,6 +203,9 @@ onMounted(() => {
   // Set initial content
   quill.value.root.innerHTML = props.modelValue
 
+  // Apply table width class
+  updateTableWidthClass()
+
   // Listen for content changes
   quill.value.on(CONTENT_CHANGE_EVENT, () => {
     const html = quill.value?.root.innerHTML || ''
@@ -232,11 +216,27 @@ onMounted(() => {
   })
 })
 
+// Update table width class on editor root
+const updateTableWidthClass = () => {
+  if (!quill.value) return
+  
+  const root = quill.value.root
+  // Remove existing table width classes
+  root.classList.remove('table-width-auto', 'table-width-fixed', 'table-width-full')
+  // Add the new class
+  root.classList.add(`table-width-${props.tableWidth}`)
+}
+
 // Watch for external changes to modelValue
 watch(() => props.modelValue, (newValue) => {
   if (quill.value && quill.value.root.innerHTML !== newValue) {
     quill.value.root.innerHTML = newValue
   }
+})
+
+// Watch for tableWidth prop changes
+watch(() => props.tableWidth, () => {
+  updateTableWidthClass()
 })
 
 // Clean up when component is destroyed
@@ -268,25 +268,12 @@ onBeforeUnmount(() => {
   height: v-bind(height);
 }
 
-/* Custom table button icon */
-:deep(.ql-table-insert::before) {
-  content: "📊";
-  font-size: 14px;
-}
-
-/* Table styles */
-:deep(.ql-editor table) {
-  border-collapse: collapse;
+/* Table width variations */
+:deep(.ql-editor.table-width-full table) {
   width: 100%;
 }
 
-:deep(.ql-editor table td) {
-  border: 1px solid #ccc;
-  padding: 8px;
-  min-width: 50px;
-}
-
-:deep(.ql-editor table td:focus) {
-  outline: 2px solid #007bff;
+:deep(.ql-editor.table-width-fixed table) {
+  table-layout: fixed;
 }
 </style>

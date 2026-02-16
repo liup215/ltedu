@@ -63,9 +63,12 @@ The project is currently focusing on backend robustness, query optimization, and
 
 ## 3. Recent Changes
 
-- **[2026-02-16] Quill Editor Enhancement**:
-  - Added `quill-better-table` integration for enhanced table functionality in the Quill rich text editor.
-  - Improves content creation capabilities for courses, questions, and other rich text content.
+- **[2026-02-16] Quill Editor Table Library Migration & UI Refinement**:
+  - Migrated from `quill-better-table` to `quill-table-better` for better compatibility and features.
+  - Added `tableWidth` prop (`'auto' | 'fixed' | 'full'`) for flexible table width control.
+  - Integrated keyboard bindings for improved table navigation.
+  - Updated TypeScript type declarations for the new library.
+  - Refined UI font styling: changed base font size from 20px to 16px (body only), and adjusted font weights from bold/semibold to normal across NavBar and Home components for a cleaner appearance.
 - **[2026-02-02] MCP Tools & Question Repository Improvements**:
   - Added MCP tools for managing past papers, qualifications, questions, and syllabuses.
   - Enhanced argument parsing in tools and added debug logging for question editing.

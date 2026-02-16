@@ -1,32 +1,27 @@
-declare module 'quill-better-table' {
-  interface QuillBetterTable {
+declare module 'quill-table-better' {
+  interface QuillTableBetter {
     insertTable(rows: number, columns: number): void;
-    getTable(): any;
-    getTableModule(): any;
+    deleteTable(): void;
+    getTable(range?: any): [any, any, any, number] | null;
+    hideTools(): void;
+    deleteTableTemporary(source?: any): void;
   }
 
-  interface OperationMenuOptions {
-    items?: {
-      insertColumnRight?: { text: string };
-      insertColumnLeft?: { text: string };
-      insertRowUp?: { text: string };
-      insertRowDown?: { text: string };
-      mergeCells?: { text: string };
-      unmergeCells?: { text: string };
-      deleteColumn?: { text: string };
-      deleteRow?: { text: string };
-      deleteTable?: { text: string };
+  interface TableBetterOptions {
+    language?: string | { name: string; content: Record<string, any> };
+    menus?: string[];
+    toolbarTable?: boolean;
+    toolbarButtons?: {
+      whiteList?: string[];
+      singleWhiteList?: string[];
     };
   }
 
-  interface QuillBetterTableOptions {
-    operationMenu?: OperationMenuOptions;
-  }
-
-  const QuillBetterTable: {
-    new (): QuillBetterTable;
-    (quill: any, options: QuillBetterTableOptions): void;
+  const QuillTableBetter: {
+    new (): QuillTableBetter;
+    (quill: any, options: TableBetterOptions): void;
+    keyboardBindings: Record<string, any>;
   };
 
-  export default QuillBetterTable;
+  export default QuillTableBetter;
 }
