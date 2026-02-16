@@ -118,7 +118,7 @@ onMounted(() => {
       'table-better': {
         language: 'en_US',
         menus: ['column', 'row', 'merge', 'table', 'cell', 'wrap', 'delete'],
-        toolbarTable: true // Show table button in toolbar
+        toolbarTable: false // We manually add the table-better button in toolbar
       },
       keyboard: {
         bindings: QuillTableBetter.keyboardBindings
