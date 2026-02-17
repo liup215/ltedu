@@ -113,6 +113,10 @@ func (r *questionRepository) FindPage(query *model.QuestionQueryRequest, offset,
 	if query.PastPaperId != 0 {
 		q = q.Where("past_paper_id = ?", query.PastPaperId)
 	}
+	if query.PaperName != "" {
+		q = q.Joins("JOIN past_papers ON questions.past_paper_id = past_papers.id").
+			Where("past_papers.name LIKE ?", "%"+query.PaperName+"%")
+	}
 
 	q.Count(&total)
 	err := q.Order("id DESC").Offset(offset).Limit(limit).Find(&questions).Error
@@ -163,6 +167,10 @@ func (r *questionRepository) FindAll(query *model.QuestionQueryRequest) ([]*mode
 	if query.PastPaperId != 0 {
 		q = q.Where("past_paper_id = ?", query.PastPaperId)
 	}
+	if query.PaperName != "" {
+		q = q.Joins("JOIN past_papers ON questions.past_paper_id = past_papers.id").
+			Where("past_papers.name LIKE ?", "%"+query.PaperName+"%")
+	}
 
 	err := q.Order("id DESC").Find(&questions).Error
 	for _, q := range questions {
@@ -192,6 +200,10 @@ func (r *questionRepository) Count(query *model.QuestionQueryRequest) (int64, er
 	}
 	if query.PastPaperId != 0 {
 		q = q.Where("past_paper_id = ?", query.PastPaperId)
+	}
+	if query.PaperName != "" {
+		q = q.Joins("JOIN past_papers ON questions.past_paper_id = past_papers.id").
+			Where("past_papers.name LIKE ?", "%"+query.PaperName+"%")
 	}
 
 	err := q.Count(&total).Error
