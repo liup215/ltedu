@@ -96,7 +96,8 @@ func (r *questionRepository) FindPage(query *model.QuestionQueryRequest, offset,
 		Preload("Chapters.Syllabus.Qualification.Organisation")
 
 	if query.ID != 0 {
-		q = q.Where("id = ?", query.ID)
+		tableName := GetTableName(r.db, &model.Question{})
+		q = q.Where(tableName+".id = ?", query.ID)
 	}
 	if query.Stem != "" {
 		q = q.Where("stem LIKE ?", "%"+query.Stem+"%")
@@ -114,12 +115,13 @@ func (r *questionRepository) FindPage(query *model.QuestionQueryRequest, offset,
 		q = q.Where("past_paper_id = ?", query.PastPaperId)
 	}
 	if query.PaperName != "" {
-		q = q.Joins("JOIN past_papers ON questions.past_paper_id = past_papers.id").
-			Where("past_papers.name LIKE ?", "%"+query.PaperName+"%")
+		q = q.Joins("PastPaper").
+			Where("PastPaper.name LIKE ?", "%"+query.PaperName+"%")
 	}
 
 	q.Count(&total)
-	err := q.Order("id DESC").Offset(offset).Limit(limit).Find(&questions).Error
+	tableName := GetTableName(r.db, &model.Question{})
+	err := q.Order(tableName + ".id DESC").Offset(offset).Limit(limit).Find(&questions).Error
 	for _, q := range questions {
 		_ = q.Format()
 	}
@@ -150,7 +152,8 @@ func (r *questionRepository) FindAll(query *model.QuestionQueryRequest) ([]*mode
 		Preload("Chapters.Syllabus.Qualification.Organisation")
 
 	if query.ID != 0 {
-		q = q.Where("id = ?", query.ID)
+		tableName := GetTableName(r.db, &model.Question{})
+		q = q.Where(tableName+".id = ?", query.ID)
 	}
 	if query.Stem != "" {
 		q = q.Where("stem LIKE ?", "%"+query.Stem+"%")
@@ -168,11 +171,12 @@ func (r *questionRepository) FindAll(query *model.QuestionQueryRequest) ([]*mode
 		q = q.Where("past_paper_id = ?", query.PastPaperId)
 	}
 	if query.PaperName != "" {
-		q = q.Joins("JOIN past_papers ON questions.past_paper_id = past_papers.id").
-			Where("past_papers.name LIKE ?", "%"+query.PaperName+"%")
+		q = q.Joins("PastPaper").
+			Where("PastPaper.name LIKE ?", "%"+query.PaperName+"%")
 	}
 
-	err := q.Order("id DESC").Find(&questions).Error
+	tableName := GetTableName(r.db, &model.Question{})
+	err := q.Order(tableName + ".id DESC").Find(&questions).Error
 	for _, q := range questions {
 		_ = q.Format()
 	}
@@ -184,7 +188,8 @@ func (r *questionRepository) Count(query *model.QuestionQueryRequest) (int64, er
 	q := r.db.Model(&model.Question{})
 
 	if query.ID != 0 {
-		q = q.Where("id = ?", query.ID)
+		tableName := GetTableName(r.db, &model.Question{})
+		q = q.Where(tableName+".id = ?", query.ID)
 	}
 	if query.Stem != "" {
 		q = q.Where("stem LIKE ?", "%"+query.Stem+"%")
@@ -202,8 +207,8 @@ func (r *questionRepository) Count(query *model.QuestionQueryRequest) (int64, er
 		q = q.Where("past_paper_id = ?", query.PastPaperId)
 	}
 	if query.PaperName != "" {
-		q = q.Joins("JOIN past_papers ON questions.past_paper_id = past_papers.id").
-			Where("past_papers.name LIKE ?", "%"+query.PaperName+"%")
+		q = q.Joins("PastPaper").
+			Where("PastPaper.name LIKE ?", "%"+query.PaperName+"%")
 	}
 
 	err := q.Count(&total).Error
