@@ -20,11 +20,15 @@ type IKnowledgeStateRepository interface {
 }
 
 type knowledgeStateRepository struct {
-	db *gorm.DB
+	db          *gorm.DB
+	chapterRepo IChapterRepository
 }
 
 func NewKnowledgeStateRepository(db *gorm.DB, chapterRepo IChapterRepository) IKnowledgeStateRepository {
-	return &knowledgeStateRepository{db: db}
+	return &knowledgeStateRepository{
+		db:          db,
+		chapterRepo: chapterRepo,
+	}
 }
 
 func (r *knowledgeStateRepository) Create(ks *model.KnowledgeState) error {
@@ -113,7 +117,7 @@ func (r *knowledgeStateRepository) GetDueForReview(userId, goalId uint) ([]model
 
 func (r *knowledgeStateRepository) InitializeForGoal(userId, goalId, syllabusId uint) error {
 	// Get all chapters for the syllabus
-	chapters, err := ChapterRepo.FindBySyllabusID(syllabusId)
+	chapters, err := r.chapterRepo.FindBySyllabusID(syllabusId)
 	if err != nil {
 		return err
 	}

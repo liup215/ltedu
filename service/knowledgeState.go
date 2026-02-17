@@ -126,14 +126,19 @@ func (svr *KnowledgeStateService) UpdateKnowledgeStateFromAttempt(attempt *model
 	// Update mastery level (0.0 to 1.0)
 	ks.MasteryLevel = float64(ks.CorrectCount) / float64(ks.TotalCount)
 
+	// Factor in stability (0.0 to 1.0)
+	// Low stability = short interval, high stability = longer interval
+	const stabilityIncrement = 0.1  // Increment per consecutive correct
+	const stabilityDecrement = 0.15 // Decrement per consecutive wrong
+	
 	// Update stability score based on consecutive correct answers
 	// Stability increases with consecutive correct, decreases with consecutive wrong
 	if ks.ConsecutiveCorrect > 0 {
 		// Increase stability: cap at 1.0
-		ks.StabilityScore = math.Min(1.0, ks.StabilityScore+0.1*float64(ks.ConsecutiveCorrect))
+		ks.StabilityScore = math.Min(1.0, ks.StabilityScore+stabilityIncrement*float64(ks.ConsecutiveCorrect))
 	} else if ks.ConsecutiveWrong > 0 {
 		// Decrease stability: floor at 0.0
-		ks.StabilityScore = math.Max(0.0, ks.StabilityScore-0.15*float64(ks.ConsecutiveWrong))
+		ks.StabilityScore = math.Max(0.0, ks.StabilityScore-stabilityDecrement*float64(ks.ConsecutiveWrong))
 	}
 
 	// Update last practice time

@@ -4,6 +4,7 @@ import (
 	"edu/model"
 	"edu/repository"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -126,15 +127,26 @@ func (svr *AttemptService) BatchCreateAttempts(userId, goalId uint, taskId *uint
 		return errors.New("unauthorized to create attempts for this goal")
 	}
 
-	for _, req := range submissions {
+	// Track errors for reporting
+	var failedAttempts []string
+	successCount := 0
+
+	for i, req := range submissions {
 		req.GoalId = goalId
 		req.TaskId = taskId
 		_, err := svr.CreateAttempt(userId, req)
 		if err != nil {
-			// Log error but continue processing other attempts
-			// This ensures partial success doesn't fail the entire batch
+			// Log error and continue processing other attempts
+			failedAttempts = append(failedAttempts, fmt.Sprintf("attempt %d: %v", i+1, err))
 			continue
 		}
+		successCount++
+	}
+
+	// Return error if some attempts failed, with details
+	if len(failedAttempts) > 0 {
+		return errors.New(fmt.Sprintf("batch create partially failed: %d/%d succeeded, errors: %v", 
+			successCount, len(submissions), failedAttempts))
 	}
 
 	return nil

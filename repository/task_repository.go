@@ -123,7 +123,14 @@ func (r *taskRepository) GetByUserGoalAndDateRange(userId, goalId uint, dateFrom
 
 func (r *taskRepository) GetTodayTasks(userId, goalId uint) ([]model.Task, error) {
 	today := time.Now().Truncate(24 * time.Hour)
-	return r.GetByUserAndDate(userId, today)
+	var tasks []model.Task
+	dateStr := today.Format("2006-01-02")
+	err := r.db.Where("user_id = ? AND goal_id = ? AND DATE(target_date) = ?", userId, goalId, dateStr).
+		Preload("Chapter").
+		Preload("Paper").
+		Order("priority DESC, id ASC").
+		Find(&tasks).Error
+	return tasks, err
 }
 
 func (r *taskRepository) GetUpcomingTasks(userId, goalId uint, days int) ([]model.Task, error) {
