@@ -3,6 +3,7 @@ import type {
   Question, 
   QuestionQuery, 
   PaginatedQuestions,
+  QuestionCreateRequest,
   QuestionUpdateRequest,
   QuestionChapterUpdateRequest
 } from '../models/question.model';
@@ -29,6 +30,13 @@ class QuestionService {
   async getAllQuestions(query: QuestionQuery = {}): Promise<ApiResponse<PaginatedQuestions>> {
     const client = await apiClient(); // Ensure we use the async client
     const response = await client.post(`${this.baseUrl}/all`, query);
+    return response.data;
+  }
+
+  // CREATE - Create new question
+  async createQuestion(question: QuestionCreateRequest): Promise<ApiResponse<Question>> {
+    const client = await apiClient();
+    const response = await client.post(`${this.baseUrl}/create`, question);
     return response.data;
   }
 

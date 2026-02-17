@@ -74,6 +74,17 @@ export interface QuestionQuery {
   paperName?: string;
 }
 
+export interface QuestionCreateRequest {
+  syllabusId: number;
+  stem: string;
+  totalScore: number;
+  difficult: number;
+  status: number;
+  pastPaperId?: number;
+  indexInPastPaper?: number;
+  questionContents: QuestionContent[];
+}
+
 export interface QuestionUpdateRequest {
   id: number;
   stem: string;

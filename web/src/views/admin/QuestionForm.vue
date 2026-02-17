@@ -525,7 +525,7 @@ const handleSubmit = async () => {
     if (isEdit.value) {
       await questionService.updateQuestion(formData);
     } else {
-      // await questionService.createQuestion(formData);
+      await questionService.createQuestion(formData);
     }
 
     router.push('/admin/questions');

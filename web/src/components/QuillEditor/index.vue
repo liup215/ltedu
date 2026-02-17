@@ -114,15 +114,7 @@ onMounted(() => {
   const option: any = {
     modules: {
       toolbar: false, // Disable toolbar for read-only mode
-      table: false, // Disable default table module
-      'table-better': {
-        language: 'en_US',
-        menus: ['column', 'row', 'merge', 'table', 'cell', 'wrap', 'delete'],
-        toolbarTable: false // We manually add the table-better button in toolbar
-      },
-      keyboard: {
-        bindings: QuillTableBetter.keyboardBindings
-      }
+      table: false // Disable default table module
     },
     theme: 'snow',
     readOnly: props.readOnly,
@@ -130,7 +122,16 @@ onMounted(() => {
     bounds: 'self'
   }
 
+  // Only configure table-better and keyboard bindings for editable mode
   if (!props.readOnly) {
+    option.modules['table-better'] = {
+      language: 'en_US',
+      menus: ['column', 'row', 'merge', 'table', 'cell', 'wrap', 'delete'],
+      toolbarTable: true // Let the module handle toolbar integration
+    }
+    option.modules.keyboard = {
+      bindings: QuillTableBetter.keyboardBindings
+    }
     option.modules.toolbar = {
       container: [
         ['bold', 'italic', 'underline'],
