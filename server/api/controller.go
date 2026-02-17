@@ -286,4 +286,32 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 
 	r.POST("/v1/pastPaper/code/create", v1.PaperCtrl.CreateCode)
 	r.POST("/v1/pastPaper/code/edit", v1.PaperCtrl.EditCode)
+
+	// Syllabus Navigator endpoints
+	r.POST("/v1/goal/create", v1.GoalCtrl.CreateGoal)
+	r.POST("/v1/goal/edit", v1.GoalCtrl.UpdateGoal)
+	r.POST("/v1/goal/byId", v1.GoalCtrl.GetGoalById)
+	r.POST("/v1/goal/list", v1.GoalCtrl.ListGoals)
+	r.POST("/v1/goal/active", v1.GoalCtrl.GetActiveGoals)
+	r.POST("/v1/goal/delete", v1.GoalCtrl.DeleteGoal)
+	r.POST("/v1/goal/diagnostic/complete", v1.GoalCtrl.CompleteDiagnostic)
+
+	r.POST("/v1/knowledge-state/byChapter", v1.KnowledgeStateCtrl.GetKnowledgeState)
+	r.POST("/v1/knowledge-state/list", v1.KnowledgeStateCtrl.GetKnowledgeStates)
+	r.POST("/v1/knowledge-state/progress", v1.KnowledgeStateCtrl.GetProgress)
+	r.POST("/v1/knowledge-state/due-review", v1.KnowledgeStateCtrl.GetDueForReview)
+
+	r.POST("/v1/task/create", v1.TaskCtrl.CreateTask)
+	r.POST("/v1/task/edit", v1.TaskCtrl.UpdateTask)
+	r.POST("/v1/task/byId", v1.TaskCtrl.GetTaskById)
+	r.POST("/v1/task/list", v1.TaskCtrl.ListTasks)
+	r.POST("/v1/task/stream", v1.TaskCtrl.GetTaskStream)
+	r.POST("/v1/task/complete", v1.TaskCtrl.CompleteTask)
+	r.POST("/v1/task/generate-plan", v1.TaskCtrl.GenerateInitialPlan)
+	r.POST("/v1/task/delete", v1.TaskCtrl.DeleteTask)
+
+	r.POST("/v1/attempt/create", v1.AttemptCtrl.CreateAttempt)
+	r.POST("/v1/attempt/recent", v1.AttemptCtrl.GetRecentAttempts)
+	r.POST("/v1/attempt/stats", v1.AttemptCtrl.GetAttemptStats)
+	r.POST("/v1/attempt/list", v1.AttemptCtrl.ListAttempts)
 }
