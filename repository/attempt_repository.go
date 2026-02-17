@@ -2,69 +2,108 @@ package repository
 
 import (
 	"edu/model"
-	"time"
+	"errors"
 	"gorm.io/gorm"
 )
 
 type IAttemptRepository interface {
-	IRepository[model.Attempt, model.AttemptQuery]
+	Create(attempt *model.Attempt) error
+	Update(attempt *model.Attempt) error
+	Delete(id uint) error
+	GetByID(id uint) (*model.Attempt, error)
+	FindPage(query *model.AttemptQuery) ([]model.Attempt, int64, error)
 	GetByUserGoalAndChapter(userId, goalId, chapterId uint) ([]model.Attempt, error)
 	GetRecentAttempts(userId, goalId uint, limit int) ([]model.Attempt, error)
 	GetAttemptStats(userId, goalId uint) (*model.AttemptStatsResponse, error)
 	GetAttemptStatsByChapter(userId, goalId, chapterId uint) (*model.AttemptStatsResponse, error)
 }
 
-type AttemptRepository struct {
-	*Repository[model.Attempt, model.AttemptQuery]
+type attemptRepository struct {
+	db *gorm.DB
 }
 
 func NewAttemptRepository(db *gorm.DB) IAttemptRepository {
-	return &AttemptRepository{
-		Repository: NewRepository[model.Attempt, model.AttemptQuery](db),
-	}
+	return &attemptRepository{db: db}
 }
 
-func (r *AttemptRepository) ApplyFilters(query *gorm.DB, filter model.AttemptQuery) *gorm.DB {
-	if filter.ID != 0 {
-		query = query.Where("id = ?", filter.ID)
-	}
-	if filter.UserId != 0 {
-		query = query.Where("user_id = ?", filter.UserId)
-	}
-	if filter.GoalId != 0 {
-		query = query.Where("goal_id = ?", filter.GoalId)
-	}
-	if filter.TaskId != 0 {
-		query = query.Where("task_id = ?", filter.TaskId)
-	}
-	if filter.QuestionId != 0 {
-		query = query.Where("question_id = ?", filter.QuestionId)
-	}
-	if filter.ChapterId != 0 {
-		query = query.Where("chapter_id = ?", filter.ChapterId)
-	}
-	if !filter.DateFrom.IsZero() {
-		query = query.Where("attempted_at >= ?", filter.DateFrom)
-	}
-	if !filter.DateTo.IsZero() {
-		query = query.Where("attempted_at <= ?", filter.DateTo)
-	}
-	return query
+func (r *attemptRepository) Create(attempt *model.Attempt) error {
+	return r.db.Create(attempt).Error
 }
 
-func (r *AttemptRepository) GetByUserGoalAndChapter(userId, goalId, chapterId uint) ([]model.Attempt, error) {
+func (r *attemptRepository) Update(attempt *model.Attempt) error {
+	return r.db.Save(attempt).Error
+}
+
+func (r *attemptRepository) Delete(id uint) error {
+	return r.db.Delete(&model.Attempt{}, id).Error
+}
+
+func (r *attemptRepository) GetByID(id uint) (*model.Attempt, error) {
+	var attempt model.Attempt
+	err := r.db.Where("id = ?", id).
+		Preload("Question").
+		Preload("Chapter").
+		First(&attempt).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	return &attempt, err
+}
+
+func (r *attemptRepository) FindPage(query *model.AttemptQuery) ([]model.Attempt, int64, error) {
+	var attempts []model.Attempt
+	var total int64
+
+	q := r.db.Model(&model.Attempt{})
+
+	if query.ID != 0 {
+		q = q.Where("id = ?", query.ID)
+	}
+	if query.UserId != 0 {
+		q = q.Where("user_id = ?", query.UserId)
+	}
+	if query.GoalId != 0 {
+		q = q.Where("goal_id = ?", query.GoalId)
+	}
+	if query.TaskId != 0 {
+		q = q.Where("task_id = ?", query.TaskId)
+	}
+	if query.QuestionId != 0 {
+		q = q.Where("question_id = ?", query.QuestionId)
+	}
+	if query.ChapterId != 0 {
+		q = q.Where("chapter_id = ?", query.ChapterId)
+	}
+	if !query.DateFrom.IsZero() {
+		q = q.Where("attempted_at >= ?", query.DateFrom)
+	}
+	if !query.DateTo.IsZero() {
+		q = q.Where("attempted_at <= ?", query.DateTo)
+	}
+
+	q.Count(&total)
+
+	offset := (query.PageIndex - 1) * query.PageSize
+	err := q.Preload("Question").
+		Preload("Chapter").
+		Order("attempted_at DESC").
+		Offset(offset).
+		Limit(query.PageSize).
+		Find(&attempts).Error
+
+	return attempts, total, err
+}
+
+func (r *attemptRepository) GetByUserGoalAndChapter(userId, goalId, chapterId uint) ([]model.Attempt, error) {
 	var attempts []model.Attempt
 	err := r.db.Where("user_id = ? AND goal_id = ? AND chapter_id = ?", userId, goalId, chapterId).
 		Preload("Question").
 		Order("attempted_at DESC").
 		Find(&attempts).Error
-	if err != nil {
-		return nil, err
-	}
-	return attempts, nil
+	return attempts, err
 }
 
-func (r *AttemptRepository) GetRecentAttempts(userId, goalId uint, limit int) ([]model.Attempt, error) {
+func (r *attemptRepository) GetRecentAttempts(userId, goalId uint, limit int) ([]model.Attempt, error) {
 	var attempts []model.Attempt
 	err := r.db.Where("user_id = ? AND goal_id = ?", userId, goalId).
 		Preload("Question").
@@ -72,16 +111,12 @@ func (r *AttemptRepository) GetRecentAttempts(userId, goalId uint, limit int) ([
 		Order("attempted_at DESC").
 		Limit(limit).
 		Find(&attempts).Error
-	if err != nil {
-		return nil, err
-	}
-	return attempts, nil
+	return attempts, err
 }
 
-func (r *AttemptRepository) GetAttemptStats(userId, goalId uint) (*model.AttemptStatsResponse, error) {
+func (r *attemptRepository) GetAttemptStats(userId, goalId uint) (*model.AttemptStatsResponse, error) {
 	var stats model.AttemptStatsResponse
 	
-	// Get all attempts
 	var attempts []model.Attempt
 	err := r.db.Where("user_id = ? AND goal_id = ?", userId, goalId).Find(&attempts).Error
 	if err != nil {
@@ -112,10 +147,9 @@ func (r *AttemptRepository) GetAttemptStats(userId, goalId uint) (*model.Attempt
 	return &stats, nil
 }
 
-func (r *AttemptRepository) GetAttemptStatsByChapter(userId, goalId, chapterId uint) (*model.AttemptStatsResponse, error) {
+func (r *attemptRepository) GetAttemptStatsByChapter(userId, goalId, chapterId uint) (*model.AttemptStatsResponse, error) {
 	var stats model.AttemptStatsResponse
 	
-	// Get attempts for specific chapter
 	var attempts []model.Attempt
 	err := r.db.Where("user_id = ? AND goal_id = ? AND chapter_id = ?", userId, goalId, chapterId).
 		Find(&attempts).Error

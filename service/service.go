@@ -55,6 +55,13 @@ func setDB() {
 		db.AutoMigrate(&model.Verification{})
 		db.AutoMigrate(&model.MCPToken{})
 
+		// Syllabus Navigator models
+		db.AutoMigrate(&model.Goal{})
+		db.AutoMigrate(&model.KnowledgeState{})
+		db.AutoMigrate(&model.Task{})
+		db.AutoMigrate(&model.Attempt{})
+		db.AutoMigrate(&model.TaskLog{})
+
 		// 初始化Repository层
 		repository.InitRepositories(db)
 

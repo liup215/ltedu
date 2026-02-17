@@ -2,55 +2,99 @@ package repository
 
 import (
 	"edu/model"
+	"errors"
 	"gorm.io/gorm"
 )
 
 type IGoalRepository interface {
-	IRepository[model.Goal, model.GoalQuery]
+	Create(goal *model.Goal) error
+	Update(goal *model.Goal) error
+	Delete(id uint) error
+	GetByID(id uint) (*model.Goal, error)
+	FindPage(query *model.GoalQuery) ([]model.Goal, int64, error)
 	GetByUserAndSyllabus(userId, syllabusId uint) (*model.Goal, error)
 	GetActiveGoalsByUser(userId uint) ([]model.Goal, error)
 }
 
-type GoalRepository struct {
-	*Repository[model.Goal, model.GoalQuery]
+type goalRepository struct {
+	db *gorm.DB
 }
 
 func NewGoalRepository(db *gorm.DB) IGoalRepository {
-	return &GoalRepository{
-		Repository: NewRepository[model.Goal, model.GoalQuery](db),
-	}
+	return &goalRepository{db: db}
 }
 
-func (r *GoalRepository) ApplyFilters(query *gorm.DB, filter model.GoalQuery) *gorm.DB {
-	if filter.ID != 0 {
-		query = query.Where("id = ?", filter.ID)
-	}
-	if filter.UserId != 0 {
-		query = query.Where("user_id = ?", filter.UserId)
-	}
-	if filter.SyllabusId != 0 {
-		query = query.Where("syllabus_id = ?", filter.SyllabusId)
-	}
-	if filter.Status != "" {
-		query = query.Where("status = ?", filter.Status)
-	}
-	return query
+func (r *goalRepository) Create(goal *model.Goal) error {
+	return r.db.Create(goal).Error
 }
 
-func (r *GoalRepository) GetByUserAndSyllabus(userId, syllabusId uint) (*model.Goal, error) {
+func (r *goalRepository) Update(goal *model.Goal) error {
+	return r.db.Save(goal).Error
+}
+
+func (r *goalRepository) Delete(id uint) error {
+	return r.db.Delete(&model.Goal{}, id).Error
+}
+
+func (r *goalRepository) GetByID(id uint) (*model.Goal, error) {
+	var goal model.Goal
+	err := r.db.Where("id = ?", id).
+		Preload("User").
+		Preload("Syllabus").
+		Preload("Syllabus.Qualification").
+		First(&goal).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	return &goal, err
+}
+
+func (r *goalRepository) FindPage(query *model.GoalQuery) ([]model.Goal, int64, error) {
+	var goals []model.Goal
+	var total int64
+
+	q := r.db.Model(&model.Goal{})
+
+	if query.ID != 0 {
+		q = q.Where("id = ?", query.ID)
+	}
+	if query.UserId != 0 {
+		q = q.Where("user_id = ?", query.UserId)
+	}
+	if query.SyllabusId != 0 {
+		q = q.Where("syllabus_id = ?", query.SyllabusId)
+	}
+	if query.Status != "" {
+		q = q.Where("status = ?", query.Status)
+	}
+
+	q.Count(&total)
+
+	offset := (query.PageIndex - 1) * query.PageSize
+	err := q.Preload("Syllabus").
+		Preload("Syllabus.Qualification").
+		Order("id DESC").
+		Offset(offset).
+		Limit(query.PageSize).
+		Find(&goals).Error
+
+	return goals, total, err
+}
+
+func (r *goalRepository) GetByUserAndSyllabus(userId, syllabusId uint) (*model.Goal, error) {
 	var goal model.Goal
 	err := r.db.Where("user_id = ? AND syllabus_id = ?", userId, syllabusId).
 		Preload("User").
 		Preload("Syllabus").
 		Preload("Syllabus.Qualification").
 		First(&goal).Error
-	if err != nil {
-		return nil, err
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
 	}
-	return &goal, nil
+	return &goal, err
 }
 
-func (r *GoalRepository) GetActiveGoalsByUser(userId uint) ([]model.Goal, error) {
+func (r *goalRepository) GetActiveGoalsByUser(userId uint) ([]model.Goal, error) {
 	var goals []model.Goal
 	err := r.db.Where("user_id = ? AND status = ?", userId, "active").
 		Preload("Syllabus").
