@@ -48,18 +48,24 @@ The frontend (`web/src/`) follows a component-based architecture:
 - **User & Access Management**: JWT authentication, Pinia state, Vue Router guards, Gin controllers, GORM models.
 - **System Administration**: Admin dashboard, user management, system settings, teacher application review (frontend views, backend services).
 - **Educational Structure Management**: Organisation, qualification, syllabus, chapter management (forms, APIs, models).
+- **Syllabus Navigator (Learning Engine)**:
+  - Built on **Syllabus/Chapter/Question/Paper** as the knowledge map foundation.
+  - Core concepts: **Goal** (learning project), **Diagnostic** (calibration), **User Knowledge State** (mastery + retention/stability), **Task Stream** (daily task cards).
+  - Planning structure: **7-day hard plan** + **4-week soft plan**, with **plan versioning** and explainable adjustments.
+  - Task types: Learn / Drill / Review (SRS) / Test / Mock or Past.
+  - Update strategy: event-driven writes (Attempt/TaskLog) + async partial replanning + scheduled backfill/maintenance jobs.
 - **Course Management**: Course/video management (pending frontend views, backend services).
 - **Examination & Assessment**: Question bank, exam paper builder, paper series/code, past/random papers (SPA views, backend services).
 - **Content & Media Management**: Document/image/video/slide management, Qiniu integration (upload components, APIs).
 - **AI & Advanced Features**: Vocabulary sets, AI-powered features (Aliyun Bailian SDK, smart APIs).
 
-## 3. Deployment & Infrastructure
+## 4. Deployment & Infrastructure
 
 - **Containerization**: All services run in Docker containers, orchestrated by Docker Compose.
 - **CI/CD**: GitHub Actions workflows handle automated build and deployment processes (Docker image generation, deployment scripts).
 - **Cloud Integration**: Specialized SDKs for storage and AI.
 
-## 4. Design Principles
+## 5. Design Principles
 
 - **Function-Oriented Separation**: Each module is independently developed and documented.
 - **Documentation-First**: Memory Bank tracks architecture and progress by functional module.

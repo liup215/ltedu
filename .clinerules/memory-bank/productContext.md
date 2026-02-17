@@ -22,6 +22,12 @@ The demand for flexible and accessible online education is rapidly growing. Trad
   - Mobile phone is optional and not validated during registration.
   - All API responses and prompts are in English.
 
+- **Syllabus Navigator (Learning Engine)**:
+  - A syllabus-centric, closed-loop learning engine built on existing **Syllabus/Chapter/Question/Paper**.
+  - Core philosophy: **Knowledge Map** (static syllabus structure) + **User Knowledge State** (mastery + retention/stability) + **Task Stream** (daily task cards).
+  - End-to-end cycle: onboarding goal setting → diagnostic calibration → rolling planning (7-day hard plan + 4-week soft plan) → daily execution micro-loop (learn/drill/review/test) → sprint with past papers/mock exams.
+  - User-visible progress: **Coverage**, **Mastery**, **Stability/Retention**, **Forecast**; plan versioning with explainable adjustments.
+
 - **Content & Course Management**:
   - Instructors can create and manage courses.
   - Support for rich text content creation using editors like **Quill** and **TinyMCE**.
@@ -49,3 +55,7 @@ The demand for flexible and accessible online education is rapidly growing. Trad
 - Registration uses unified API (`/api/v1/register`) with fields: username, email, password, passwordConfirm, verificationCode.
 - Mobile phone is optional and not validated during registration.
 - All API responses and prompts are in English.
+
+## Product Plan Update (2026-02-17)
+
+- Defined the “**Syllabus Navigator**” final product plan: a full learning loop driven by syllabus structure, user knowledge state, and a rolling task stream (daily task cards), independent of entry points (Web/App/MCP).

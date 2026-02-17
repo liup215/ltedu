@@ -11,6 +11,7 @@
 - **Authentication**: JWT
 - **Logging**: Zap
 - **Async Tasks**: NSQ (potential)
+- **Background Jobs / Scheduling**: In-process job dispatcher (`lib/job`) + cron-style periodic tasks (planned for Learning Engine maintenance jobs)
 - **Cloud Services**: Qiniu Cloud SDK (object storage), Aliyun Bailian SDK (AI/LLM)
 - **Containerization**: Docker
 
@@ -31,6 +32,10 @@
 - **User & Access Management**: JWT, Pinia, Vue Router, Gin, GORM
 - **System Administration**: Admin APIs, Pinia, Vue components, Gin controllers
 - **Educational Structure Management**: GORM models, Vue forms, API services
+- **Syllabus Navigator (Learning Engine)**: Go services + repositories + planned new domain models (**Goal**, **Diagnostic**, **KnowledgeState**, **Task/TaskStream**, **Attempt/TaskLog**), with hybrid updates:
+  - Layer A: synchronous writes on submissions (Attempts/Task logs)
+  - Layer B: async partial replanning for the next 7 days
+  - Layer C: scheduled backfill/maintenance jobs (daily/weekly)
 - **Course Management**: Backend course/video services, frontend course views
 - **Examination & Assessment**: Question/paper services, exam builder UI, AI integration
 - **Content & Media Management**: Qiniu SDK, document/image/video APIs, upload components

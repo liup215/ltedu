@@ -2,6 +2,7 @@
 
 ## 1. Current Status
 
+- **[2026-02-17] Product Direction Locked: “Syllabus Navigator (Learning Engine)” final plan defined**: A syllabus-centric, closed-loop learning engine built on **Syllabus/Chapter/Question/Paper**, with **Goal → Diagnostic → Task Stream → Attempt logging → SRS → Sprint**, independent of entry points (Web/App/MCP).
 - **[2026-02-16] Quill Editor Table Library Migration & UI Refinement**: Migrated from `quill-better-table` to `quill-table-better` for advanced table functionality, added `tableWidth` prop, keyboard bindings, and refined UI font styling (16px base, normal font weights).**
 - **[2026-02-02] MCP tools expanded and question repository improved with safer update operations.**
 - **[2026-01-31] Practice question retrieval logic implemented and grading fixes applied.**
@@ -11,9 +12,9 @@
   - Refined Docker configurations and GitHub Actions workflows.
 - [2025-09-13] All pages, dialogs, and popups in ltedu-web are fully internationalized (Chinese/English). All static text uses $t(key) with en.ts/zh.ts maintained.
 
-**Phase: Infrastructure & Backend Refinement**
+**Phase: Product Direction Locked → Learning Engine MVP**
 
-The project is moving towards better performace, query capabilities, and automated deployment processes.
+The project direction is locked on implementing the Syllabus Navigator learning loop (plan → execute → log → update state → adapt), while continuing backend and deployment refinements.
 
 ## 2. What Works (by Website Feature)
 
@@ -67,11 +68,12 @@ The project is moving towards better performace, query capabilities, and automat
 
 ## 3. What's Left to Build
 
-1. **Course Management**: Complete and polish frontend views for course/video management.
-2. **Admin Dashboard Enhancements**: Add analytics, batch operations, advanced controls.
-3. **AI Features**: Expand smart content, feedback, and assessment capabilities.
-4. **Testing & QA**: Comprehensive unit, integration, and E2E tests for all modules.
-5. **Performance & Security**: Optimize API, frontend, and database for scalability and security.
+1. **Syllabus Navigator (Learning Engine) MVP**: Goal + simplified diagnostic + daily task stream (Learn/Drill/Review) + Attempt/TaskLog + basic SRS + 7-day hard plan + basic progress metrics (Coverage/Mastery/Stability/Forecast).
+2. **Course Management**: Complete and polish frontend views for course/video management.
+3. **Admin Dashboard Enhancements**: Add analytics, batch operations, advanced controls.
+4. **AI Features**: Expand smart content, feedback, and assessment capabilities.
+5. **Testing & QA**: Comprehensive unit, integration, and E2E tests for all modules.
+6. **Performance & Security**: Optimize API, frontend, and database for scalability and security.
 
 ## 4. Known Issues
 

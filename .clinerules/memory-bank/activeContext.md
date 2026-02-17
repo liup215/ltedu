@@ -2,15 +2,18 @@
 
 ## 1. Current Focus
 
-- **System Architecture & Repository Pattern**: Formalizing the unified monorepo structure (Web + Server) and the dedicated Repository module for data access abstraction.
+- **Syllabus Navigator (Learning Engine)**: Aligning product direction to a syllabus-centric, closed-loop learning engine built on existing **Syllabus/Chapter/Question/Paper**.
+  - Key concepts: **Knowledge Map** + **User Knowledge State** (mastery + retention/stability) + **Task Stream** (daily task cards).
+  - MVP target: onboarding goal → simplified diagnostic → daily task stream (Learn/Drill/Review) → Attempt logging → basic SRS → 7-day hard plan.
+- **System Architecture & Repository Pattern**: Maintaining the unified monorepo structure (Web + Server) and the dedicated Repository module for data access abstraction.
 - **Backend Optimization**: Improving query capabilities (e.g., `filterRoot` in ChapterQuery) and adding Preloads to repositories for better performance.
 - **Deployment & DevOps**: Refining Docker configurations and GitHub Actions workflows for automated build and deployment.
-- **MCP Integration**: Maintaining and updating Model Context Protocol (MCP) integrations.
-- **Maintenance**: Keeping documentation aligned with backend and infrastructure updates.
+- **MCP Integration**: Keeping MCP as an optional access layer, while ensuring core learning-engine logic is entry-point independent.
+- **Maintenance**: Keeping documentation aligned with backend, infrastructure, and product plan updates.
 
-**Phase: Infrastructure & Backend Refinement**
+**Phase: Product Direction Locked → Learning Engine MVP**
 
-The project is currently focusing on backend robustness, query optimization, and streamlining the deployment process.
+The project is moving from infrastructure refinement towards implementing the Syllabus Navigator learning loop (plan → execute → log → update state → adapt).
 
 ## 2. Main Website Features
 
@@ -133,6 +136,8 @@ The project is currently focusing on backend robustness, query optimization, and
 
 ## 4. Next Steps
 
+- Define and implement Syllabus Navigator MVP data model & APIs (Goal, KnowledgeState, Task, Attempt/TaskLog, basic SRS scheduling).
+- Implement the initial “7-day hard plan” + “today task cards” generation and persistence, with explainable plan versioning.
 - Ensure all usages of ApiResponse wrappers in practiceService and practice.model are consistent.
 - Complete frontend views for course/video management.
 - Expand AI features and analytics in admin dashboard.

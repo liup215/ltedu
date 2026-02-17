@@ -34,5 +34,6 @@ The project is organized around the following core website functions:
 - Build a scalable, maintainable, and extensible e-learning platform.
 - Provide seamless user experiences for all roles.
 - Support diverse educational content and assessment workflows.
+- Build the **Syllabus Navigator (Learning Engine)**: a syllabus-centric, closed-loop learning engine built on **Syllabus/Chapter/Question/Paper** (Goal → Diagnostic → Task Stream → Attempt logging → SRS → Sprint), independent of entry points (Web/App/MCP).
 - Ensure secure user management and data persistence.
 - Integrate cloud services for media and AI capabilities.
