@@ -145,8 +145,8 @@ func (svr *AttemptService) BatchCreateAttempts(userId, goalId uint, taskId *uint
 
 	// Return error if some attempts failed, with details
 	if len(failedAttempts) > 0 {
-		return errors.New(fmt.Sprintf("batch create partially failed: %d/%d succeeded, errors: %v", 
-			successCount, len(submissions), failedAttempts))
+		return fmt.Errorf("batch create partially failed: %d/%d succeeded, errors: %v", 
+			successCount, len(submissions), failedAttempts)
 	}
 
 	return nil
