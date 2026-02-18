@@ -357,6 +357,7 @@ export default {
     loading: '加载中...',
     noData: '暂无数据',
     manageChapters: '章节管理',
+    knowledgePoints: '知识点',
     edit: '编辑',
     delete: '删除',
     pageInfo: '显示第{from}到{to}条，共{total}条',

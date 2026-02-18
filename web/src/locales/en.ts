@@ -357,6 +357,7 @@ export default {
     loading: 'Loading...',
     noData: 'No data found',
     manageChapters: 'Manage Chapters',
+    knowledgePoints: 'Knowledge Points',
     edit: 'Edit',
     delete: 'Delete',
     pageInfo: 'Showing {from} to {to} of {total} results',

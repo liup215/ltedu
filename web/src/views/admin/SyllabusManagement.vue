@@ -70,6 +70,12 @@
                 {{ $t('syllabusManagement.manageChapters') }}
               </router-link>
               <router-link 
+                :to="`/admin/syllabuses/${syllabus.id}/knowledge-points`" 
+                class="text-purple-600 hover:text-purple-900"
+              >
+                {{ $t('syllabusManagement.knowledgePoints') }}
+              </router-link>
+              <router-link 
                 :to="`/admin/syllabuses/${syllabus.id}/edit`" 
                 class="text-indigo-600 hover:text-indigo-900"
               >
