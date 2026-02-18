@@ -61,6 +61,7 @@ func setDB() {
 		db.AutoMigrate(&model.Task{})
 		db.AutoMigrate(&model.Attempt{})
 		db.AutoMigrate(&model.TaskLog{})
+		db.AutoMigrate(&model.KnowledgePoint{})
 
 		// 初始化Repository层
 		repository.InitRepositories(db)

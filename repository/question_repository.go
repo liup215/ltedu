@@ -16,6 +16,9 @@ type IQuestionRepository interface {
 	FindAll(query *model.QuestionQueryRequest) ([]*model.Question, error)
 	Count(query *model.QuestionQueryRequest) (int64, error)
 	FindByIDs(ids []uint) ([]*model.Question, error)
+	AddKnowledgePoint(questionId, knowledgePointId uint) error
+	RemoveKnowledgePoint(questionId, knowledgePointId uint) error
+	ClearKnowledgePoints(questionId uint) error
 }
 
 type questionRepository struct {
@@ -242,4 +245,18 @@ func (r *questionRepository) FindByIDs(ids []uint) ([]*model.Question, error) {
 		_ = q.Format()
 	}
 	return questions, err
+}
+
+func (r *questionRepository) AddKnowledgePoint(questionId, knowledgePointId uint) error {
+	return r.db.Exec("INSERT IGNORE INTO question_keypoints (question_id, knowledge_point_id) VALUES (?, ?)",
+		questionId, knowledgePointId).Error
+}
+
+func (r *questionRepository) RemoveKnowledgePoint(questionId, knowledgePointId uint) error {
+	return r.db.Exec("DELETE FROM question_keypoints WHERE question_id = ? AND knowledge_point_id = ?",
+		questionId, knowledgePointId).Error
+}
+
+func (r *questionRepository) ClearKnowledgePoints(questionId uint) error {
+	return r.db.Exec("DELETE FROM question_keypoints WHERE question_id = ?", questionId).Error
 }

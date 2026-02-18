@@ -314,4 +314,18 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/attempt/recent", v1.AttemptCtrl.GetRecentAttempts)
 	r.POST("/v1/attempt/stats", v1.AttemptCtrl.GetAttemptStats)
 	r.POST("/v1/attempt/list", v1.AttemptCtrl.ListAttempts)
+
+	// Knowledge Point endpoints
+	r.POST("/v1/knowledge-point/create", v1.KnowledgePointCtrl.Create)
+	r.POST("/v1/knowledge-point/edit", v1.KnowledgePointCtrl.Update)
+	r.POST("/v1/knowledge-point/delete", v1.KnowledgePointCtrl.Delete)
+	r.POST("/v1/knowledge-point/byId", v1.KnowledgePointCtrl.GetByID)
+	r.POST("/v1/knowledge-point/byChapter", v1.KnowledgePointCtrl.GetByChapter)
+	r.POST("/v1/knowledge-point/bySyllabus", v1.KnowledgePointCtrl.GetBySyllabus)
+	r.POST("/v1/knowledge-point/list", v1.KnowledgePointCtrl.List)
+	
+	// Knowledge Point automation endpoints
+	r.POST("/v1/chapter/generate-keypoints", v1.KnowledgePointCtrl.GenerateKeypoints)
+	r.POST("/v1/question/auto-link-keypoints", v1.KnowledgePointCtrl.AutoLinkQuestion)
+	r.POST("/v1/syllabus/auto-migrate-keypoints", v1.KnowledgePointCtrl.AutoMigrateSyllabus)
 }
