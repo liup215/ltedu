@@ -17,11 +17,20 @@ type KnowledgePointService struct {
 	baseService
 }
 
-// AutoGenerateFromChapter AI生成章节知识点
+// AutoGenerateFromChapter AI生成章节知识点（仅支持叶子节点）
 func (s *KnowledgePointService) AutoGenerateFromChapter(chapterId uint) ([]model.KnowledgePoint, error) {
 	chapter, err := repository.ChapterRepo.FindByID(chapterId)
 	if err != nil {
 		return nil, fmt.Errorf("chapter not found: %w", err)
+	}
+
+	// 检查是否为叶子节点（没有子章节）
+	hasChildren, err := repository.ChapterRepo.HasChildren(chapterId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check children: %w", err)
+	}
+	if hasChildren {
+		return nil, errors.New("只能为叶子章节生成知识点！该章节存在子章节。")
 	}
 
 	// 获取考纲信息
@@ -199,9 +208,23 @@ func (s *KnowledgePointService) AutoMigrateSyllabus(syllabusId uint, options Mig
 		return report, fmt.Errorf("failed to get chapters: %w", err)
 	}
 
-	// Step 2: 为每个章节生成知识点
+	// Step 2: 仅为叶子章节生成知识点（没有子章节的章节）
 	if options.GenerateKeypoints {
 		for _, chapter := range chapters {
+			// 检查是否为叶子节点（没有子章节）
+			hasChildren, err := repository.ChapterRepo.HasChildren(chapter.ID)
+			if err != nil {
+				report.Errors = append(report.Errors,
+					fmt.Sprintf("Chapter %d (%s): failed to check children: %v", chapter.ID, chapter.Name, err))
+				continue
+			}
+			
+			// 跳过非叶子节点
+			if hasChildren {
+				continue
+			}
+			
+			// 为叶子节点生成知识点
 			kps, err := s.AutoGenerateFromChapter(chapter.ID)
 			if err == nil {
 				report.GeneratedKeypoints += len(kps)
