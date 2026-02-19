@@ -121,7 +121,7 @@ func (ctrl *AttemptController) ListAttempts(c *gin.Context) {
 		return
 	}
 
-	query = query.CheckPage()
+	query.CheckPage()
 	attempts, total, err := ctrl.attemptSvr.ListAttempts(u.ID, query)
 	if err != nil {
 		http.ErrorData(c, err.Error(), nil)

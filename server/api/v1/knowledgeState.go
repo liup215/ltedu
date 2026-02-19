@@ -3,7 +3,6 @@ package v1
 import (
 	"edu/lib/net/http"
 	"edu/lib/net/http/middleware/auth"
-	"edu/model"
 	"edu/service"
 
 	"github.com/gin-gonic/gin"

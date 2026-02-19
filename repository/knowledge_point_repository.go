@@ -88,7 +88,7 @@ func (r *KnowledgePointRepository) FindAll(query *model.KnowledgePointQuery) ([]
 	db.Count(&total)
 
 	if query.PageSize > 0 {
-		offset := (query.PageNum - 1) * query.PageSize
+		offset := (query.PageIndex - 1) * query.PageSize
 		db = db.Offset(offset).Limit(query.PageSize)
 	}
 

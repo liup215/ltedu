@@ -106,7 +106,7 @@ func (ctrl *GoalController) ListGoals(c *gin.Context) {
 		return
 	}
 
-	query = query.CheckPage()
+	query.CheckPage()
 	goals, total, err := ctrl.goalSvr.ListGoals(u.ID, query)
 	if err != nil {
 		http.ErrorData(c, err.Error(), nil)

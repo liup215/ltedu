@@ -44,7 +44,7 @@ func (svr *TaskService) CreateTask(userId uint, req model.TaskCreateRequest) (*m
 		Status:           model.TaskStatusPending,
 		TargetDate:       req.TargetDate,
 		ChapterId:        req.ChapterId,
-		PaperId:          req.PaperId,
+		PastPaperId:      req.PastPaperId,
 		Title:            req.Title,
 		Description:      req.Description,
 		EstimatedMinutes: req.EstimatedMinutes,
@@ -200,7 +200,7 @@ func (svr *TaskService) GenerateInitialPlan(userId, goalId uint) error {
 
 	// Generate tasks for the next 7 days
 	today := time.Now().Truncate(24 * time.Hour)
-	
+
 	// Simple initial plan: alternate between learn and drill tasks
 	// Day 1-2: Learn first chapter
 	// Day 3: Drill first chapter

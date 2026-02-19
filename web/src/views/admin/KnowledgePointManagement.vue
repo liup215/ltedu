@@ -230,7 +230,8 @@ import syllabusService from '../../services/syllabusService'
 import chapterService from '../../services/chapterService'
 import type { KnowledgePoint } from '../../models/knowledgePoint.model'
 import type { Syllabus } from '../../models/syllabus.model'
-
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 const route = useRoute()
 const syllabusId = computed(() => Number(route.params.id))
 
@@ -261,8 +262,8 @@ onMounted(async () => {
 
 async function loadSyllabus() {
   try {
-    const response = await syllabusService.getById(syllabusId.value)
-    if (response.code === 200) {
+    const response = await syllabusService.getSyllabusById(syllabusId.value)
+    if (response.code === 0) {
       syllabus.value = response.data
     }
   } catch (error) {
@@ -275,9 +276,9 @@ async function loadChapters() {
   try {
     loading.value = true
     const response = await chapterService.getChapterTree(syllabusId.value)
-    if (response.code === 200) {
+    if (response.code === 0) {
       // Filter to get only leaf chapters (chapters without children)
-      leafChapters.value = filterLeafChapters(response.data.chapters || [])
+      leafChapters.value = filterLeafChapters(response.data || [])
     }
   } catch (error) {
     console.error('Failed to load chapters:', error)
@@ -316,7 +317,7 @@ async function loadKnowledgePoints() {
   try {
     loadingKnowledgePoints.value = true
     const response = await knowledgePointService.getByChapter(selectedChapterId.value)
-    if (response.code === 200) {
+    if (response.code === 0) {
       knowledgePoints.value = response.data.list || []
     }
   } catch (error) {
@@ -336,15 +337,15 @@ async function generateKnowledgePoints() {
       chapterId: selectedChapterId.value,
       mode: 'auto'
     })
-    if (response.code === 200) {
-      push.success($t('knowledgePoint.generateSuccess'))
+    if (response.code === 0) {
+      push.success(t('knowledgePoint.generateSuccess'))
       await loadKnowledgePoints()
     } else {
       throw new Error(response.msg)
     }
   } catch (error: any) {
     console.error('Failed to generate knowledge points:', error)
-    push.error(error.response?.data?.msg || $t('knowledgePoint.generateError'))
+    push.error(error.response?.data?.msg || t('knowledgePoint.generateError'))
   } finally {
     generating.value = false
   }
@@ -389,8 +390,8 @@ async function saveKnowledgePoint() {
         difficulty: form.value.difficulty,
         estimatedMinutes: form.value.estimatedMinutes
       })
-      if (response.code === 200) {
-        push.success($t('knowledgePoint.updateSuccess'))
+      if (response.code === 0) {
+        push.success(t('knowledgePoint.updateSuccess'))
       }
     } else {
       response = await knowledgePointService.create({
@@ -400,8 +401,8 @@ async function saveKnowledgePoint() {
         difficulty: form.value.difficulty,
         estimatedMinutes: form.value.estimatedMinutes
       })
-      if (response.code === 200) {
-        push.success($t('knowledgePoint.createSuccess'))
+      if (response.code === 0) {
+        push.success(t('knowledgePoint.createSuccess'))
       }
     }
     
@@ -416,22 +417,17 @@ async function saveKnowledgePoint() {
 }
 
 async function deleteKnowledgePointConfirm(kp: KnowledgePoint) {
-  if (!confirm($t('knowledgePoint.confirmDelete'))) return
+  if (!confirm(t('knowledgePoint.confirmDelete'))) return
   
   try {
     const response = await knowledgePointService.delete(kp.id)
-    if (response.code === 200) {
-      push.success($t('knowledgePoint.deleteSuccess'))
+    if (response.code === 0) {
+      push.success(t('knowledgePoint.deleteSuccess'))
       await loadKnowledgePoints()
     }
   } catch (error: any) {
     console.error('Failed to delete knowledge point:', error)
     push.error(error.response?.data?.msg || 'Failed to delete knowledge point')
   }
-}
-
-function $t(key: string): string {
-  // Placeholder for i18n translation
-  return key
 }
 </script>

@@ -13,35 +13,35 @@ const (
 
 // Task status constants
 const (
-	TaskStatusPending   = "pending"   // Not started yet
+	TaskStatusPending    = "pending"     // Not started yet
 	TaskStatusInProgress = "in_progress" // Started but not completed
-	TaskStatusCompleted = "completed" // Completed successfully
-	TaskStatusSkipped   = "skipped"   // User skipped this task
-	TaskStatusFailed    = "failed"    // User failed the task (e.g., test below threshold)
+	TaskStatusCompleted  = "completed"   // Completed successfully
+	TaskStatusSkipped    = "skipped"     // User skipped this task
+	TaskStatusFailed     = "failed"      // User failed the task (e.g., test below threshold)
 )
 
 // Task represents a daily task card in the learning stream
 type Task struct {
 	Model
-	UserId         uint       `json:"userId" gorm:"index:idx_user_goal_date"`
-	User           User       `json:"user" gorm:"foreignKey:UserId"`
-	GoalId         uint       `json:"goalId" gorm:"index:idx_user_goal_date"`
-	Goal           Goal       `json:"goal" gorm:"foreignKey:GoalId"`
-	Type           string     `json:"type" gorm:"index"`              // learn, drill, review, test, mock
-	Status         string     `json:"status" gorm:"default:pending"` // pending, in_progress, completed, skipped, failed
-	TargetDate     time.Time  `json:"targetDate" gorm:"index:idx_user_goal_date"` // Date this task is assigned to
-	ChapterId      *uint      `json:"chapterId,omitempty" gorm:"index"`           // For learn/drill/review tasks
-	Chapter        *Chapter   `json:"chapter,omitempty" gorm:"foreignKey:ChapterId"`
-	PaperId        *uint      `json:"paperId,omitempty"`                          // For mock tasks
-	Paper          *Paper     `json:"paper,omitempty" gorm:"foreignKey:PaperId"`
-	Title          string     `json:"title"`                                      // Human-readable task title
-	Description    string     `json:"description"`                                // Task description
-	EstimatedMinutes int      `json:"estimatedMinutes"`                           // Estimated time to complete
-	QuestionCount  int        `json:"questionCount"`                              // Number of questions for drill/test
-	Priority       int        `json:"priority" gorm:"default:0"`                  // Higher priority = more important
-	IsLocked       bool       `json:"isLocked" gorm:"default:false"`              // User-locked task (can't be rescheduled)
-	CompletedAt    *time.Time `json:"completedAt,omitempty"`                      // When the task was completed
-	PlanVersion    int        `json:"planVersion" gorm:"default:1"`               // Plan version for tracking changes
+	UserId           uint       `json:"userId" gorm:"index:idx_user_goal_date"`
+	User             User       `json:"user" gorm:"foreignKey:UserId"`
+	GoalId           uint       `json:"goalId" gorm:"index:idx_user_goal_date"`
+	Goal             Goal       `json:"goal" gorm:"foreignKey:GoalId"`
+	Type             string     `json:"type" gorm:"index"`                          // learn, drill, review, test, mock
+	Status           string     `json:"status" gorm:"default:pending"`              // pending, in_progress, completed, skipped, failed
+	TargetDate       time.Time  `json:"targetDate" gorm:"index:idx_user_goal_date"` // Date this task is assigned to
+	ChapterId        *uint      `json:"chapterId,omitempty" gorm:"index"`           // For learn/drill/review tasks
+	Chapter          *Chapter   `json:"chapter,omitempty" gorm:"foreignKey:ChapterId"`
+	PastPaperId      *uint      `json:"paperId,omitempty"` // For mock tasks
+	PastPaper        *PastPaper `json:"paper,omitempty" gorm:"foreignKey:PaperId"`
+	Title            string     `json:"title"`                         // Human-readable task title
+	Description      string     `json:"description"`                   // Task description
+	EstimatedMinutes int        `json:"estimatedMinutes"`              // Estimated time to complete
+	QuestionCount    int        `json:"questionCount"`                 // Number of questions for drill/test
+	Priority         int        `json:"priority" gorm:"default:0"`     // Higher priority = more important
+	IsLocked         bool       `json:"isLocked" gorm:"default:false"` // User-locked task (can't be rescheduled)
+	CompletedAt      *time.Time `json:"completedAt,omitempty"`         // When the task was completed
+	PlanVersion      int        `json:"planVersion" gorm:"default:1"`  // Plan version for tracking changes
 }
 
 // TaskQuery for filtering tasks
@@ -64,7 +64,7 @@ type TaskCreateRequest struct {
 	Type             string    `json:"type" binding:"required"`
 	TargetDate       time.Time `json:"targetDate" binding:"required"`
 	ChapterId        *uint     `json:"chapterId,omitempty"`
-	PaperId          *uint     `json:"paperId,omitempty"`
+	PastPaperId      *uint     `json:"pastPaperId,omitempty"`
 	Title            string    `json:"title" binding:"required"`
 	Description      string    `json:"description"`
 	EstimatedMinutes int       `json:"estimatedMinutes"`
@@ -88,9 +88,9 @@ type TaskUpdateRequest struct {
 
 // TaskStreamResponse for showing tasks in a date range
 type TaskStreamResponse struct {
-	TodayTasks   []Task `json:"todayTasks"`   // Tasks for today
+	TodayTasks    []Task `json:"todayTasks"`    // Tasks for today
 	UpcomingTasks []Task `json:"upcomingTasks"` // Tasks for the next 7 days
-	OverdueTasks []Task `json:"overdueTasks"`  // Overdue tasks
+	OverdueTasks  []Task `json:"overdueTasks"`  // Overdue tasks
 }
 
 // TaskCompleteRequest for marking a task as complete

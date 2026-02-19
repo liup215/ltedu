@@ -1,8 +1,8 @@
 package v1
 
 import (
-	"edu/common/auth"
-	"edu/common/http"
+	"edu/lib/net/http"
+	"edu/lib/net/http/middleware/auth"
 	"edu/model"
 	"edu/service"
 
@@ -88,8 +88,8 @@ func (ctrl *KnowledgePointController) AutoMigrateSyllabus(c *gin.Context) {
 	}
 
 	var req struct {
-		SyllabusId uint                       `json:"syllabusId" binding:"required"`
-		Options    service.MigrateOptions     `json:"options"`
+		SyllabusId uint                   `json:"syllabusId" binding:"required"`
+		Options    service.MigrateOptions `json:"options"`
 	}
 
 	if err := c.BindJSON(&req); err != nil {
