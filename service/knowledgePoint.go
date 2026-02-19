@@ -3,7 +3,6 @@ package service
 import (
 	"edu/model"
 	"edu/repository"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -39,36 +38,10 @@ func (s *KnowledgePointService) AutoGenerateFromChapter(chapterId uint) ([]model
 		return nil, fmt.Errorf("syllabus not found: %w", err)
 	}
 
-	// 构建上下文信息
-	contextInfo := fmt.Sprintf("考纲: %s, 章节: %s", syllabus.Name, chapter.Name)
-
-	prompt := fmt.Sprintf(`
-你是考纲专家。请为"%s"提取3-5个核心知识点。
-
-要求：
-1. 知识点要具体明确，不要过于宽泛
-2. 覆盖该章节的主要考点
-3. 按重要性排序
-
-返回严格的JSON数组格式，无其他文字：
-[{
-    "name": "知识点名称",
-    "description": "1-2句话描述该知识点的核心内容",
-    "difficulty": "basic/medium/hard",
-    "estimatedMinutes": 30
-}]
-	`, contextInfo)
-
-	aiResponse, err := AiSvr.ai.CreateCompletion(prompt)
+	// 调用AI服务生成知识点数据
+	kpData, err := AiSvr.GenerateKnowledgePoints(syllabus.Name, chapter.Name)
 	if err != nil {
-		return nil, fmt.Errorf("AI generation failed: %w", err)
-	}
-
-	// 解析并创建知识点
-	var kpData []model.AIKnowledgePointData
-	err = json.Unmarshal([]byte(aiResponse), &kpData)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse AI response: %w", err)
+		return nil, err
 	}
 
 	var keypoints []model.KnowledgePoint
@@ -134,38 +107,15 @@ func (s *KnowledgePointService) AutoLinkQuestionToKeypoints(questionId, chapterI
 			i+1, kp.Chapter.Name, kp.Name, kp.Description)
 	}
 
-	prompt := fmt.Sprintf(`
-你是教育专家。请分析以下题目，判断它涉及哪些知识点。
-
-题目内容：
-%s
-
-可选知识点列表：
-%s
-
-要求：
-1. 仅选择与题目直接相关的知识点
-2. 可以选择多个知识点（如果题目是综合题）
-3. 如果不确定，宁可不选
-
-返回JSON格式（仅包含序号数组，从1开始）：
-{"indices": [1, 3]}
-	`, question.Stem, kpList)
-
-	aiResponse, err := AiSvr.ai.CreateCompletion(prompt)
+	// 调用AI服务分析题目
+	indices, err := AiSvr.AnalyzeQuestionForKnowledgePoints(question.Stem, kpList)
 	if err != nil {
-		return nil, fmt.Errorf("AI linking failed: %w", err)
-	}
-
-	var result model.AILinkQuestionResponse
-	err = json.Unmarshal([]byte(aiResponse), &result)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse AI response: %w", err)
+		return nil, err
 	}
 
 	// 建立关联
 	var linkedIds []uint
-	for _, idx := range result.Indices {
+	for _, idx := range indices {
 		if idx > 0 && idx <= len(keypoints) {
 			kp := keypoints[idx-1]
 			// 添加关联关系
