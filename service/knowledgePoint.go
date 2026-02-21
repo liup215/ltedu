@@ -1,8 +1,12 @@
 package service
 
 import (
+	"edu/conf"
+	"edu/lib/ai"
+	"edu/lib/logger"
 	"edu/model"
 	"edu/repository"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -10,10 +14,12 @@ import (
 
 var KnowledgePointSvr = &KnowledgePointService{
 	baseService: newBaseService(),
+	aiModel:     ai.NewModel(conf.Conf.AiConfig, logger.Logger),
 }
 
 type KnowledgePointService struct {
 	baseService
+	aiModel ai.Model
 }
 
 // AutoGenerateFromChapter AI生成章节知识点（仅支持叶子节点）
@@ -39,7 +45,7 @@ func (s *KnowledgePointService) AutoGenerateFromChapter(chapterId uint) ([]model
 	}
 
 	// 调用AI服务生成知识点数据
-	kpData, err := AiSvr.GenerateKnowledgePoints(syllabus.Name, chapter.Name)
+	kpData, err := s.generateKnowledgePoints(syllabus.Name, chapter.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +114,7 @@ func (s *KnowledgePointService) AutoLinkQuestionToKeypoints(questionId, chapterI
 	}
 
 	// 调用AI服务分析题目
-	indices, err := AiSvr.AnalyzeQuestionForKnowledgePoints(question.Stem, kpList)
+	indices, err := s.analyzeQuestionForKnowledgePoints(question.Stem, kpList)
 	if err != nil {
 		return nil, err
 	}
@@ -168,12 +174,12 @@ func (s *KnowledgePointService) AutoMigrateSyllabus(syllabusId uint, options Mig
 					fmt.Sprintf("Chapter %d (%s): failed to check children: %v", chapter.ID, chapter.Name, err))
 				continue
 			}
-			
+
 			// 跳过非叶子节点
 			if hasChildren {
 				continue
 			}
-			
+
 			// 为叶子节点生成知识点
 			kps, err := s.AutoGenerateFromChapter(chapter.ID)
 			if err == nil {
@@ -251,4 +257,77 @@ func (s *KnowledgePointService) GetBySyllabusId(syllabusId uint) ([]model.Knowle
 // GetAll 获取知识点列表（带分页）
 func (s *KnowledgePointService) GetAll(query *model.KnowledgePointQuery) ([]model.KnowledgePoint, int64, error) {
 	return repository.KnowledgePointRepo.FindAll(query)
+}
+
+// generateKnowledgePoints AI生成知识点
+func (s *KnowledgePointService) generateKnowledgePoints(syllabusName, chapterName string) ([]model.AIKnowledgePointData, error) {
+	contextInfo := fmt.Sprintf("考纲: %s, 章节: %s", syllabusName, chapterName)
+
+	prompt := fmt.Sprintf(`
+你是考纲专家。请为"%s"提取3-5个核心知识点。
+
+要求：
+1. 知识点要具体明确，不要过于宽泛
+2. 覆盖该章节的主要考点
+3. 按重要性排序
+
+返回严格的JSON数组格式，无其他文字：
+[{
+    "name": "知识点名称",
+    "description": "1-2句话描述该知识点的核心内容",
+    "difficulty": "basic/medium/hard",
+    "estimatedMinutes": 30
+}]
+`, contextInfo)
+
+	aiResponse, err := s.aiModel.CreateCompletion(prompt)
+	if err != nil {
+		return nil, fmt.Errorf("AI generation failed: %w", err)
+	}
+
+	// 解析AI响应
+	var kpData []model.AIKnowledgePointData
+	err = json.Unmarshal([]byte(aiResponse), &kpData)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse AI response: %w", err)
+	}
+
+	return kpData, nil
+}
+
+// analyzeQuestionForKnowledgePoints AI分析题目并推荐知识点
+func (s *KnowledgePointService) analyzeQuestionForKnowledgePoints(questionStem string, knowledgePointList string) ([]int, error) {
+	prompt := fmt.Sprintf(`
+你是教育专家。请分析以下题目，判断它涉及哪些知识点。
+
+题目内容：
+%s
+
+可选知识点列表：
+%s
+
+要求：
+1. 仅选择与题目直接相关的知识点
+2. 可以选择多个知识点（如果题目是综合题）
+3. 如果不确定，宁可不选
+
+返回JSON格式（仅包含序号数组，从1开始）：
+{"indices": [1, 3]}
+`, questionStem, knowledgePointList)
+
+	aiResponse, err := s.aiModel.CreateCompletion(prompt)
+	if err != nil {
+		return nil, fmt.Errorf("AI analysis failed: %w", err)
+	}
+
+	// 解析AI响应
+	var result struct {
+		Indices []int `json:"indices"`
+	}
+	err = json.Unmarshal([]byte(aiResponse), &result)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse AI response: %w", err)
+	}
+
+	return result.Indices, nil
 }

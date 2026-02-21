@@ -27,3 +27,4 @@ cmd/*
 conf/secrets.yaml
 
 ltedu_run
+.vscode/*
