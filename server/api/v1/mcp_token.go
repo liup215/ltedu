@@ -19,6 +19,16 @@ var MCPTokenCtrl *MCPTokenController
 type MCPTokenController struct{}
 
 // CreateToken creates a new MCP token for the current user
+// @Summary      创建MCP令牌
+// @Description  为当前用户创建新的MCP访问令牌
+// @Tags         MCP
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.MCPTokenCreateRequest  true  "令牌信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/mcp/token/create [post]
 func (ctrl *MCPTokenController) CreateToken(c *gin.Context) {
 	var req model.MCPTokenCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -65,6 +75,16 @@ func (ctrl *MCPTokenController) CreateToken(c *gin.Context) {
 }
 
 // ListTokens lists all MCP tokens for the current user
+// @Summary      获取MCP令牌列表
+// @Description  获取当前用户的所有MCP令牌
+// @Tags         MCP
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.Page  false  "分页参数"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/mcp/token/list [post]
 func (ctrl *MCPTokenController) ListTokens(c *gin.Context) {
 	var req model.Page
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -106,6 +126,16 @@ func (ctrl *MCPTokenController) ListTokens(c *gin.Context) {
 }
 
 // DeleteToken deletes an MCP token
+// @Summary      删除MCP令牌
+// @Description  删除当前用户的指定MCP令牌
+// @Tags         MCP
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "令牌ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/mcp/token/delete [post]
 func (ctrl *MCPTokenController) DeleteToken(c *gin.Context) {
 	var req struct {
 		ID uint `json:"id" binding:"required"`
@@ -133,6 +163,16 @@ func (ctrl *MCPTokenController) DeleteToken(c *gin.Context) {
 }
 
 // DeactivateToken deactivates an MCP token
+// @Summary      停用MCP令牌
+// @Description  停用当前用户的指定MCP令牌
+// @Tags         MCP
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "令牌ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/mcp/token/deactivate [post]
 func (ctrl *MCPTokenController) DeactivateToken(c *gin.Context) {
 	var req struct {
 		ID uint `json:"id" binding:"required"`
@@ -160,6 +200,16 @@ func (ctrl *MCPTokenController) DeactivateToken(c *gin.Context) {
 }
 
 // ActivateToken activates an MCP token
+// @Summary      激活MCP令牌
+// @Description  激活当前用户的指定MCP令牌
+// @Tags         MCP
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "令牌ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/mcp/token/activate [post]
 func (ctrl *MCPTokenController) ActivateToken(c *gin.Context) {
 	var req struct {
 		ID uint `json:"id" binding:"required"`
@@ -187,6 +237,16 @@ func (ctrl *MCPTokenController) ActivateToken(c *gin.Context) {
 }
 
 // AdminListTokens lists all MCP tokens (admin only)
+// @Summary      管理员获取所有MCP令牌
+// @Description  管理员获取全平台所有用户的MCP令牌列表
+// @Tags         MCP
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.MCPTokenQuery  false  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/mcp/token/admin/list [post]
 func (ctrl *MCPTokenController) AdminListTokens(c *gin.Context) {
 	// Check admin permission
 	u, err := auth.GetCurrentUser(c)
@@ -247,6 +307,16 @@ func (ctrl *MCPTokenController) AdminListTokens(c *gin.Context) {
 }
 
 // AdminDeleteToken deletes any MCP token (admin only)
+// @Summary      管理员删除MCP令牌
+// @Description  管理员删除任意用户的MCP令牌
+// @Tags         MCP
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "令牌ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/mcp/token/admin/delete [post]
 func (ctrl *MCPTokenController) AdminDeleteToken(c *gin.Context) {
 	// Check admin permission
 	u, err := auth.GetCurrentUser(c)
@@ -278,6 +348,16 @@ func (ctrl *MCPTokenController) AdminDeleteToken(c *gin.Context) {
 }
 
 // AdminDeactivateToken deactivates any MCP token (admin only)
+// @Summary      管理员停用MCP令牌
+// @Description  管理员停用任意用户的MCP令牌
+// @Tags         MCP
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "令牌ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/mcp/token/admin/deactivate [post]
 func (ctrl *MCPTokenController) AdminDeactivateToken(c *gin.Context) {
 	// Check admin permission
 	u, err := auth.GetCurrentUser(c)
@@ -309,6 +389,16 @@ func (ctrl *MCPTokenController) AdminDeactivateToken(c *gin.Context) {
 }
 
 // AdminActivateToken activates any MCP token (admin only)
+// @Summary      管理员激活MCP令牌
+// @Description  管理员激活任意用户的MCP令牌
+// @Tags         MCP
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "令牌ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/mcp/token/admin/activate [post]
 func (ctrl *MCPTokenController) AdminActivateToken(c *gin.Context) {
 	// Check admin permission
 	u, err := auth.GetCurrentUser(c)
