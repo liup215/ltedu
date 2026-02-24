@@ -1,6 +1,5 @@
 import apiClient from './apiClient'
 import type {
-  KnowledgePoint,
   KnowledgePointCreateRequest,
   KnowledgePointUpdateRequest,
   KnowledgePointListRequest,
