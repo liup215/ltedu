@@ -18,6 +18,16 @@ type CourseController struct {
 	courseSvr *service.CourseService
 }
 
+// @Summary      创建课程
+// @Description  创建新课程
+// @Tags         课程
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.CourseCreateEditRequest  true  "课程信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/course/create [post]
 func (ctrl *CourseController) CreateCourse(c *gin.Context) {
 	req := model.CourseCreateEditRequest{}
 
@@ -67,6 +77,16 @@ func (ctrl *CourseController) CreateCourse(c *gin.Context) {
 	http.SuccessData(c, "创建成功!", nil)
 }
 
+// @Summary      编辑课程
+// @Description  修改课程信息
+// @Tags         课程
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.CourseCreateEditRequest  true  "课程信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/course/edit [post]
 func (ctrl *CourseController) EditCourse(c *gin.Context) {
 	req := model.CourseCreateEditRequest{}
 
@@ -119,6 +139,16 @@ func (ctrl *CourseController) EditCourse(c *gin.Context) {
 	http.SuccessData(c, "编辑成功!", nil)
 }
 
+// @Summary      删除课程
+// @Description  删除指定课程
+// @Tags         课程
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.Course  true  "课程ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/course/delete [post]
 func (ctrl *CourseController) DeleteCourse(c *gin.Context) {
 	course := model.Course{}
 
@@ -149,6 +179,15 @@ func (ctrl *CourseController) DeleteCourse(c *gin.Context) {
 	http.SuccessData(c, "创建成功!", nil)
 }
 
+// @Summary      根据ID获取课程
+// @Description  根据课程ID获取课程详情
+// @Tags         课程
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.CourseQueryRequest  true  "课程ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/course/byId [post]
 func (ctrl *CourseController) SelectCourseById(c *gin.Context) {
 	q := model.CourseQueryRequest{}
 	if err := c.BindJSON(&q); err != nil {
@@ -165,6 +204,15 @@ func (ctrl *CourseController) SelectCourseById(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", o)
 }
 
+// @Summary      获取课程列表
+// @Description  分页查询课程列表
+// @Tags         课程
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.CourseQueryRequest  true  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/course/list [post]
 func (ctrl *CourseController) SelectCourseList(c *gin.Context) {
 	q := model.CourseQueryRequest{}
 	if err := c.BindJSON(&q); err != nil {
