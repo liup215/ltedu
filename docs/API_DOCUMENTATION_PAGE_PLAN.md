@@ -12,25 +12,23 @@
 
 ---
 
-## 推荐方案：swaggo/swag + Swagger UI + Vue 管理页面
+## 推荐方案：swaggo/swag + Swagger UI（纯后端）
 
 ### 为什么选择这个方案？
 
 | 方案 | 优点 | 缺点 |
 |------|------|------|
-| **✅ swaggo + 自定义 Vue 页面**（推荐） | 自动生成、可交互测试、标准规范、永远与代码同步 | 需为每个 handler 添加注释 |
+| **✅ swaggo/swag**（推荐） | 自动生成、可交互测试、标准规范、永远与代码同步、无需前端改动 | 需为每个 handler 添加注释 |
 | 手写静态 Markdown | 简单快速 | 维护困难、易与代码脱节 |
-| 纯手写 Vue 页面 | 样式完全自由 | 同上 |
+| 纯手写 HTML 页面 | 样式完全自由 | 同上 |
 
-本项目使用 Gin 框架，`swaggo/swag` 是业界标准解决方案，支持从 Go 注释自动生成 OpenAPI 3.0 规范，并可通过 Swagger UI 提供可交互的文档页面。
+本项目使用 Gin 框架，`swaggo/swag` 是业界标准解决方案，支持从 Go 注释自动生成 OpenAPI 3.0 规范，并由 **Go 后端直接托管 Swagger UI 页面**，无需前端项目参与。
 
 ---
 
-## 实现步骤
+## 实现步骤（纯后端）
 
-### 第一阶段：后端集成 swaggo（核心工作）
-
-#### 1. 安装依赖
+### 第一步：安装依赖
 
 ```bash
 # 安装 swag CLI 工具
@@ -42,7 +40,7 @@ go get github.com/swaggo/gin-swagger
 go get github.com/swaggo/files
 ```
 
-#### 2. 在 `main.go` 添加全局注释
+### 第二步：在 `main.go` 添加全局注释
 
 ```go
 // @title           LTEdu API
@@ -55,7 +53,7 @@ go get github.com/swaggo/files
 // @name Authorization
 ```
 
-#### 3. 为每个 handler 添加 Swagger 注释（示例）
+### 第三步：为每个 handler 添加 Swagger 注释（示例）
 
 ```go
 // @Summary      用户登录
@@ -70,7 +68,7 @@ go get github.com/swaggo/files
 func (ctrl *AuthController) Login(c *gin.Context) { ... }
 ```
 
-#### 4. 注册 Swagger UI 路由（无需认证）
+### 第四步：注册 Swagger UI 路由（无需认证）
 
 在 `server/api/controller.go` 的 `noAuthRout` 中添加：
 
@@ -85,7 +83,7 @@ r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 访问地址：`http://localhost:8080/api/docs/index.html`
 
-#### 5. 生成文档
+### 第五步：生成文档
 
 ```bash
 # 在项目根目录执行
@@ -93,50 +91,6 @@ swag init -g main.go --output docs/swagger
 ```
 
 每次 handler 注释更新后重新执行此命令。
-
----
-
-### 第二阶段：Vue 管理页面集成（可选但推荐）
-
-在现有管理后台中添加"API 文档"入口，以 iframe 嵌入 Swagger UI，保持管理界面统一风格。
-
-#### 新增文件
-
-```
-web/src/views/admin/
-└── ApiDocumentation.vue     # 嵌入 Swagger UI 的页面
-```
-
-**`ApiDocumentation.vue` 核心结构：**
-
-```vue
-<template>
-  <div class="h-full">
-    <iframe
-      src="/api/docs/index.html"
-      class="w-full h-full border-0"
-      style="min-height: calc(100vh - 64px)"
-    />
-  </div>
-</template>
-```
-
-#### 路由注册
-
-在 `web/src/views/admin/routes.ts` 添加：
-
-```ts
-{
-  path: 'api-docs',
-  name: 'ApiDocumentation',
-  component: () => import('./ApiDocumentation.vue'),
-  meta: { requiresAdmin: true }
-}
-```
-
-#### 侧边栏菜单项
-
-在管理后台侧边栏添加"API 文档"导航链接。
 
 ---
 
@@ -165,12 +119,11 @@ web/src/views/admin/
 
 ## 工作量评估
 
-| 阶段 | 工作内容 | 预估工时 |
+| 步骤 | 工作内容 | 预估工时 |
 |------|---------|---------|
-| 第一阶段-环境 | 安装依赖、配置 main.go、注册路由 | 1h |
-| 第一阶段-注释 | 为约 130 个 handler 添加 Swagger 注释 | 6~8h |
-| 第二阶段 | Vue 页面 + 路由 + 侧边栏菜单 | 2h |
-| **合计** | | **~10h** |
+| 环境配置 | 安装依赖、配置 main.go、注册路由 | 1h |
+| Handler 注释 | 为约 130 个 handler 添加 Swagger 注释 | 6~8h |
+| **合计** | | **~8h** |
 
 ---
 
