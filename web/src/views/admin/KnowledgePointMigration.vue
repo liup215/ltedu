@@ -3,17 +3,17 @@
     <header class="mb-6">
       <div class="flex justify-between items-start">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900">{{ $t('knowledgePoint.migration.title') }}</h1>
-          <p class="mt-2 text-sm text-gray-600">{{ $t('knowledgePoint.migration.subtitle') }}</p>
+          <h1 class="text-3xl font-bold text-gray-900">{{ t('knowledgePoint.migration.title') }}</h1>
+          <p class="mt-2 text-sm text-gray-600">{{ t('knowledgePoint.migration.subtitle') }}</p>
           <span class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-            {{ $t('knowledgePoint.migration.adminOnly') }}
+            {{ t('knowledgePoint.migration.adminOnly') }}
           </span>
         </div>
         <router-link 
           to="/admin/syllabuses"
           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
         >
-          {{ $t('knowledgePoint.backToSyllabuses') }}
+          {{ t('knowledgePoint.backToSyllabuses') }}
         </router-link>
       </div>
     </header>
@@ -27,8 +27,8 @@
           </svg>
         </div>
         <div class="ml-3">
-          <h3 class="text-sm font-medium text-yellow-800">{{ $t('knowledgePoint.migration.warning') }}</h3>
-          <p class="mt-2 text-sm text-yellow-700">{{ $t('knowledgePoint.migration.warningMessage') }}</p>
+          <h3 class="text-sm font-medium text-yellow-800">{{ t('knowledgePoint.migration.warning') }}</h3>
+          <p class="mt-2 text-sm text-yellow-700">{{ t('knowledgePoint.migration.warningMessage') }}</p>
         </div>
       </div>
     </div>
@@ -36,21 +36,21 @@
     <!-- Main Form -->
     <div class="bg-white shadow rounded-lg">
       <div class="px-6 py-4 border-b border-gray-200">
-        <h2 class="text-lg font-medium text-gray-900">{{ $t('knowledgePoint.migration.options') }}</h2>
+        <h2 class="text-lg font-medium text-gray-900">{{ t('knowledgePoint.migration.options') }}</h2>
       </div>
       
       <form @submit.prevent="startMigration" class="px-6 py-4 space-y-6">
         <!-- Syllabus Selection -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">
-            {{ $t('knowledgePoint.migration.selectSyllabus') }} *
+            {{ t('knowledgePoint.migration.selectSyllabus') }} *
           </label>
           <select
             v-model="selectedSyllabusId"
             required
             class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3"
           >
-            <option value="">{{ $t('knowledgePoint.migration.syllabusPlaceholder') }}</option>
+            <option value="">{{ t('knowledgePoint.migration.syllabusPlaceholder') }}</option>
             <option v-for="syllabus in syllabuses" :key="syllabus.id" :value="syllabus.id">
               {{ syllabus.name }} ({{ syllabus.code }})
             </option>
@@ -70,9 +70,9 @@
             </div>
             <div class="ml-3 text-sm">
               <label for="generateKeypoints" class="font-medium text-gray-700">
-                {{ $t('knowledgePoint.migration.generateKeypoints') }}
+                {{ t('knowledgePoint.migration.generateKeypoints') }}
               </label>
-              <p class="text-gray-500">{{ $t('knowledgePoint.migration.generateKeypointsTip') }}</p>
+              <p class="text-gray-500">{{ t('knowledgePoint.migration.generateKeypointsTip') }}</p>
             </div>
           </div>
 
@@ -87,15 +87,15 @@
             </div>
             <div class="ml-3 text-sm">
               <label for="linkQuestions" class="font-medium text-gray-700">
-                {{ $t('knowledgePoint.migration.linkQuestions') }}
+                {{ t('knowledgePoint.migration.linkQuestions') }}
               </label>
-              <p class="text-gray-500">{{ $t('knowledgePoint.migration.linkQuestionsTip') }}</p>
+              <p class="text-gray-500">{{ t('knowledgePoint.migration.linkQuestionsTip') }}</p>
             </div>
           </div>
 
           <div v-if="options.linkQuestions">
             <label class="block text-sm font-medium text-gray-700 mb-2">
-              {{ $t('knowledgePoint.migration.batchSize') }}
+              {{ t('knowledgePoint.migration.batchSize') }}
             </label>
             <input
               type="number"
@@ -104,7 +104,7 @@
               max="100"
               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3"
             />
-            <p class="mt-1 text-sm text-gray-500">{{ $t('knowledgePoint.migration.batchSizeTip') }}</p>
+            <p class="mt-1 text-sm text-gray-500">{{ t('knowledgePoint.migration.batchSizeTip') }}</p>
           </div>
         </div>
 
@@ -121,7 +121,7 @@
           </div>
           <div class="ml-3 text-sm">
             <label for="confirmed" class="font-medium text-red-700">
-              {{ $t('knowledgePoint.migration.confirm') }}
+              {{ t('knowledgePoint.migration.confirm') }}
             </label>
           </div>
         </div>
@@ -137,7 +137,7 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            {{ migrating ? $t('knowledgePoint.migration.migrating') : $t('knowledgePoint.migration.startMigration') }}
+            {{ migrating ? t('knowledgePoint.migration.migrating') : t('knowledgePoint.migration.startMigration') }}
           </button>
         </div>
       </form>
@@ -146,27 +146,27 @@
     <!-- Migration Report -->
     <div v-if="report" class="mt-6 bg-white shadow rounded-lg">
       <div class="px-6 py-4 border-b border-gray-200">
-        <h2 class="text-lg font-medium text-gray-900">{{ $t('knowledgePoint.migration.migrationReport') }}</h2>
+        <h2 class="text-lg font-medium text-gray-900">{{ t('knowledgePoint.migration.migrationReport') }}</h2>
       </div>
       <div class="px-6 py-4">
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div class="bg-green-50 rounded-lg p-4">
-            <dt class="text-sm font-medium text-gray-500">{{ $t('knowledgePoint.migration.generatedKeypoints') }}</dt>
+            <dt class="text-sm font-medium text-gray-500">{{ t('knowledgePoint.migration.generatedKeypoints') }}</dt>
             <dd class="mt-1 text-3xl font-semibold text-green-600">{{ report.generatedKeypoints }}</dd>
           </div>
           <div class="bg-blue-50 rounded-lg p-4">
-            <dt class="text-sm font-medium text-gray-500">{{ $t('knowledgePoint.migration.linkedQuestions') }}</dt>
+            <dt class="text-sm font-medium text-gray-500">{{ t('knowledgePoint.migration.linkedQuestions') }}</dt>
             <dd class="mt-1 text-3xl font-semibold text-blue-600">{{ report.linkedQuestions }}</dd>
           </div>
           <div class="bg-purple-50 rounded-lg p-4">
-            <dt class="text-sm font-medium text-gray-500">{{ $t('knowledgePoint.migration.totalLinks') }}</dt>
+            <dt class="text-sm font-medium text-gray-500">{{ t('knowledgePoint.migration.totalLinks') }}</dt>
             <dd class="mt-1 text-3xl font-semibold text-purple-600">{{ report.totalLinks }}</dd>
           </div>
         </div>
 
         <!-- Errors Section -->
         <div v-if="report.errors && report.errors.length > 0" class="mt-4">
-          <h3 class="text-sm font-medium text-gray-700 mb-2">{{ $t('knowledgePoint.migration.errors') }}</h3>
+          <h3 class="text-sm font-medium text-gray-700 mb-2">{{ t('knowledgePoint.migration.errors') }}</h3>
           <div class="bg-red-50 border-l-4 border-red-400 p-4">
             <div class="text-sm text-red-700 space-y-1">
               <p v-for="(error, index) in report.errors" :key="index">{{ error }}</p>
@@ -175,7 +175,7 @@
         </div>
         <div v-else class="mt-4">
           <div class="bg-green-50 border-l-4 border-green-400 p-4">
-            <p class="text-sm text-green-700">{{ $t('knowledgePoint.migration.noErrors') }}</p>
+            <p class="text-sm text-green-700">{{ t('knowledgePoint.migration.noErrors') }}</p>
           </div>
         </div>
       </div>
@@ -185,12 +185,16 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { push } from 'notivue'
 import knowledgePointService from '../../services/knowledgePointService'
 import syllabusService from '../../services/syllabusService'
 import type { MigrateReport } from '../../models/knowledgePoint.model'
 import type { Syllabus } from '../../models/syllabus.model'
 
+const route = useRoute()
+const { t } = useI18n()
 const syllabuses = ref<Syllabus[]>([])
 const selectedSyllabusId = ref<number | null>(null)
 const migrating = ref(false)
@@ -205,12 +209,18 @@ const options = ref({
 
 onMounted(async () => {
   await loadSyllabuses()
+  
+  // Check if syllabusId is provided in query parameters
+  const querySyllabusId = route.query.syllabusId
+  if (querySyllabusId && !isNaN(Number(querySyllabusId))) {
+    selectedSyllabusId.value = Number(querySyllabusId)
+  }
 })
 
 async function loadSyllabuses() {
   try {
-    const response = await syllabusService.list({ page: 1, pageSize: 100 })
-    if (response.code === 200) {
+    const response = await syllabusService.getSyllabuses({ pageIndex: 1, pageSize: 100 })
+    if (response.code === 0) {
       syllabuses.value = response.data.list
     }
   } catch (error) {
@@ -231,22 +241,17 @@ async function startMigration() {
       options: options.value
     })
     
-    if (response.code === 200) {
+    if (response.code === 0) {
       report.value = response.data
-      push.success($t('knowledgePoint.migration.migrationSuccess'))
+      push.success(t('knowledgePoint.migration.migrationSuccess'))
     } else {
       throw new Error(response.msg)
     }
   } catch (error: any) {
     console.error('Migration failed:', error)
-    push.error(error.response?.data?.msg || $t('knowledgePoint.migration.migrationError'))
+    push.error(error.response?.data?.msg || t('knowledgePoint.migration.migrationError'))
   } finally {
     migrating.value = false
   }
-}
-
-function $t(key: string): string {
-  // Placeholder for i18n translation
-  return key
 }
 </script>

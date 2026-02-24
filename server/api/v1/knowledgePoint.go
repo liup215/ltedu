@@ -76,6 +76,35 @@ func (ctrl *KnowledgePointController) AutoLinkQuestion(c *gin.Context) {
 	})
 }
 
+// AutoLinkQuestionIntelligent 智能关联题目到知识点（两阶段方法）
+func (ctrl *KnowledgePointController) AutoLinkQuestionIntelligent(c *gin.Context) {
+	u, _ := auth.GetCurrentUser(c)
+	_ = u
+
+	var req struct {
+		QuestionId uint `json:"questionId" binding:"required"`
+		SyllabusId uint `json:"syllabusId" binding:"required"`
+	}
+
+	if err := c.BindJSON(&req); err != nil {
+		http.ErrorData(c, "Parameter parsing failed", nil)
+		return
+	}
+
+	linkedIds, err := service.KnowledgePointSvr.AutoLinkQuestionToKeypointsIntelligent(
+		req.QuestionId, req.SyllabusId)
+
+	if err != nil {
+		http.ErrorData(c, err.Error(), nil)
+		return
+	}
+
+	http.SuccessData(c, "Question intelligently linked to knowledge points!", gin.H{
+		"linkedKeypoints": linkedIds,
+		"count":           len(linkedIds),
+	})
+}
+
 // AutoMigrateSyllabus 批量自动化迁移考纲
 func (ctrl *KnowledgePointController) AutoMigrateSyllabus(c *gin.Context) {
 	u, _ := auth.GetCurrentUser(c)
@@ -213,8 +242,10 @@ func (ctrl *KnowledgePointController) GetByChapter(c *gin.Context) {
 	}
 
 	http.SuccessData(c, "Success", gin.H{
-		"keypoints": kps,
-		"count":     len(kps),
+		"list":      kps,
+		"total":     len(kps),
+		"page":      1,
+		"pageSize":  len(kps),
 	})
 }
 
@@ -239,8 +270,10 @@ func (ctrl *KnowledgePointController) GetBySyllabus(c *gin.Context) {
 	}
 
 	http.SuccessData(c, "Success", gin.H{
-		"keypoints": kps,
-		"count":     len(kps),
+		"list":      kps,
+		"total":     len(kps),
+		"page":      1,
+		"pageSize":  len(kps),
 	})
 }
 
@@ -262,7 +295,9 @@ func (ctrl *KnowledgePointController) List(c *gin.Context) {
 	}
 
 	http.SuccessData(c, "Success", gin.H{
-		"keypoints": kps,
+		"list":      kps,
 		"total":     total,
+		"page":      query.PageIndex,
+		"pageSize":  query.PageSize,
 	})
 }

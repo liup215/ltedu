@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"go.uber.org/zap"
 	"time"
 )
 
@@ -135,6 +136,133 @@ func (s *KnowledgePointService) AutoLinkQuestionToKeypoints(questionId, chapterI
 	return linkedIds, nil
 }
 
+// PredictRelevantChapters 预测题目相关的章节
+func (s *KnowledgePointService) PredictRelevantChapters(questionStem string, syllabusId uint) ([]uint, error) {
+	// 获取考纲的所有章节
+	chapters, err := repository.ChapterRepo.FindBySyllabusID(syllabusId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get chapters: %w", err)
+	}
+
+	if len(chapters) == 0 {
+		return nil, errors.New("no chapters found for syllabus")
+	}
+
+	// 安全检查：如果章节数量过多，使用分页或限制策略
+	const maxChaptersForPrediction = 100
+	if len(chapters) > maxChaptersForPrediction {
+		logger.Logger.Warn("Syllabus has too many chapters for prediction. Using first N chapters.",
+			zap.Uint("syllabusId", syllabusId),
+			zap.Int("chapterCount", len(chapters)),
+			zap.Int("maxChaptersForPrediction", maxChaptersForPrediction))
+		chapters = chapters[:maxChaptersForPrediction]
+	}
+
+	// 构建章节列表字符串（比知识点列表小得多）
+	chapterList := ""
+	for i, ch := range chapters {
+		chapterList += fmt.Sprintf("%d. %s\n", i+1, ch.Name)
+	}
+
+	// 调用AI服务预测相关章节
+	indices, err := s.analyzeQuestionForChapters(questionStem, chapterList)
+	if err != nil {
+		return nil, err
+	}
+
+	// 转换为章节ID
+	var relevantChapterIds []uint
+	for _, idx := range indices {
+		if idx > 0 && idx <= len(chapters) {
+			relevantChapterIds = append(relevantChapterIds, chapters[idx-1].ID)
+		}
+	}
+
+	return relevantChapterIds, nil
+}
+
+// AutoLinkQuestionToKeypointsIntelligent 智能关联题目到知识点（两阶段方法）
+func (s *KnowledgePointService) AutoLinkQuestionToKeypointsIntelligent(questionId, syllabusId uint) ([]uint, error) {
+	question, err := repository.QuestionRepo.FindByID(questionId)
+	if err != nil || question == nil {
+		return nil, fmt.Errorf("question not found: %w", err)
+	}
+
+	if syllabusId == 0 {
+		return nil, errors.New("syllabusId is required")
+	}
+
+	// 阶段1: 预测相关章节
+	relevantChapterIds, err := s.PredictRelevantChapters(question.Stem, syllabusId)
+	if err != nil {
+		logger.Logger.Warn("Failed to predict relevant chapters for question. Falling back to all chapters.",
+			zap.Uint("questionId", questionId),
+			zap.Error(err))
+		// 回退到所有章节
+		chapters, _ := repository.ChapterRepo.FindBySyllabusID(syllabusId)
+		for _, ch := range chapters {
+			relevantChapterIds = append(relevantChapterIds, ch.ID)
+		}
+	}
+
+	if len(relevantChapterIds) == 0 {
+		// 如果仍然没有章节，回退到所有章节
+		chapters, _ := repository.ChapterRepo.FindBySyllabusID(syllabusId)
+		for _, ch := range chapters {
+			relevantChapterIds = append(relevantChapterIds, ch.ID)
+		}
+	}
+
+	// 阶段2: 仅从相关章节加载知识点
+	var relevantKeypoints []model.KnowledgePoint
+	for _, chapterId := range relevantChapterIds {
+		kps, _ := repository.KnowledgePointRepo.FindByChapterId(chapterId)
+		relevantKeypoints = append(relevantKeypoints, kps...)
+	}
+
+	if len(relevantKeypoints) == 0 {
+		return nil, errors.New("no knowledge points available for linking")
+	}
+
+	// 安全检查：如果相关知识点数量过多，使用限制策略
+	const maxKeypointsForLinking = 50
+	if len(relevantKeypoints) > maxKeypointsForLinking {
+		logger.Logger.Warn("Question has too many relevant knowledge points for linking. Using first N knowledge points.",
+			zap.Uint("questionId", questionId),
+			zap.Int("knowledgePointCount", len(relevantKeypoints)),
+			zap.Int("maxKeypointsForLinking", maxKeypointsForLinking))
+		relevantKeypoints = relevantKeypoints[:maxKeypointsForLinking]
+	}
+
+	// 构建知识点列表字符串（现在小得多）
+	kpList := ""
+	for i, kp := range relevantKeypoints {
+		kpList += fmt.Sprintf("%d. [%s] %s - %s\n",
+			i+1, kp.Chapter.Name, kp.Name, kp.Description)
+	}
+
+	// 调用AI服务分析题目（使用减少的上下文）
+	indices, err := s.analyzeQuestionForKnowledgePoints(question.Stem, kpList)
+	if err != nil {
+		return nil, err
+	}
+
+	// 建立关联
+	var linkedIds []uint
+	for _, idx := range indices {
+		if idx > 0 && idx <= len(relevantKeypoints) {
+			kp := relevantKeypoints[idx-1]
+			// 添加关联关系
+			err = repository.QuestionRepo.AddKnowledgePoint(questionId, kp.ID)
+			if err == nil {
+				linkedIds = append(linkedIds, kp.ID)
+			}
+		}
+	}
+
+	return linkedIds, nil
+}
+
 // MigrateOptions 迁移选项
 type MigrateOptions struct {
 	GenerateKeypoints bool `json:"generateKeypoints"`
@@ -192,8 +320,8 @@ func (s *KnowledgePointService) AutoMigrateSyllabus(syllabusId uint, options Mig
 		}
 	}
 
-	// Step 3: 关联题目
-	// 策略：使用考纲级别的知识点池，让AI从所有知识点中选择
+	// Step 3: 关联题目 - 使用智能两阶段方法
+	// 策略：先预测相关章节，再从相关章节的知识点中选择
 	if options.LinkQuestions {
 		query := &model.QuestionQueryRequest{SyllabusId: syllabusId}
 		questions, err := repository.QuestionRepo.FindAll(query)
@@ -204,8 +332,8 @@ func (s *KnowledgePointService) AutoMigrateSyllabus(syllabusId uint, options Mig
 		}
 
 		for i, question := range questions {
-			// 使用考纲ID，让AI从该考纲的所有知识点中选择
-			linkedIds, err := s.AutoLinkQuestionToKeypoints(question.ID, 0, syllabusId)
+			// 使用智能方法，避免加载所有知识点
+			linkedIds, err := s.AutoLinkQuestionToKeypointsIntelligent(question.ID, syllabusId)
 			if err == nil {
 				report.LinkedQuestions++
 				report.TotalLinks += len(linkedIds)
@@ -264,12 +392,13 @@ func (s *KnowledgePointService) generateKnowledgePoints(syllabusName, chapterNam
 	contextInfo := fmt.Sprintf("考纲: %s, 章节: %s", syllabusName, chapterName)
 
 	prompt := fmt.Sprintf(`
-你是考纲专家。请为"%s"提取3-5个核心知识点。
+你是考纲专家。请为"%s"提取核心知识点。
 
 要求：
 1. 知识点要具体明确，不要过于宽泛
 2. 覆盖该章节的主要考点
 3. 按重要性排序
+4. 使用英文回答
 
 返回严格的JSON数组格式，无其他文字：
 [{
@@ -330,4 +459,49 @@ func (s *KnowledgePointService) analyzeQuestionForKnowledgePoints(questionStem s
 	}
 
 	return result.Indices, nil
+}
+
+// analyzeQuestionForChapters AI分析题目并预测相关章节
+func (s *KnowledgePointService) analyzeQuestionForChapters(questionStem string, chapterList string) ([]int, error) {
+	prompt := fmt.Sprintf(`
+你是教育专家。请分析以下题目，判断它属于哪些章节。
+
+题目内容：
+%s
+
+可用章节列表：
+%s
+
+要求：
+1. 仅选择与题目直接相关的章节
+2. 可以选择多个章节（如果题目是综合题）
+3. 如果不确定，宁可不选
+
+返回JSON格式（仅包含序号数组，从1开始）：
+{"chapterIndices": [1, 3]}
+`, questionStem, chapterList)
+
+	aiResponse, err := s.aiModel.CreateCompletion(prompt)
+	if err != nil {
+		return nil, fmt.Errorf("AI chapter analysis failed: %w", err)
+	}
+
+	// 解析AI响应
+	var result struct {
+		ChapterIndices []int `json:"chapterIndices"`
+	}
+	err = json.Unmarshal([]byte(aiResponse), &result)
+	if err != nil {
+		// 尝试备用解析格式
+		var altResult struct {
+			Indices []int `json:"indices"`
+		}
+		err2 := json.Unmarshal([]byte(aiResponse), &altResult)
+		if err2 != nil {
+			return nil, fmt.Errorf("failed to parse AI chapter response: %w", err)
+		}
+		return altResult.Indices, nil
+	}
+
+	return result.ChapterIndices, nil
 }

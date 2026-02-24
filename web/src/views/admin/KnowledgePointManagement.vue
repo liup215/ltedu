@@ -3,28 +3,39 @@
     <header class="mb-6">
       <div class="flex justify-between items-start">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900">{{ $t('knowledgePoint.title') }}</h1>
-          <p class="mt-2 text-sm text-gray-600">{{ $t('knowledgePoint.subtitle') }}</p>
+          <h1 class="text-3xl font-bold text-gray-900">{{ t('knowledgePoint.title') }}</h1>
+          <p class="mt-2 text-sm text-gray-600">{{ t('knowledgePoint.subtitle') }}</p>
           
           <div class="mt-4 bg-white rounded-lg shadow p-4 border-l-4 border-indigo-500">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <h3 class="text-sm font-medium text-gray-500">{{ $t('knowledgePoint.syllabusName') }}</h3>
+                <h3 class="text-sm font-medium text-gray-500">{{ t('knowledgePoint.syllabusName') }}</h3>
                 <p class="mt-1 text-lg font-semibold text-gray-900">{{ syllabus?.name || '-' }}</p>
               </div>
               <div>
-                <h3 class="text-sm font-medium text-gray-500">{{ $t('knowledgePoint.syllabusCode') }}</h3>
+                <h3 class="text-sm font-medium text-gray-500">{{ t('knowledgePoint.syllabusCode') }}</h3>
                 <p class="mt-1 text-lg font-semibold text-gray-900">{{ syllabus?.code || '-' }}</p>
               </div>
             </div>
           </div>
         </div>
-        <router-link 
-          :to="`/admin/syllabuses`"
-          class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          {{ $t('knowledgePoint.backToSyllabuses') }}
-        </router-link>
+        <div class="flex flex-col gap-2">
+          <router-link 
+            :to="{
+              path: '/admin/knowledge-points/migration',
+              query: { syllabusId: syllabusId }
+            }"
+            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+          >
+            {{ t('knowledgePoint.migration.title') }}
+          </router-link>
+          <router-link 
+            :to="`/admin/syllabuses`"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            {{ t('knowledgePoint.backToSyllabuses') }}
+          </router-link>
+        </div>
       </div>
     </header>
 
@@ -32,15 +43,15 @@
       <!-- Left side: Chapter list (leaf chapters only) -->
       <div class="w-1/3 bg-white rounded-lg shadow">
         <div class="p-4 border-b border-gray-200">
-          <h2 class="text-lg font-medium text-gray-900">{{ $t('knowledgePoint.leafChaptersOnly') }}</h2>
-          <p class="text-sm text-gray-500 mt-1">{{ $t('knowledgePoint.leafChapterRequired') }}</p>
+          <h2 class="text-lg font-medium text-gray-900">{{ t('knowledgePoint.leafChaptersOnly') }}</h2>
+          <p class="text-sm text-gray-500 mt-1">{{ t('knowledgePoint.leafChapterRequired') }}</p>
         </div>
         <div class="p-4">
           <div v-if="loading" class="text-center py-4">
-            <div class="text-sm text-gray-500">{{ $t('knowledgePoint.loading') }}</div>
+            <div class="text-sm text-gray-500">{{ t('knowledgePoint.loading') }}</div>
           </div>
           <div v-else-if="!leafChapters.length" class="text-center py-4">
-            <div class="text-sm text-gray-500">{{ $t('knowledgePoint.noChapters') }}</div>
+            <div class="text-sm text-gray-500">{{ t('knowledgePoint.noChapters') }}</div>
           </div>
           <div v-else class="space-y-2">
             <button
@@ -56,7 +67,7 @@
             >
               <div class="font-medium">{{ chapter.name }}</div>
               <div class="text-sm text-gray-500 mt-1">
-                {{ chapter.knowledgePointCount || 0 }} {{ $t('knowledgePoint.knowledgePoints') }}
+                {{ chapter.knowledgePointCount || 0 }} {{ t('knowledgePoint.knowledgePoints') }}
               </div>
             </button>
           </div>
@@ -67,7 +78,7 @@
       <div class="flex-1 bg-white rounded-lg shadow">
         <div class="p-4 border-b border-gray-200 flex justify-between items-center">
           <h2 class="text-lg font-medium text-gray-900">
-            {{ selectedChapter ? selectedChapter.name : $t('knowledgePoint.selectChapter') }}
+            {{ selectedChapter ? selectedChapter.name : t('knowledgePoint.selectChapter') }}
           </h2>
           <div v-if="selectedChapter" class="flex gap-2">
             <button
@@ -79,30 +90,30 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              {{ generating ? $t('knowledgePoint.generating') : $t('knowledgePoint.generateKnowledgePoints') }}
+              {{ generating ? t('knowledgePoint.generating') : t('knowledgePoint.generateKnowledgePoints') }}
             </button>
             <button
               @click="showCreateModal"
               class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              {{ $t('knowledgePoint.addKnowledgePoint') }}
+              {{ t('knowledgePoint.addKnowledgePoint') }}
             </button>
           </div>
         </div>
         <div class="p-4">
           <div v-if="!selectedChapter" class="text-center py-8 text-gray-500">
-            {{ $t('knowledgePoint.selectChapter') }}
+            {{ t('knowledgePoint.selectChapter') }}
           </div>
           <div v-else-if="loadingKnowledgePoints" class="text-center py-8 text-gray-500">
-            {{ $t('knowledgePoint.loading') }}
+            {{ t('knowledgePoint.loading') }}
           </div>
           <div v-else-if="!knowledgePoints.length" class="text-center py-8">
-            <div class="text-gray-500 mb-4">{{ $t('knowledgePoint.noKnowledgePoints') }}</div>
+            <div class="text-gray-500 mb-4">{{ t('knowledgePoint.noKnowledgePoints') }}</div>
             <button
               @click="generateKnowledgePoints"
               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700"
             >
-              {{ $t('knowledgePoint.generateKnowledgePoints') }}
+              {{ t('knowledgePoint.generateKnowledgePoints') }}
             </button>
           </div>
           <div v-else class="space-y-4">
@@ -122,9 +133,9 @@
                         'bg-yellow-100 text-yellow-800': kp.difficulty === 'medium',
                         'bg-red-100 text-red-800': kp.difficulty === 'hard'
                       }">
-                      {{ $t(`knowledgePoint.${kp.difficulty}`) }}
+                      {{ t(`knowledgePoint.${kp.difficulty}`) }}
                     </span>
-                    <span>{{ kp.estimatedMinutes }} {{ $t('knowledgePoint.estimatedMinutes') }}</span>
+                    <span>{{ kp.estimatedMinutes }} {{ t('knowledgePoint.estimatedMinutes') }}</span>
                   </div>
                 </div>
                 <div class="ml-4 flex gap-2">
@@ -132,13 +143,13 @@
                     @click="editKnowledgePoint(kp)"
                     class="text-indigo-600 hover:text-indigo-900"
                   >
-                    {{ $t('common.edit') }}
+                    {{ t('common.edit') }}
                   </button>
                   <button
                     @click="deleteKnowledgePointConfirm(kp)"
                     class="text-red-600 hover:text-red-900"
                   >
-                    {{ $t('common.delete') }}
+                    {{ t('common.delete') }}
                   </button>
                 </div>
               </div>
@@ -153,12 +164,12 @@
       <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4">
         <div class="px-6 py-4 border-b border-gray-200">
           <h3 class="text-lg font-medium text-gray-900">
-            {{ isEditing ? $t('knowledgePoint.editKnowledgePoint') : $t('knowledgePoint.addKnowledgePoint') }}
+            {{ isEditing ? t('knowledgePoint.editKnowledgePoint') : t('knowledgePoint.addKnowledgePoint') }}
           </h3>
         </div>
         <form @submit.prevent="saveKnowledgePoint" class="px-6 py-4 space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700">{{ $t('knowledgePoint.name') }}</label>
+            <label class="block text-sm font-medium text-gray-700">{{ t('knowledgePoint.name') }}</label>
             <input
               type="text"
               v-model="form.name"
@@ -167,7 +178,7 @@
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700">{{ $t('knowledgePoint.description') }}</label>
+            <label class="block text-sm font-medium text-gray-700">{{ t('knowledgePoint.description') }}</label>
             <textarea
               v-model="form.description"
               rows="3"
@@ -177,19 +188,19 @@
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700">{{ $t('knowledgePoint.difficulty') }}</label>
+              <label class="block text-sm font-medium text-gray-700">{{ t('knowledgePoint.difficulty') }}</label>
               <select
                 v-model="form.difficulty"
                 required
                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3"
               >
-                <option value="basic">{{ $t('knowledgePoint.basic') }}</option>
-                <option value="medium">{{ $t('knowledgePoint.medium') }}</option>
-                <option value="hard">{{ $t('knowledgePoint.hard') }}</option>
+                <option value="basic">{{ t('knowledgePoint.basic') }}</option>
+                <option value="medium">{{ t('knowledgePoint.medium') }}</option>
+                <option value="hard">{{ t('knowledgePoint.hard') }}</option>
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700">{{ $t('knowledgePoint.estimatedMinutes') }}</label>
+              <label class="block text-sm font-medium text-gray-700">{{ t('knowledgePoint.estimatedMinutes') }}</label>
               <input
                 type="number"
                 v-model.number="form.estimatedMinutes"
@@ -205,14 +216,14 @@
               @click="showModal = false"
               class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
             >
-              {{ $t('knowledgePoint.cancel') }}
+              {{ t('knowledgePoint.cancel') }}
             </button>
             <button
               type="submit"
               :disabled="saving"
               class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
             >
-              {{ saving ? $t('common.loading') : $t('knowledgePoint.save') }}
+              {{ saving ? t('common.loading') : t('knowledgePoint.save') }}
             </button>
           </div>
         </form>
