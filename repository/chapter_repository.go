@@ -16,6 +16,8 @@ type IChapterRepository interface {
 	FindBySyllabusID(syllabusId uint) ([]*model.Chapter, error)
 	FindPage(query *model.ChapterQuery, offset, limit int) ([]*model.Chapter, int64, error)
 	FindAll(query *model.ChapterQuery) ([]*model.Chapter, error)
+	HasChildren(id uint) (bool, error)
+	CountKnowledgePoints(id uint) (int64, error)
 }
 
 type chapterRepository struct {
@@ -116,4 +118,16 @@ func (r *chapterRepository) FindAll(query *model.ChapterQuery) ([]*model.Chapter
 		Order("id DESC").
 		Find(&chapters).Error
 	return chapters, err
+}
+
+func (r *chapterRepository) HasChildren(id uint) (bool, error) {
+	var count int64
+	err := r.db.Model(&model.Chapter{}).Where("parent_id = ?", id).Count(&count).Error
+	return count > 0, err
+}
+
+func (r *chapterRepository) CountKnowledgePoints(id uint) (int64, error) {
+	var count int64
+	err := r.db.Model(&model.KnowledgePoint{}).Where("chapter_id = ?", id).Count(&count).Error
+	return count, err
 }

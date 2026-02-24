@@ -1,64 +1,55 @@
 package ai
 
 import (
+	"context"
 	"fmt"
-	"time"
 
-	client "github.com/aliyun/alibabacloud-bailian-go-sdk/client"
+	"github.com/openai/openai-go"
+	"github.com/openai/openai-go/option"
 	"go.uber.org/zap"
 )
 
 func NewModel(c *Config, logger *zap.Logger) Model {
-	if c.Dialect == ALI_BAILIAN {
-		tokenClient := &client.AccessTokenClient{
-			AgentKey:        &(c.AliBaiLian.AgentKey),
-			AccessKeyId:     &(c.AliBaiLian.AccessKey),
-			AccessKeySecret: &(c.AliBaiLian.AccessSecretKey),
-		}
+	client := openai.NewClient(
+		option.WithAPIKey(c.ApiKey),
+		option.WithBaseURL(c.BaseUrl),
+	)
 
-		return &Bailian{
-			tokenClient: tokenClient,
-			logger:      logger,
-			appId:       c.AliBaiLian.AppId,
-		}
+	return &BaseAIClient{
+		client: &client,
+		model:  c.Model,
+		logger: logger,
 	}
-	return nil
 }
 
 type Model interface {
 	CreateCompletion(string) (string, error)
 }
 
-type Bailian struct {
-	tokenClient *client.AccessTokenClient
-	appId       string
-	logger      *zap.Logger
+type BaseAIClient struct {
+	client *openai.Client
+	model  string
+	logger *zap.Logger
 }
 
-func (b *Bailian) CreateCompletion(prompt string) (string, error) {
-	token, err := b.tokenClient.GetToken()
+func (b *BaseAIClient) CreateCompletion(prompt string) (string, error) {
+	chatCompletion, err := b.client.Chat.Completions.New(
+		context.TODO(), openai.ChatCompletionNewParams{
+			Messages: []openai.ChatCompletionMessageParamUnion{
+				openai.UserMessage(prompt),
+			},
+			Model: b.model,
+		},
+	)
+
 	if err != nil {
+		b.logger.Error("Failed to create completion", zap.Error(err))
 		return "", err
 	}
 
-	cc := client.CompletionClient{Token: &token}
-	cc.SetTimeout(15 * time.Second)
-
-	request := &client.CompletionRequest{}
-	request.SetAppId(b.appId)
-	request.SetPrompt(prompt)
-
-	response, err := cc.CreateCompletion(request)
-	if err != nil {
-		b.logger.Error("%v\n", zap.Error(err))
-		return "", err
+	if len(chatCompletion.Choices) == 0 {
+		return "", fmt.Errorf("no choices in response")
 	}
 
-	if !response.Success {
-		estr := fmt.Sprintf("failed to create completion, requestId: %s, code: %s, message: %s\n", response.GetRequestId(), response.GetCode(), response.GetMessage())
-		b.logger.Info(estr)
-		return "", err
-	}
-
-	return response.GetData().GetText(), nil
+	return chatCompletion.Choices[0].Message.Content, nil
 }

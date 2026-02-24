@@ -5,13 +5,7 @@ const (
 )
 
 type Config struct {
-	Dialect    string
-	AliBaiLian AliBaiLianConfig
-}
-
-type AliBaiLianConfig struct {
-	AccessKey       string
-	AccessSecretKey string
-	AgentKey        string
-	AppId           string
+	BaseUrl string
+	ApiKey  string
+	Model   string
 }

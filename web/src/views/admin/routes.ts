@@ -71,6 +71,16 @@ const adminRoutes: RouteRecordRaw[] = [
         component: () => import('./ChapterManagement.vue')
       },
       {
+        path: 'syllabuses/:id/knowledge-points',
+        name: 'AdminKnowledgePointManagement',
+        component: () => import('./KnowledgePointManagement.vue')
+      },
+      {
+        path: 'knowledge-points/migration',
+        name: 'AdminKnowledgePointMigration',
+        component: () => import('./KnowledgePointMigration.vue')
+      },
+      {
         path: 'system-settings',
         name: 'AdminSystemSettings',
         component: () => import('./SystemSettingsAdmin.vue')

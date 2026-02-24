@@ -36,6 +36,12 @@ var (
 	VocabularyItemRepo   IVocabularyItemRepository
 	VerificationRepo     IVerificationRepository
 	MCPTokenRepo         IMCPTokenRepository
+	GoalRepo             IGoalRepository
+	KnowledgeStateRepo   IKnowledgeStateRepository
+	TaskRepo             ITaskRepository
+	AttemptRepo          IAttemptRepository
+	TaskLogRepo          ITaskLogRepository
+	KnowledgePointRepo   IKnowledgePointRepository
 )
 
 func GetTableName(db *gorm.DB, model interface{}) string {
@@ -78,5 +84,11 @@ func InitRepositories(db *gorm.DB) {
 	VocabularyItemRepo = NewVocabularyItemRepository(db)
 	VerificationRepo = NewVerificationRepository(db)
 	MCPTokenRepo = NewMCPTokenRepository(db)
+	GoalRepo = NewGoalRepository(db)
+	KnowledgeStateRepo = NewKnowledgeStateRepository(db, ChapterRepo)
+	TaskRepo = NewTaskRepository(db)
+	AttemptRepo = NewAttemptRepository(db)
+	TaskLogRepo = NewTaskLogRepository(db)
+	KnowledgePointRepo = NewKnowledgePointRepository(db)
 	// ... 其他repository按需添加
 }

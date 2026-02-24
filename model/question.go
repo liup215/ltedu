@@ -74,6 +74,7 @@ type Question struct {
 	QuestionContents       []QuestionContent `gorm:"-" json:"questionContents"`
 	QuestionContentsString string            `json:"-" gorm:"type:longtext;"` // JSON中没有此信息，只用于存储原问题
 	Chapters               []*Chapter        `gorm:"many2many:question_chapters" json:"chapters"`
+	KnowledgePoints        []*KnowledgePoint `gorm:"many2many:question_keypoints" json:"knowledgePoints,omitempty"`
 	PastPaperId            uint              `json:"pastPaperId"`
 	PastPaper              PastPaper         `json:"pastPaper"`
 	IndexInPastPaper       int               `json:"indexInPastPaper"`

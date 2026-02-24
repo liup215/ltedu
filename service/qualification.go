@@ -207,6 +207,16 @@ func (s *QualificationService) CreateChapter(chapter model.Chapter) (*model.Chap
 	if _, e := repository.SyllabusRepo.FindByID(chapter.SyllabusId); e != nil {
 		return nil, errors.New("考纲查询失败！")
 	}
+	
+	// 如果有父章节，检查父章节是否是叶子节点
+	if chapter.ParentId != 0 {
+		// 检查父章节是否有知识点（叶子节点特征）
+		kpCount, err := repository.ChapterRepo.CountKnowledgePoints(chapter.ParentId)
+		if err == nil && kpCount > 0 {
+			return nil, errors.New("父章节已有知识点，不能添加子章节！叶子章节不可再细分。")
+		}
+	}
+	
 	e := repository.ChapterRepo.Create(&chapter)
 	return &chapter, e
 }
@@ -215,8 +225,32 @@ func (s *QualificationService) EditChapter(chapter model.Chapter) (*model.Chapte
 	if chapter.ID == 0 {
 		return nil, errors.New("无效的chapterID")
 	}
-e := repository.ChapterRepo.Update(&chapter)
-return &chapter, e
+	
+	// 检查该章节是否有知识点
+	kpCount, err := repository.ChapterRepo.CountKnowledgePoints(chapter.ID)
+	if err == nil && kpCount > 0 {
+		return nil, errors.New("该章节已有知识点，不能修改！请先清空知识点。")
+	}
+	
+	// 如果修改了父章节，检查新父章节是否是叶子节点
+	if chapter.ParentId != 0 {
+		// 获取原章节信息
+		oldChapter, err := repository.ChapterRepo.FindByID(chapter.ID)
+		if err != nil {
+			return nil, errors.New("查询原章节失败！")
+		}
+		
+		// 如果父章节发生变化，需要检查新父章节
+		if oldChapter.ParentId != chapter.ParentId {
+			kpCount, err := repository.ChapterRepo.CountKnowledgePoints(chapter.ParentId)
+			if err == nil && kpCount > 0 {
+				return nil, errors.New("目标父章节已有知识点，不能移动到该节点下！")
+			}
+		}
+	}
+	
+	e := repository.ChapterRepo.Update(&chapter)
+	return &chapter, e
 }
 
 func (s *QualificationService) DeleteChapter(id uint) error {
@@ -228,6 +262,13 @@ func (s *QualificationService) DeleteChapter(id uint) error {
 	if len(children) > 0 {
 		return errors.New("该章节存在子章节，不能删除！")
 	}
+	
+	// 校验是否有知识点
+	kpCount, err := repository.ChapterRepo.CountKnowledgePoints(id)
+	if err == nil && kpCount > 0 {
+		return errors.New("该章节存在知识点，不能删除！请先清空知识点。")
+	}
+	
 	return repository.ChapterRepo.Delete(id)
 }
 
