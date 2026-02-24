@@ -20,6 +20,15 @@ type VocabularyController struct {
 	vocabularySvr *service.VocabularyService
 }
 
+// @Summary      根据ID获取词汇集
+// @Description  根据词汇集ID获取词汇集详情
+// @Tags         词汇
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.VocabularySetQuery  true  "词汇集ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/vocabularySet/byId [post]
 func (ctrl *VocabularyController) SelectVocabularySetById(c *gin.Context) {
 	q := model.VocabularySetQuery{}
 	if err := c.BindJSON(&q); err != nil {
@@ -37,6 +46,15 @@ func (ctrl *VocabularyController) SelectVocabularySetById(c *gin.Context) {
 	}
 }
 
+// @Summary      获取词汇集列表
+// @Description  分页查询词汇集列表
+// @Tags         词汇
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.VocabularySetQuery  true  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/vocabularySet/list [post]
 func (ctrl *VocabularyController) SelectVocabularySetList(c *gin.Context) {
 	q := model.VocabularySetQuery{}
 	if err := c.BindJSON(&q); err != nil {
@@ -57,6 +75,16 @@ func (ctrl *VocabularyController) SelectVocabularySetList(c *gin.Context) {
 	}
 }
 
+// @Summary      创建词汇集
+// @Description  创建新词汇集
+// @Tags         词汇
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.VocabularySetCreateEditRequest  true  "词汇集信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/vocabularySet/create [post]
 func (ctrl *VocabularyController) CreateVocabularySet(c *gin.Context) {
 	vs := model.VocabularySetCreateEditRequest{}
 
@@ -74,6 +102,16 @@ func (ctrl *VocabularyController) CreateVocabularySet(c *gin.Context) {
 
 }
 
+// @Summary      编辑词汇集
+// @Description  修改词汇集信息
+// @Tags         词汇
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.VocabularySetCreateEditRequest  true  "词汇集信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/vocabularySet/edit [post]
 func (ctrl *VocabularyController) EditVocabularySet(c *gin.Context) {
 	vs := model.VocabularySetCreateEditRequest{}
 
@@ -91,6 +129,16 @@ func (ctrl *VocabularyController) EditVocabularySet(c *gin.Context) {
 
 }
 
+// @Summary      删除词汇集
+// @Description  删除指定词汇集
+// @Tags         词汇
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.VocabularySetQuery  true  "词汇集ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/vocabularySet/delete [post]
 func (ctrl *VocabularyController) DeleteVocabularySet(c *gin.Context) {
 	q := model.VocabularySetQuery{}
 	if err := c.BindJSON(&q); err != nil {
@@ -107,6 +155,16 @@ func (ctrl *VocabularyController) DeleteVocabularySet(c *gin.Context) {
 
 }
 
+// @Summary      添加词汇条目
+// @Description  向词汇集添加新词汇条目
+// @Tags         词汇
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.VocabularyItemCreateEditRequest  true  "词汇条目信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/vocabularyItem/insert [post]
 func (ctrl *VocabularyController) InsertVocabularyItem(c *gin.Context) {
 	vi := model.VocabularyItemCreateEditRequest{}
 
@@ -124,6 +182,16 @@ func (ctrl *VocabularyController) InsertVocabularyItem(c *gin.Context) {
 
 }
 
+// @Summary      更新词汇条目
+// @Description  更新词汇集中的词汇条目
+// @Tags         词汇
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.VocabularyItemCreateEditRequest  true  "词汇条目信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/vocabularyItem/update [post]
 func (ctrl *VocabularyController) UpdateVocabularyItem(c *gin.Context) {
 	vi := model.VocabularyItemCreateEditRequest{}
 
@@ -141,6 +209,16 @@ func (ctrl *VocabularyController) UpdateVocabularyItem(c *gin.Context) {
 
 }
 
+// @Summary      删除词汇条目
+// @Description  删除指定词汇条目
+// @Tags         词汇
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.VocabularyItemQuery  true  "词汇条目ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/vocabularyItem/delete [post]
 func (ctrl *VocabularyController) DeleteVocabularyItem(c *gin.Context) {
 	q := model.VocabularyItemQuery{}
 

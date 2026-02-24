@@ -1,0 +1,8066 @@
+basePath: /api
+definitions:
+  model.AdminRole:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      description:
+        type: string
+      displayName:
+        type: string
+      id:
+        type: integer
+      slug:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.Attachment:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      description:
+        type: string
+      duration:
+        type: integer
+      enable:
+        type: boolean
+      ext:
+        type: string
+      hash:
+        type: string
+      height:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      path:
+        type: string
+      size:
+        type: integer
+      type:
+        type: integer
+      updatedAt:
+        type: string
+      width:
+        type: integer
+    type: object
+  model.AttemptCreateRequest:
+    properties:
+      chapterId:
+        type: integer
+      correctAnswer:
+        type: string
+      goalId:
+        type: integer
+      isCorrect:
+        type: boolean
+      maxScore:
+        type: integer
+      questionContentId:
+        type: integer
+      questionId:
+        type: integer
+      score:
+        type: integer
+      studentAnswer:
+        type: string
+      taskId:
+        type: integer
+      timeSpentSeconds:
+        type: integer
+    required:
+    - chapterId
+    - goalId
+    - questionContentId
+    - questionId
+    type: object
+  model.AttemptQuery:
+    properties:
+      chapterId:
+        type: integer
+      dateFrom:
+        type: string
+      dateTo:
+        type: string
+      goalId:
+        type: integer
+      id:
+        type: integer
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      questionId:
+        type: integer
+      taskId:
+        type: integer
+      userId:
+        type: integer
+    type: object
+  model.Chapter:
+    properties:
+      children:
+        items:
+          $ref: '#/definitions/model.Chapter'
+        type: array
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: integer
+      isLeaf:
+        type: integer
+      name:
+        type: string
+      parentId:
+        type: integer
+      questions:
+        items:
+          $ref: '#/definitions/model.Question'
+        type: array
+      syllabus:
+        $ref: '#/definitions/model.Syllabus'
+      syllabusId:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  model.ChapterQuery:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      filterRoot:
+        description: If true, filter by parentId = 0 (overrides ParentId=0 check)
+        type: boolean
+      id:
+        type: integer
+      name:
+        type: string
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      parentId:
+        type: integer
+      syllabusId:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  model.ChoiceQuestionOption:
+    properties:
+      content:
+        type: string
+      prefix:
+        type: string
+    type: object
+  model.Class:
+    properties:
+      classType:
+        $ref: '#/definitions/model.ClassType'
+      classTypeId:
+        type: integer
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      deputyHeadTeacher:
+        $ref: '#/definitions/model.Teacher'
+      deputyHeadTeacherId:
+        type: integer
+      grade:
+        $ref: '#/definitions/model.Grade'
+      gradeId:
+        type: integer
+      headTeacher:
+        $ref: '#/definitions/model.Teacher'
+      headTeacherId:
+        type: integer
+      id:
+        type: integer
+      intershipHeadTeacher:
+        $ref: '#/definitions/model.Teacher'
+      intershipHeadTeacherId:
+        type: integer
+      name:
+        type: string
+      students:
+        items:
+          $ref: '#/definitions/model.User'
+        type: array
+      subjectTeacher:
+        $ref: '#/definitions/model.Teacher'
+      subjectTeacherId:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  model.ClassCreateEditRequest:
+    properties:
+      classTypeId:
+        type: integer
+      deputyHeadTeacherId:
+        type: integer
+      gradeId:
+        type: integer
+      headTeacherId:
+        type: integer
+      id:
+        type: integer
+      intershipHeadTeacherId:
+        type: integer
+      name:
+        type: string
+      subjectTeacherId:
+        type: integer
+    type: object
+  model.ClassQuery:
+    properties:
+      classTypeId:
+        type: integer
+      deputyHeadTeacherId:
+        type: integer
+      gradeId:
+        type: integer
+      headTeacherId:
+        type: integer
+      id:
+        type: integer
+      intershipHeadTeacherId:
+        type: integer
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      subjectTeacherId:
+        type: integer
+      teacherType:
+        description: 1. 学科老师, 2. 班主任 3. 副班 4. 实习班主任
+        type: integer
+    type: object
+  model.ClassType:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: integer
+      isMain:
+        type: integer
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.ClassTypeCreateEditRequest:
+    properties:
+      id:
+        type: integer
+      isMain:
+        type: integer
+      name:
+        type: string
+    type: object
+  model.ClassTypeQuery:
+    properties:
+      id:
+        type: integer
+      isMain:
+        type: integer
+      name:
+        type: string
+      page:
+        $ref: '#/definitions/model.Page'
+    type: object
+  model.Course:
+    properties:
+      charge:
+        type: integer
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: integer
+      isFree:
+        type: integer
+      isRec:
+        type: integer
+      isShow:
+        type: integer
+      originalDesc:
+        type: string
+      publishedAt:
+        type: string
+      renderDesc:
+        type: string
+      seoDescription:
+        type: string
+      seoKeywords:
+        type: string
+      shortDescription:
+        type: string
+      slug:
+        type: string
+      syllabus:
+        $ref: '#/definitions/model.Syllabus'
+      syllabusId:
+        description: MediaVideos       []MediaVideo `json:"mediaVideos"`
+        type: integer
+      thumb:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+      userCount:
+        type: integer
+      userId:
+        type: integer
+      userType:
+        type: integer
+      userTypeName:
+        type: string
+    type: object
+  model.CourseCreateEditRequest:
+    properties:
+      charge:
+        type: integer
+      id:
+        type: integer
+      isFree:
+        type: integer
+      isShow:
+        type: integer
+      originalDesc:
+        type: string
+      publishedAt:
+        type: string
+      shortDescription:
+        type: string
+      syllabusId:
+        type: integer
+      thumb:
+        type: string
+      title:
+        type: string
+    type: object
+  model.CourseQueryRequest:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: integer
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      syllabusId:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  model.CourseVideo:
+    properties:
+      banDrag:
+        type: integer
+      chapter:
+        $ref: '#/definitions/model.Chapter'
+      chapterId:
+        type: integer
+      course:
+        $ref: '#/definitions/model.Course'
+      courseId:
+        type: integer
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      duration:
+        type: integer
+      id:
+        type: integer
+      isShow:
+        type: integer
+      mediaVideo:
+        $ref: '#/definitions/model.MediaVideo'
+      mediaVideoId:
+        type: integer
+      name:
+        type: string
+      publishedAt:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.CourseVideoCreateEditRequest:
+    properties:
+      banDrag:
+        type: integer
+      chapterId:
+        type: integer
+      courseId:
+        type: integer
+      duration:
+        type: integer
+      id:
+        type: integer
+      isShow:
+        type: integer
+      mediaVideoId:
+        type: integer
+      name:
+        type: string
+      publishedAt:
+        type: string
+    type: object
+  model.CourseVideoQueryRequest:
+    properties:
+      course_id:
+        type: integer
+      id:
+        type: integer
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      video_id:
+        type: integer
+    type: object
+  model.DocumentCategoryCreateEditRequest:
+    properties:
+      cover:
+        type: string
+      description:
+        type: string
+      enable:
+        type: integer
+      icon:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      parentId:
+        type: integer
+      sort:
+        type: integer
+    type: object
+  model.DocumentCategoryQueryRequest:
+    properties:
+      id:
+        type: integer
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      parentId:
+        type: integer
+    type: object
+  model.DocumentCreateEditRequest:
+    properties:
+      attachmentId:
+        type: integer
+      description:
+        type: string
+      documentCategoryId:
+        type: integer
+      id:
+        type: integer
+      keywords:
+        type: string
+      name:
+        type: string
+      price:
+        type: integer
+      syllabusId:
+        type: integer
+    type: object
+  model.DocumentQueryRequest:
+    properties:
+      documentCategoryId:
+        type: integer
+      id:
+        type: integer
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      syllabusId:
+        type: integer
+    type: object
+  model.ExamPaper:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      questionIds:
+        items:
+          type: integer
+        type: array
+      questions:
+        items:
+          $ref: '#/definitions/model.Question'
+        type: array
+      syllabus:
+        $ref: '#/definitions/model.Syllabus'
+      syllabusId:
+        type: integer
+      updatedAt:
+        type: string
+      user:
+        $ref: '#/definitions/model.User'
+      userId:
+        type: integer
+    type: object
+  model.ExamPaperQuery:
+    properties:
+      id:
+        type: integer
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      syllabusId:
+        type: integer
+      userId:
+        type: integer
+    type: object
+  model.GapFillingQuestion:
+    properties:
+      answer:
+        items:
+          type: string
+        type: array
+    type: object
+  model.GoalCreateRequest:
+    properties:
+      examDate:
+        type: string
+      mode:
+        description: '"sync" or "self"'
+        type: string
+      syllabusId:
+        type: integer
+      targetGrade:
+        type: string
+      targetScore:
+        type: integer
+      weeklyHours:
+        type: integer
+    required:
+    - examDate
+    - mode
+    - syllabusId
+    - weeklyHours
+    type: object
+  model.GoalQuery:
+    properties:
+      id:
+        type: integer
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      status:
+        type: string
+      syllabusId:
+        type: integer
+      userId:
+        type: integer
+    type: object
+  model.GoalUpdateRequest:
+    properties:
+      examDate:
+        type: string
+      id:
+        type: integer
+      mode:
+        type: string
+      status:
+        type: string
+      targetGrade:
+        type: string
+      targetScore:
+        type: integer
+      weeklyHours:
+        type: integer
+    required:
+    - id
+    type: object
+  model.Grade:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      gradeLeadTeacher:
+        $ref: '#/definitions/model.Teacher'
+      gradeLeadTeacherId:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.GradeCreateEditRequest:
+    properties:
+      gradeLeadTeacherId:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  model.GradeQuery:
+    properties:
+      gradeTeacherId:
+        type: integer
+      id:
+        type: integer
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+    type: object
+  model.ImageQueryRequest:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      disk:
+        type: string
+      hash:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  model.ImageUploadConfig:
+    properties:
+      cosAppId:
+        type: string
+      cosBucket:
+        type: string
+      cosCDNUrl:
+        type: string
+      cosRegion:
+        type: string
+      cosSecretId:
+        type: string
+      cosSecretKey:
+        type: string
+      disk:
+        type: string
+      ossAccessKeyId:
+        type: string
+      ossAccessKeySecret:
+        type: string
+      ossBucket:
+        type: string
+      ossCDNUrl:
+        type: string
+      ossEndpoint:
+        type: string
+      qiniuAccessKey:
+        type: string
+      qiniuBucket:
+        type: string
+      qiniuCDNUrl:
+        type: string
+      qiniuCDNUrls:
+        type: string
+      qiniuSecretKey:
+        type: string
+    type: object
+  model.KnowledgePoint:
+    properties:
+      chapter:
+        $ref: '#/definitions/model.Chapter'
+      chapterId:
+        type: integer
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      description:
+        type: string
+      difficulty:
+        description: basic/medium/hard
+        type: string
+      estimatedMinutes:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      orderIndex:
+        type: integer
+      questions:
+        items:
+          $ref: '#/definitions/model.Question'
+        type: array
+      updatedAt:
+        type: string
+    type: object
+  model.KnowledgePointQuery:
+    properties:
+      chapterId:
+        type: integer
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      difficulty:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      syllabusId:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  model.MCPTokenCreateRequest:
+    properties:
+      expiresAt:
+        description: Optional, ISO 8601 format
+        type: string
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  model.MCPTokenQuery:
+    properties:
+      id:
+        type: integer
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      token:
+        type: string
+      userId:
+        type: integer
+    type: object
+  model.MediaVideo:
+    properties:
+      attachment:
+        $ref: '#/definitions/model.Attachment'
+      attachment_id:
+        type: integer
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      disk:
+        type: string
+      duration:
+        type: integer
+      ext:
+        type: string
+      from:
+        type: string
+      hash:
+        type: string
+      height:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      path:
+        type: string
+      updatedAt:
+        type: string
+      url:
+        type: string
+      width:
+        type: integer
+    type: object
+  model.MultipleChoiceQuestion:
+    properties:
+      answer:
+        items:
+          type: string
+        type: array
+      options:
+        items:
+          $ref: '#/definitions/model.ChoiceQuestionOption'
+        type: array
+    type: object
+  model.Organisation:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.OrganisationQuery:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+    type: object
+  model.Page:
+    properties:
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+    type: object
+  model.PaperCode:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      syllabus:
+        $ref: '#/definitions/model.Syllabus'
+      syllabusId:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  model.PaperCodeQuery:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      syllabusId:
+        type: integer
+    type: object
+  model.PaperSeries:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      syllabus:
+        $ref: '#/definitions/model.Syllabus'
+      syllabusId:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  model.PaperSeriesQuery:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      syllabusId:
+        type: integer
+    type: object
+  model.PastPaper:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      paperCode:
+        $ref: '#/definitions/model.PaperCode'
+      paperCodeId:
+        type: integer
+      paperSeries:
+        $ref: '#/definitions/model.PaperSeries'
+      paperSeriesId:
+        type: integer
+      questionNumber:
+        type: integer
+      questions:
+        items:
+          $ref: '#/definitions/model.Question'
+        type: array
+      syllabus:
+        $ref: '#/definitions/model.Syllabus'
+      syllabusId:
+        type: integer
+      updatedAt:
+        type: string
+      year:
+        type: integer
+    type: object
+  model.PastPaperQuery:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      paperCodeId:
+        type: integer
+      paperSeriesId:
+        type: integer
+      syllabusId:
+        type: integer
+      year:
+        type: integer
+    type: object
+  model.PracticePaperRequest:
+    properties:
+      paperId:
+        type: integer
+    type: object
+  model.PracticePartSubmission:
+    properties:
+      answer:
+        type: string
+      questionContentId:
+        type: integer
+    type: object
+  model.PracticeQuickRequest:
+    properties:
+      chapterIds:
+        items:
+          type: integer
+        type: array
+      questionCount:
+        type: integer
+      syllabusId:
+        type: integer
+    type: object
+  model.PracticeSubmission:
+    properties:
+      answers:
+        items:
+          $ref: '#/definitions/model.PracticePartSubmission'
+        type: array
+      questionId:
+        type: integer
+    type: object
+  model.Qualification:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      organisation:
+        $ref: '#/definitions/model.Organisation'
+      organisationId:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  model.QualificationQuery:
+    properties:
+      id:
+        type: integer
+      organisationId:
+        type: integer
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+    type: object
+  model.Question:
+    properties:
+      chapters:
+        items:
+          $ref: '#/definitions/model.Chapter'
+        type: array
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      difficult:
+        type: integer
+      id:
+        type: integer
+      indexInPastPaper:
+        type: integer
+      knowledgePoints:
+        items:
+          $ref: '#/definitions/model.KnowledgePoint'
+        type: array
+      pastPaper:
+        $ref: '#/definitions/model.PastPaper'
+      pastPaperId:
+        type: integer
+      questionContents:
+        items:
+          $ref: '#/definitions/model.QuestionContent'
+        type: array
+      status:
+        type: integer
+      stem:
+        description: 原问题，接受后存入QuestionString后储存
+        type: string
+      syllabus:
+        $ref: '#/definitions/model.Syllabus'
+      syllabusId:
+        type: integer
+      totalScore:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  model.QuestionChapterUpdateRequest:
+    properties:
+      chapters:
+        items:
+          type: integer
+        type: array
+      questionId:
+        type: integer
+    type: object
+  model.QuestionContent:
+    properties:
+      analyze:
+        type: string
+      answer:
+        type: string
+      gapFilling:
+        $ref: '#/definitions/model.GapFillingQuestion'
+      multipleChoice:
+        $ref: '#/definitions/model.MultipleChoiceQuestion'
+      partLabel:
+        description: 部分标签
+        type: string
+      questionTypeId:
+        type: integer
+      questionTypeName:
+        type: string
+      score:
+        type: integer
+      shortAnswer:
+        $ref: '#/definitions/model.ShortAnswerQuestion'
+      singleChoice:
+        $ref: '#/definitions/model.SingleChoiceQuestion'
+      subpartLabel:
+        type: string
+      trueOrFalse:
+        $ref: '#/definitions/model.TrueOrFalseQuestion'
+    type: object
+  model.QuestionQueryRequest:
+    properties:
+      Status:
+        type: integer
+      chapters:
+        items:
+          type: integer
+        type: array
+      difficult:
+        type: integer
+      id:
+        type: integer
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      paperName:
+        type: string
+      pastPaperId:
+        type: integer
+      stem:
+        type: string
+      syllabusId:
+        type: integer
+    type: object
+  model.QuestionRandomPapers:
+    properties:
+      RandomPaper:
+        $ref: '#/definitions/model.RandomPaperQueryResponse'
+      RandomPaperId:
+        type: integer
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: integer
+      index:
+        type: integer
+      question:
+        $ref: '#/definitions/model.Question'
+      qustionId:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  model.RandomPaper:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      paperCode:
+        $ref: '#/definitions/model.PaperCode'
+      paperCodeId:
+        type: integer
+      paperSeries:
+        $ref: '#/definitions/model.PaperSeries'
+      paperSeriesId:
+        type: integer
+      questionNumber:
+        type: integer
+      questionsInfo:
+        description: InsertedQuestionNumber int         `json:"insertedQuestionNumber"`
+        items:
+          $ref: '#/definitions/model.QuestionRandomPapers'
+        type: array
+      syllabus:
+        $ref: '#/definitions/model.Syllabus'
+      syllabusId:
+        type: integer
+      updatedAt:
+        type: string
+      year:
+        type: integer
+    type: object
+  model.RandomPaperQuery:
+    properties:
+      id:
+        type: integer
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      syllabusId:
+        type: integer
+    type: object
+  model.RandomPaperQueryResponse:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      insertedQuestionNumber:
+        type: integer
+      name:
+        type: string
+      organisationId:
+        type: integer
+      organisationName:
+        type: string
+      qualificationId:
+        type: integer
+      qualificationName:
+        type: string
+      questionNumber:
+        type: integer
+      questions:
+        items:
+          $ref: '#/definitions/model.QuestionRandomPapers'
+        type: array
+      syllabusCode:
+        type: string
+      syllabusId:
+        type: integer
+      syllabusName:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.ShortAnswerQuestion:
+    properties:
+      answer:
+        type: string
+    type: object
+  model.SingleChoiceQuestion:
+    properties:
+      answer:
+        type: string
+      options:
+        items:
+          $ref: '#/definitions/model.ChoiceQuestionOption'
+        type: array
+    type: object
+  model.Slide:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      description:
+        type: string
+      hash:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      syllabus:
+        $ref: '#/definitions/model.Syllabus'
+      syllabusId:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  model.SlideCreateEditRequest:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      syllabusId:
+        type: integer
+    type: object
+  model.SlideQueryRequest:
+    properties:
+      id:
+        type: integer
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      syllabusId:
+        type: integer
+    type: object
+  model.Syllabus:
+    properties:
+      code:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      qualification:
+        $ref: '#/definitions/model.Qualification'
+      qualificationId:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  model.SyllabusQuery:
+    properties:
+      code:
+        type: string
+      id:
+        type: integer
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      qualificationId:
+        type: integer
+    type: object
+  model.TaskCompleteRequest:
+    properties:
+      id:
+        type: integer
+    required:
+    - id
+    type: object
+  model.TaskCreateRequest:
+    properties:
+      chapterId:
+        type: integer
+      description:
+        type: string
+      estimatedMinutes:
+        type: integer
+      goalId:
+        type: integer
+      pastPaperId:
+        type: integer
+      priority:
+        type: integer
+      questionCount:
+        type: integer
+      targetDate:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+    required:
+    - goalId
+    - targetDate
+    - title
+    - type
+    type: object
+  model.TaskQuery:
+    properties:
+      chapterId:
+        type: integer
+      dateFrom:
+        type: string
+      dateTo:
+        type: string
+      goalId:
+        type: integer
+      id:
+        type: integer
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      status:
+        type: string
+      targetDate:
+        type: string
+      type:
+        type: string
+      userId:
+        type: integer
+    type: object
+  model.TaskUpdateRequest:
+    properties:
+      completedAt:
+        type: string
+      description:
+        type: string
+      estimatedMinutes:
+        type: integer
+      id:
+        type: integer
+      isLocked:
+        type: boolean
+      priority:
+        type: integer
+      questionCount:
+        type: integer
+      status:
+        type: string
+      targetDate:
+        type: string
+      title:
+        type: string
+    required:
+    - id
+    type: object
+  model.Teacher:
+    properties:
+      IsActive:
+        type: integer
+      Status:
+        type: integer
+      avatar:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      engname:
+        type: string
+      id:
+        type: integer
+      inviteBalance:
+        type: integer
+      inviteUserExpiredAt:
+        type: string
+      inviteUserId:
+        type: integer
+      isNicknameSet:
+        type: integer
+      isPasswordSet:
+        type: integer
+      isUsernameSet:
+        type: integer
+      lastLoginId:
+        type: integer
+      mobile:
+        type: string
+      nickname:
+        type: string
+      realname:
+        type: string
+      registerArea:
+        type: string
+      registerIp:
+        type: string
+      sex:
+        type: integer
+      subjectId:
+        type: integer
+      subjectName:
+        type: string
+      updatedAt:
+        type: string
+      username:
+        type: string
+    type: object
+  model.TeacherApplicationCreateRequest:
+    properties:
+      experience:
+        type: string
+      motivation:
+        type: string
+    required:
+    - experience
+    - motivation
+    type: object
+  model.TeacherApplicationQuery:
+    properties:
+      endDate:
+        description: 'Format: YYYY-MM-DD'
+        type: string
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      startDate:
+        description: 'Format: YYYY-MM-DD'
+        type: string
+      status:
+        type: integer
+      userId:
+        type: integer
+    type: object
+  model.TrueOrFalseQuestion:
+    properties:
+      answer:
+        description: 1 正确 2 错误
+        type: integer
+    type: object
+  model.User:
+    properties:
+      adminRole:
+        allOf:
+        - $ref: '#/definitions/model.AdminRole'
+        description: Pointer to allow null
+      adminRoleId:
+        description: Pointer to allow null
+        type: integer
+      adminStatus:
+        description: Pointer to allow null, uses ADMIN_STATUS_OK etc. from model/admin.go
+        type: integer
+      avatar:
+        type: string
+      classes:
+        items:
+          $ref: '#/definitions/model.Class'
+        type: array
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      email:
+        description: Added Email field
+        type: string
+      engname:
+        type: string
+      finalActivityMark:
+        type: integer
+      finalPerformMark:
+        type: integer
+      id:
+        type: integer
+      inviteBalance:
+        type: integer
+      inviteUserExpiredAt:
+        type: string
+      inviteUserId:
+        type: integer
+      isActive:
+        type: integer
+      isAdmin:
+        description: Admin-related fields (moved from old Admin model or new)
+        type: boolean
+      isPasswordSet:
+        type: integer
+      isTeacher:
+        description: Teacher-related fields
+        type: boolean
+      isUsernameSet:
+        type: integer
+      lastLoginDate:
+        type: string
+      lastLoginId:
+        type: integer
+      lastLoginIp:
+        type: string
+      loginTimes:
+        type: integer
+      mobile:
+        type: string
+      nickname:
+        type: string
+      realname:
+        type: string
+      registerArea:
+        type: string
+      registerIp:
+        type: string
+      sex:
+        description: 1 男，2 女
+        type: integer
+      status:
+        type: integer
+      teacherApplicationId:
+        description: Link to TeacherApplication
+        type: integer
+      teacherApplyStatus:
+        description: '0: Not Applied, 1: Pending, 2: Approved, 3: Rejected'
+        type: integer
+      updatedAt:
+        type: string
+      username:
+        type: string
+      vipExpireAt:
+        description: VIP expire field
+        type: string
+    type: object
+  model.UserEditRequest:
+    properties:
+      engname:
+        type: string
+      id:
+        type: integer
+      nickname:
+        type: string
+      realname:
+        type: string
+      sex:
+        type: integer
+      status:
+        description: '1: Active, 2: Inactive, 3: Suspended, 4: Banned'
+        type: integer
+    type: object
+  model.UserQuery:
+    properties:
+      classId:
+        type: integer
+      engname:
+        type: string
+      id:
+        type: integer
+      mobile:
+        type: string
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      realname:
+        type: string
+      status:
+        type: integer
+      username:
+        type: string
+    type: object
+  model.VideoQueryRequest:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      disk:
+        type: string
+      hash:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  model.VideoUploadConfig:
+    properties:
+      cosAppId:
+        type: string
+      cosBucket:
+        type: string
+      cosCDNUrl:
+        type: string
+      cosRegion:
+        type: string
+      cosSecretId:
+        type: string
+      cosSecretKey:
+        type: string
+      disk:
+        type: string
+      ossAccessKeyId:
+        type: string
+      ossAccessKeySecret:
+        type: string
+      ossBucket:
+        type: string
+      ossCDNUrl:
+        type: string
+      ossEndpoint:
+        type: string
+      qiniuAccessKey:
+        type: string
+      qiniuBucket:
+        type: string
+      qiniuCDNUrl:
+        type: string
+      qiniuCDNUrls:
+        type: string
+      qiniuSecretKey:
+        type: string
+    type: object
+  model.VocabularyItem:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      key:
+        type: string
+      order:
+        type: integer
+      updatedAt:
+        type: string
+      value:
+        type: string
+      vocabularySetId:
+        type: integer
+    type: object
+  model.VocabularyItemCreateEditRequest:
+    properties:
+      id:
+        type: integer
+      image:
+        type: string
+      key:
+        type: string
+      order:
+        type: integer
+      value:
+        type: string
+      vocabularySetId:
+        type: integer
+    type: object
+  model.VocabularyItemQuery:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: integer
+      key:
+        type: string
+      updatedAt:
+        type: string
+      vocabularySetId:
+        type: integer
+    type: object
+  model.VocabularySetCreateEditRequest:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      syllabusId:
+        type: integer
+      words:
+        items:
+          $ref: '#/definitions/model.VocabularyItem'
+        type: array
+    type: object
+  model.VocabularySetQuery:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      organisationId:
+        type: integer
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      qualificationId:
+        type: integer
+      syllabusId:
+        type: integer
+    type: object
+  model.WebSiteConfig:
+    properties:
+      iCPCode:
+        type: string
+      webSiteLogo:
+        type: string
+      webSiteName:
+        type: string
+      webSiteUrl:
+        type: string
+    type: object
+  v1.RegistrationRequest:
+    properties:
+      email:
+        type: string
+      mobile:
+        description: Optional
+        type: string
+      password:
+        minLength: 6
+        type: string
+      passwordConfirm:
+        type: string
+      username:
+        type: string
+      verificationCode:
+        type: string
+    required:
+    - email
+    - password
+    - passwordConfirm
+    - username
+    - verificationCode
+    type: object
+  v1.SendCodeRequest:
+    properties:
+      captchaId:
+        type: string
+      captchaValue:
+        type: string
+      email:
+        type: string
+    required:
+    - captchaId
+    - captchaValue
+    - email
+    type: object
+info:
+  contact:
+    name: LTEdu Support
+  description: LTEdu 在线教育平台后端接口文档
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: LTEdu API
+  version: "1.0"
+paths:
+  /v1/addons:
+    get:
+      consumes:
+      - application/json
+      description: 返回已安装的插件列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取插件列表
+      tags:
+      - 系统设置
+  /v1/admin/teacher-applications/approve:
+    post:
+      consumes:
+      - application/json
+      description: 通过指定的教师资格申请（仅管理员）
+      parameters:
+      - description: 申请ID和备注
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 审批通过教师申请
+      tags:
+      - 教师申请
+  /v1/admin/teacher-applications/detail:
+    post:
+      consumes:
+      - application/json
+      description: 获取指定教师申请的详细信息（仅管理员）
+      parameters:
+      - description: 申请ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取教师申请详情
+      tags:
+      - 教师申请
+  /v1/admin/teacher-applications/list:
+    post:
+      consumes:
+      - application/json
+      description: 获取所有教师申请列表（仅管理员）
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.TeacherApplicationQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取教师申请列表
+      tags:
+      - 教师申请
+  /v1/admin/teacher-applications/reject:
+    post:
+      consumes:
+      - application/json
+      description: 拒绝指定的教师资格申请（仅管理员）
+      parameters:
+      - description: 申请ID和拒绝理由
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 拒绝教师申请
+      tags:
+      - 教师申请
+  /v1/attempt/create:
+    post:
+      consumes:
+      - application/json
+      description: 记录一次学习练习尝试
+      parameters:
+      - description: 学习记录信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AttemptCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建学习记录
+      tags:
+      - 学习导航
+  /v1/attempt/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询当前用户的学习记录
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AttemptQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取学习记录列表
+      tags:
+      - 学习导航
+  /v1/attempt/recent:
+    post:
+      consumes:
+      - application/json
+      description: 获取指定目标最近的学习记录
+      parameters:
+      - description: 目标ID和数量限制
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取最近学习记录
+      tags:
+      - 学习导航
+  /v1/attempt/stats:
+    post:
+      consumes:
+      - application/json
+      description: 获取指定目标的学习统计数据
+      parameters:
+      - description: 目标ID和可选章节ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取学习统计
+      tags:
+      - 学习导航
+  /v1/captcha:
+    post:
+      consumes:
+      - application/json
+      description: 生成一个新的图形验证码
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 生成失败
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取图形验证码
+      tags:
+      - 认证
+  /v1/change-password:
+    post:
+      consumes:
+      - application/json
+      description: 修改当前用户密码（需要原密码验证，成功后强制重新登录）
+      parameters:
+      - description: 旧密码与新密码
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 修改密码
+      tags:
+      - 认证
+  /v1/chapter/byId:
+    post:
+      consumes:
+      - application/json
+      description: 根据章节ID获取章节详情
+      parameters:
+      - description: 章节ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ChapterQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 根据ID获取章节
+      tags:
+      - 考纲管理
+  /v1/chapter/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新章节
+      parameters:
+      - description: 章节信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Chapter'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建章节
+      tags:
+      - 考纲管理
+  /v1/chapter/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定章节
+      parameters:
+      - description: 章节ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Chapter'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除章节
+      tags:
+      - 考纲管理
+  /v1/chapter/edit:
+    post:
+      consumes:
+      - application/json
+      description: 修改章节信息
+      parameters:
+      - description: 章节信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Chapter'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 编辑章节
+      tags:
+      - 考纲管理
+  /v1/chapter/generate-keypoints:
+    post:
+      consumes:
+      - application/json
+      description: 为指定章节自动生成知识点
+      parameters:
+      - description: 章节ID和模式
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 生成章节知识点
+      tags:
+      - 知识点
+  /v1/chapter/tree:
+    post:
+      consumes:
+      - application/json
+      description: 根据考纲ID获取章节树形结构
+      parameters:
+      - description: 考纲ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ChapterQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取章节树
+      tags:
+      - 考纲管理
+  /v1/course/byId:
+    post:
+      consumes:
+      - application/json
+      description: 根据课程ID获取课程详情
+      parameters:
+      - description: 课程ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CourseQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 根据ID获取课程
+      tags:
+      - 课程
+  /v1/course/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新课程
+      parameters:
+      - description: 课程信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CourseCreateEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建课程
+      tags:
+      - 课程
+  /v1/course/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定课程
+      parameters:
+      - description: 课程ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Course'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除课程
+      tags:
+      - 课程
+  /v1/course/edit:
+    post:
+      consumes:
+      - application/json
+      description: 修改课程信息
+      parameters:
+      - description: 课程信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CourseCreateEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 编辑课程
+      tags:
+      - 课程
+  /v1/course/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询课程列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CourseQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取课程列表
+      tags:
+      - 课程
+  /v1/courseVideo/byId:
+    post:
+      consumes:
+      - application/json
+      description: 根据课程视频ID获取课程视频详情
+      parameters:
+      - description: 课程视频ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CourseVideoQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 根据ID获取课程视频
+      tags:
+      - 课程
+  /v1/courseVideo/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新课程视频
+      parameters:
+      - description: 课程视频信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CourseVideoCreateEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建课程视频
+      tags:
+      - 课程
+  /v1/courseVideo/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定课程视频
+      parameters:
+      - description: 课程视频ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CourseVideo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除课程视频
+      tags:
+      - 课程
+  /v1/courseVideo/edit:
+    post:
+      consumes:
+      - application/json
+      description: 修改课程视频信息
+      parameters:
+      - description: 课程视频信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CourseVideoCreateEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 编辑课程视频
+      tags:
+      - 课程
+  /v1/courseVideo/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询课程视频列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CourseVideoQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取课程视频列表
+      tags:
+      - 课程
+  /v1/dashboard:
+    get:
+      consumes:
+      - application/json
+      description: 获取管理后台仪表盘统计数据
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取仪表盘数据
+      tags:
+      - 系统设置
+  /v1/document/all:
+    post:
+      consumes:
+      - application/json
+      description: 获取全部文档列表（不分页）
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.DocumentQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取所有文档
+      tags:
+      - 文档
+  /v1/document/byId:
+    post:
+      consumes:
+      - application/json
+      description: 根据文档ID获取文档详情
+      parameters:
+      - description: 文档ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.DocumentQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 根据ID获取文档
+      tags:
+      - 文档
+  /v1/document/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新文档记录
+      parameters:
+      - description: 文档信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.DocumentCreateEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建文档
+      tags:
+      - 文档
+  /v1/document/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定文档
+      parameters:
+      - description: 文档ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.DocumentQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除文档
+      tags:
+      - 文档
+  /v1/document/download:
+    post:
+      consumes:
+      - application/json
+      description: 生成文档的临时下载链接
+      parameters:
+      - description: 文档ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.DocumentQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取文档下载链接
+      tags:
+      - 文档
+  /v1/document/edit:
+    post:
+      consumes:
+      - application/json
+      description: 修改文档信息
+      parameters:
+      - description: 文档信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.DocumentCreateEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 编辑文档
+      tags:
+      - 文档
+  /v1/document/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询文档列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.DocumentQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取文档列表
+      tags:
+      - 文档
+  /v1/documentCategory/all:
+    post:
+      consumes:
+      - application/json
+      description: 获取全部文档分类列表（不分页）
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.DocumentCategoryQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取所有文档分类
+      tags:
+      - 文档
+  /v1/documentCategory/byId:
+    post:
+      consumes:
+      - application/json
+      description: 根据分类ID获取文档分类详情
+      parameters:
+      - description: 分类ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.DocumentCategoryQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 根据ID获取文档分类
+      tags:
+      - 文档
+  /v1/documentCategory/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新文档分类
+      parameters:
+      - description: 分类信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.DocumentCategoryCreateEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建文档分类
+      tags:
+      - 文档
+  /v1/documentCategory/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定文档分类
+      parameters:
+      - description: 分类ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.DocumentCategoryQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除文档分类
+      tags:
+      - 文档
+  /v1/documentCategory/edit:
+    post:
+      consumes:
+      - application/json
+      description: 修改文档分类信息
+      parameters:
+      - description: 分类信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.DocumentCategoryCreateEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 编辑文档分类
+      tags:
+      - 文档
+  /v1/documentCategory/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询文档分类列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.DocumentCategoryQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取文档分类列表
+      tags:
+      - 文档
+  /v1/download/{jwt}:
+    get:
+      description: 通过JWT令牌下载文档文件
+      parameters:
+      - description: JWT令牌
+        in: path
+        name: jwt
+        required: true
+        type: string
+      - description: 文件名
+        in: query
+        name: filename
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: 文件内容
+      summary: 下载文档
+      tags:
+      - 媒体
+  /v1/goal/active:
+    post:
+      consumes:
+      - application/json
+      description: 获取当前用户所有活跃状态的学习目标
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取活跃学习目标
+      tags:
+      - 学习导航
+  /v1/goal/byId:
+    post:
+      consumes:
+      - application/json
+      description: 获取指定ID的学习目标详情
+      parameters:
+      - description: 目标ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 根据ID获取学习目标
+      tags:
+      - 学习导航
+  /v1/goal/create:
+    post:
+      consumes:
+      - application/json
+      description: 为当前用户创建新的学习目标
+      parameters:
+      - description: 目标信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.GoalCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建学习目标
+      tags:
+      - 学习导航
+  /v1/goal/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定学习目标
+      parameters:
+      - description: 目标ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除学习目标
+      tags:
+      - 学习导航
+  /v1/goal/diagnostic/complete:
+    post:
+      consumes:
+      - application/json
+      description: 标记指定目标的诊断测试已完成
+      parameters:
+      - description: 目标ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 完成诊断测试
+      tags:
+      - 学习导航
+  /v1/goal/edit:
+    post:
+      consumes:
+      - application/json
+      description: 更新现有学习目标
+      parameters:
+      - description: 目标信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.GoalUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 更新学习目标
+      tags:
+      - 学习导航
+  /v1/goal/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询当前用户的学习目标列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.GoalQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取学习目标列表
+      tags:
+      - 学习导航
+  /v1/knowledge-point/byChapter:
+    post:
+      consumes:
+      - application/json
+      description: 根据章节ID获取该章节下的所有知识点
+      parameters:
+      - description: 章节ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 根据章节获取知识点
+      tags:
+      - 知识点
+  /v1/knowledge-point/byId:
+    post:
+      consumes:
+      - application/json
+      description: 根据知识点ID获取知识点详情
+      parameters:
+      - description: 知识点ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 根据ID获取知识点
+      tags:
+      - 知识点
+  /v1/knowledge-point/bySyllabus:
+    post:
+      consumes:
+      - application/json
+      description: 根据考纲ID获取该考纲下的所有知识点
+      parameters:
+      - description: 考纲ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 根据考纲获取知识点
+      tags:
+      - 知识点
+  /v1/knowledge-point/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新知识点
+      parameters:
+      - description: 知识点信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.KnowledgePoint'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建知识点
+      tags:
+      - 知识点
+  /v1/knowledge-point/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定知识点
+      parameters:
+      - description: 知识点ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除知识点
+      tags:
+      - 知识点
+  /v1/knowledge-point/edit:
+    post:
+      consumes:
+      - application/json
+      description: 更新现有知识点信息
+      parameters:
+      - description: 知识点信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.KnowledgePoint'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 更新知识点
+      tags:
+      - 知识点
+  /v1/knowledge-point/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询知识点列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.KnowledgePointQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取知识点列表
+      tags:
+      - 知识点
+  /v1/knowledge-state/byChapter:
+    post:
+      consumes:
+      - application/json
+      description: 获取指定目标和章节的知识掌握状态
+      parameters:
+      - description: 目标ID和章节ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取章节知识状态
+      tags:
+      - 学习导航
+  /v1/knowledge-state/due-review:
+    post:
+      consumes:
+      - application/json
+      description: 获取指定目标中需要复习的章节列表
+      parameters:
+      - description: 目标ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取待复习章节
+      tags:
+      - 学习导航
+  /v1/knowledge-state/list:
+    post:
+      consumes:
+      - application/json
+      description: 获取指定目标的所有章节知识状态
+      parameters:
+      - description: 目标ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取目标知识状态列表
+      tags:
+      - 学习导航
+  /v1/knowledge-state/progress:
+    post:
+      consumes:
+      - application/json
+      description: 获取用户在指定目标上的学习进度
+      parameters:
+      - description: 目标ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取学习进度
+      tags:
+      - 学习导航
+  /v1/mcp/token/activate:
+    post:
+      consumes:
+      - application/json
+      description: 激活当前用户的指定MCP令牌
+      parameters:
+      - description: 令牌ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 激活MCP令牌
+      tags:
+      - MCP
+  /v1/mcp/token/admin/activate:
+    post:
+      consumes:
+      - application/json
+      description: 管理员激活任意用户的MCP令牌
+      parameters:
+      - description: 令牌ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 管理员激活MCP令牌
+      tags:
+      - MCP
+  /v1/mcp/token/admin/deactivate:
+    post:
+      consumes:
+      - application/json
+      description: 管理员停用任意用户的MCP令牌
+      parameters:
+      - description: 令牌ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 管理员停用MCP令牌
+      tags:
+      - MCP
+  /v1/mcp/token/admin/delete:
+    post:
+      consumes:
+      - application/json
+      description: 管理员删除任意用户的MCP令牌
+      parameters:
+      - description: 令牌ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 管理员删除MCP令牌
+      tags:
+      - MCP
+  /v1/mcp/token/admin/list:
+    post:
+      consumes:
+      - application/json
+      description: 管理员获取全平台所有用户的MCP令牌列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/model.MCPTokenQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 管理员获取所有MCP令牌
+      tags:
+      - MCP
+  /v1/mcp/token/create:
+    post:
+      consumes:
+      - application/json
+      description: 为当前用户创建新的MCP访问令牌
+      parameters:
+      - description: 令牌信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.MCPTokenCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建MCP令牌
+      tags:
+      - MCP
+  /v1/mcp/token/deactivate:
+    post:
+      consumes:
+      - application/json
+      description: 停用当前用户的指定MCP令牌
+      parameters:
+      - description: 令牌ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 停用MCP令牌
+      tags:
+      - MCP
+  /v1/mcp/token/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除当前用户的指定MCP令牌
+      parameters:
+      - description: 令牌ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除MCP令牌
+      tags:
+      - MCP
+  /v1/mcp/token/list:
+    post:
+      consumes:
+      - application/json
+      description: 获取当前用户的所有MCP令牌
+      parameters:
+      - description: 分页参数
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/model.Page'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取MCP令牌列表
+      tags:
+      - MCP
+  /v1/mediaImage/byId:
+    post:
+      consumes:
+      - application/json
+      description: 根据图片ID获取图片详情
+      parameters:
+      - description: 图片ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ImageQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 根据ID获取图片
+      tags:
+      - 媒体
+  /v1/mediaImage/create:
+    post:
+      consumes:
+      - application/json
+      description: 根据已有附件信息创建图片媒体记录
+      parameters:
+      - description: 附件信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Attachment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建图片记录
+      tags:
+      - 媒体
+  /v1/mediaImage/disk:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前图片存储磁盘类型配置
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取图片存储类型
+      tags:
+      - 媒体
+  /v1/mediaImage/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询图片列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ImageQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取图片列表
+      tags:
+      - 媒体
+  /v1/mediaImage/token/qiniu:
+    post:
+      consumes:
+      - application/json
+      description: 获取七牛云存储上传令牌
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 获取失败
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取七牛上传Token
+      tags:
+      - 媒体
+  /v1/mediaImage/uploadToDisk:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 上传图片文件并保存到本地存储
+      parameters:
+      - description: 图片文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 上传成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 上传失败
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 上传图片到磁盘
+      tags:
+      - 媒体
+  /v1/mediaVideo/byId:
+    post:
+      consumes:
+      - application/json
+      description: 根据视频ID获取视频详情
+      parameters:
+      - description: 视频ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.VideoQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 根据ID获取视频
+      tags:
+      - 媒体
+  /v1/mediaVideo/create:
+    post:
+      consumes:
+      - application/json
+      description: 根据已有附件信息创建视频媒体记录
+      parameters:
+      - description: 附件信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Attachment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建视频记录
+      tags:
+      - 媒体
+  /v1/mediaVideo/disk:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前视频存储磁盘类型配置
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取视频存储类型
+      tags:
+      - 媒体
+  /v1/mediaVideo/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询视频列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.VideoQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取视频列表
+      tags:
+      - 媒体
+  /v1/mediaVideo/token/qiniu:
+    post:
+      consumes:
+      - application/json
+      description: 获取七牛云存储视频上传令牌
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 获取失败
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取七牛视频上传Token
+      tags:
+      - 媒体
+  /v1/mediaVideo/uploadToDisk:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 上传视频文件并保存到本地存储
+      parameters:
+      - description: 视频文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 上传成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 上传失败
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 上传视频到磁盘
+      tags:
+      - 媒体
+  /v1/organisation/all:
+    post:
+      consumes:
+      - application/json
+      description: 获取全部机构列表（不分页）
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.OrganisationQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取所有机构
+      tags:
+      - 考纲管理
+  /v1/organisation/byId:
+    post:
+      consumes:
+      - application/json
+      description: 根据机构ID获取机构详情
+      parameters:
+      - description: 机构ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.OrganisationQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 根据ID获取机构
+      tags:
+      - 考纲管理
+  /v1/organisation/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新机构
+      parameters:
+      - description: 机构信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Organisation'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建机构
+      tags:
+      - 考纲管理
+  /v1/organisation/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定机构
+      parameters:
+      - description: 机构ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Organisation'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除机构
+      tags:
+      - 考纲管理
+  /v1/organisation/edit:
+    post:
+      consumes:
+      - application/json
+      description: 修改机构信息
+      parameters:
+      - description: 机构信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Organisation'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 编辑机构
+      tags:
+      - 考纲管理
+  /v1/organisation/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询机构列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.OrganisationQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取机构列表
+      tags:
+      - 考纲管理
+  /v1/paper/exam/all:
+    post:
+      consumes:
+      - application/json
+      description: 获取全部考试试卷列表（不分页）
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ExamPaperQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取所有考试试卷
+      tags:
+      - 试卷管理
+  /v1/paper/exam/byId:
+    post:
+      consumes:
+      - application/json
+      description: 根据试卷ID获取考试试卷详情
+      parameters:
+      - description: 试卷ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ExamPaperQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 根据ID获取考试试卷
+      tags:
+      - 试卷管理
+  /v1/paper/exam/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新考试试卷（仅教师可操作）
+      parameters:
+      - description: 试卷信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ExamPaper'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建考试试卷
+      tags:
+      - 试卷管理
+  /v1/paper/exam/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定考试试卷
+      parameters:
+      - description: 试卷ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ExamPaper'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除考试试卷
+      tags:
+      - 试卷管理
+  /v1/paper/exam/edit:
+    post:
+      consumes:
+      - application/json
+      description: 修改考试试卷信息
+      parameters:
+      - description: 试卷信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ExamPaper'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 编辑考试试卷
+      tags:
+      - 试卷管理
+  /v1/paper/exam/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询考试试卷列表（管理员可查全部，教师只查自己的）
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ExamPaperQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取考试试卷列表
+      tags:
+      - 试卷管理
+  /v1/paper/exam/question/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新考试试卷中的题目列表
+      parameters:
+      - description: 试卷与题目信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ExamPaper'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 更新考试试卷题目
+      tags:
+      - 试卷管理
+  /v1/paper/exam/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 上传考试试卷PDF文件
+      parameters:
+      - description: 试卷文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 上传成功
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 上传考试试卷文件
+      tags:
+      - 试卷管理
+  /v1/paper/past/all:
+    post:
+      consumes:
+      - application/json
+      description: 获取全部历年试卷列表（不分页）
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PastPaperQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取所有历年试卷
+      tags:
+      - 试卷管理
+  /v1/paper/past/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新历年试卷
+      parameters:
+      - description: 试卷信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PastPaper'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建历年试卷
+      tags:
+      - 试卷管理
+  /v1/paper/past/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定历年试卷
+      parameters:
+      - description: 试卷ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PastPaper'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除历年试卷
+      tags:
+      - 试卷管理
+  /v1/paper/past/edit:
+    post:
+      consumes:
+      - application/json
+      description: 修改历年试卷信息
+      parameters:
+      - description: 试卷信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PastPaper'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 编辑历年试卷
+      tags:
+      - 试卷管理
+  /v1/paper/past/getById:
+    post:
+      consumes:
+      - application/json
+      description: 根据试卷ID获取历年试卷详情
+      parameters:
+      - description: 试卷ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PastPaperQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 根据ID获取历年试卷
+      tags:
+      - 试卷管理
+  /v1/paper/past/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询历年试卷列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PastPaperQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取历年试卷列表
+      tags:
+      - 试卷管理
+  /v1/paper/past/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 上传历年试卷PDF文件
+      parameters:
+      - description: 试卷文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 上传成功
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 上传历年试卷文件
+      tags:
+      - 试卷管理
+  /v1/paper/random/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新随机试卷
+      parameters:
+      - description: 试卷信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.RandomPaper'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建随机试卷
+      tags:
+      - 试卷管理
+  /v1/paper/random/getById:
+    post:
+      consumes:
+      - application/json
+      description: 根据试卷ID获取随机试卷详情
+      parameters:
+      - description: 试卷ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.RandomPaperQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 根据ID获取随机试卷
+      tags:
+      - 试卷管理
+  /v1/paper/random/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询随机试卷列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.RandomPaperQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取随机试卷列表
+      tags:
+      - 试卷管理
+  /v1/pastPaper/code/all:
+    post:
+      consumes:
+      - application/json
+      description: 获取全部试卷代码列表（不分页）
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PaperCodeQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取所有试卷代码
+      tags:
+      - 试卷管理
+  /v1/pastPaper/code/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新试卷代码
+      parameters:
+      - description: 代码信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PaperCode'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建试卷代码
+      tags:
+      - 试卷管理
+  /v1/pastPaper/code/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定试卷代码
+      parameters:
+      - description: 代码ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PaperCode'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除试卷代码
+      tags:
+      - 试卷管理
+  /v1/pastPaper/code/edit:
+    post:
+      consumes:
+      - application/json
+      description: 修改试卷代码信息
+      parameters:
+      - description: 代码信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PaperCode'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 编辑试卷代码
+      tags:
+      - 试卷管理
+  /v1/pastPaper/code/getById:
+    post:
+      consumes:
+      - application/json
+      description: 根据代码ID获取试卷代码详情
+      parameters:
+      - description: 代码ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PaperCodeQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 根据ID获取试卷代码
+      tags:
+      - 试卷管理
+  /v1/pastPaper/code/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询试卷代码列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PaperCodeQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取试卷代码列表
+      tags:
+      - 试卷管理
+  /v1/pastPaper/series/all:
+    post:
+      consumes:
+      - application/json
+      description: 获取全部试卷系列列表（不分页）
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PaperSeriesQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取所有试卷系列
+      tags:
+      - 试卷管理
+  /v1/pastPaper/series/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新试卷系列
+      parameters:
+      - description: 系列信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PaperSeries'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建试卷系列
+      tags:
+      - 试卷管理
+  /v1/pastPaper/series/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定试卷系列
+      parameters:
+      - description: 系列ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PaperSeries'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除试卷系列
+      tags:
+      - 试卷管理
+  /v1/pastPaper/series/edit:
+    post:
+      consumes:
+      - application/json
+      description: 修改试卷系列信息
+      parameters:
+      - description: 系列信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PaperSeries'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 编辑试卷系列
+      tags:
+      - 试卷管理
+  /v1/pastPaper/series/getById:
+    post:
+      consumes:
+      - application/json
+      description: 根据系列ID获取试卷系列详情
+      parameters:
+      - description: 系列ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PaperSeriesQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 根据ID获取试卷系列
+      tags:
+      - 试卷管理
+  /v1/pastPaper/series/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询试卷系列列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PaperSeriesQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取试卷系列列表
+      tags:
+      - 试卷管理
+  /v1/practice/grade:
+    post:
+      consumes:
+      - application/json
+      description: 批改练习提交，返回得分和答题详情
+      parameters:
+      - description: 答题数据
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/model.PracticeSubmission'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 批改练习
+      tags:
+      - 练习
+  /v1/practice/paper:
+    post:
+      consumes:
+      - application/json
+      description: 根据试卷生成练习题目列表
+      parameters:
+      - description: 练习条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PracticePaperRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 试卷练习
+      tags:
+      - 练习
+  /v1/practice/quick:
+    post:
+      consumes:
+      - application/json
+      description: 根据条件生成一组快速练习题目
+      parameters:
+      - description: 练习条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PracticeQuickRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 快速练习
+      tags:
+      - 练习
+  /v1/qualification/all:
+    post:
+      consumes:
+      - application/json
+      description: 获取全部资质列表（不分页）
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.QualificationQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取所有资质
+      tags:
+      - 考纲管理
+  /v1/qualification/byId:
+    post:
+      consumes:
+      - application/json
+      description: 根据资质ID获取详情
+      parameters:
+      - description: 资质ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.QualificationQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 根据ID获取资质
+      tags:
+      - 考纲管理
+  /v1/qualification/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新资质（考试）
+      parameters:
+      - description: 资质信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Qualification'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建资质
+      tags:
+      - 考纲管理
+  /v1/qualification/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定资质
+      parameters:
+      - description: 资质ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Qualification'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除资质
+      tags:
+      - 考纲管理
+  /v1/qualification/edit:
+    post:
+      consumes:
+      - application/json
+      description: 修改资质信息
+      parameters:
+      - description: 资质信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Qualification'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 编辑资质
+      tags:
+      - 考纲管理
+  /v1/qualification/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询资质（考试）列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.QualificationQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取资质列表
+      tags:
+      - 考纲管理
+  /v1/question/addChapter:
+    post:
+      consumes:
+      - application/json
+      description: 为题目添加章节关联
+      parameters:
+      - description: 题目与章节ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.QuestionChapterUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 添加题目章节关联
+      tags:
+      - 题目管理
+  /v1/question/all:
+    post:
+      consumes:
+      - application/json
+      description: 获取全部题目列表（不分页）
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.QuestionQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取所有题目
+      tags:
+      - 题目管理
+  /v1/question/auto-link-keypoints:
+    post:
+      consumes:
+      - application/json
+      description: 将题目自动关联到匹配的知识点
+      parameters:
+      - description: 题目ID、章节ID和考纲ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 自动关联题目到知识点
+      tags:
+      - 知识点
+  /v1/question/auto-link-keypoints-intelligent:
+    post:
+      consumes:
+      - application/json
+      description: 使用两阶段智能方法将题目关联到知识点
+      parameters:
+      - description: 题目ID和考纲ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 智能关联题目到知识点
+      tags:
+      - 知识点
+  /v1/question/byId:
+    post:
+      consumes:
+      - application/json
+      description: 根据题目ID获取题目详情
+      parameters:
+      - description: 题目ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PaperSeriesQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 根据ID获取题目
+      tags:
+      - 题目管理
+  /v1/question/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新题目
+      parameters:
+      - description: 题目信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Question'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建题目
+      tags:
+      - 题目管理
+  /v1/question/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定题目
+      parameters:
+      - description: 题目ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.QuestionQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除题目
+      tags:
+      - 题目管理
+  /v1/question/deleteChapter:
+    post:
+      consumes:
+      - application/json
+      description: 删除题目与章节的关联
+      parameters:
+      - description: 题目与章节ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.QuestionChapterUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除题目章节关联
+      tags:
+      - 题目管理
+  /v1/question/edit:
+    post:
+      consumes:
+      - application/json
+      description: 修改题目信息
+      parameters:
+      - description: 题目信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Question'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 编辑题目
+      tags:
+      - 题目管理
+  /v1/question/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询题目列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.QuestionQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取题目列表
+      tags:
+      - 题目管理
+  /v1/register:
+    post:
+      consumes:
+      - application/json
+      description: 注册新用户账号（需要邮箱验证码）
+      parameters:
+      - description: 注册信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/v1.RegistrationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 注册成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 用户注册
+      tags:
+      - 认证
+  /v1/school/class/addStudent:
+    post:
+      consumes:
+      - application/json
+      description: 将学生添加到指定班级
+      parameters:
+      - description: 班级ID和学生ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 添加学生到班级
+      tags:
+      - 学校管理
+  /v1/school/class/all:
+    post:
+      consumes:
+      - application/json
+      description: 获取全部班级列表（不分页）
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ClassQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取所有班级
+      tags:
+      - 学校管理
+  /v1/school/class/byId:
+    post:
+      consumes:
+      - application/json
+      description: 根据班级ID获取班级详情
+      parameters:
+      - description: 班级ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ClassQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 根据ID获取班级
+      tags:
+      - 学校管理
+  /v1/school/class/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新班级
+      parameters:
+      - description: 班级信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ClassCreateEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建班级
+      tags:
+      - 学校管理
+  /v1/school/class/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定班级
+      parameters:
+      - description: 班级ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Class'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除班级
+      tags:
+      - 学校管理
+  /v1/school/class/deleteStudent:
+    post:
+      consumes:
+      - application/json
+      description: 将学生从指定班级移除
+      parameters:
+      - description: 班级ID和学生ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 从班级移除学生
+      tags:
+      - 学校管理
+  /v1/school/class/edit:
+    post:
+      consumes:
+      - application/json
+      description: 修改班级信息
+      parameters:
+      - description: 班级信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ClassCreateEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 编辑班级
+      tags:
+      - 学校管理
+  /v1/school/class/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询班级列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ClassQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取班级列表
+      tags:
+      - 学校管理
+  /v1/school/class/studentList:
+    post:
+      consumes:
+      - application/json
+      description: 获取指定班级的所有学生
+      parameters:
+      - description: 班级ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Class'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取班级学生列表
+      tags:
+      - 学校管理
+  /v1/school/classType/all:
+    post:
+      consumes:
+      - application/json
+      description: 获取全部班型列表（不分页）
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ClassTypeQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取所有班型
+      tags:
+      - 学校管理
+  /v1/school/classType/byId:
+    post:
+      consumes:
+      - application/json
+      description: 根据班型ID获取班型详情
+      parameters:
+      - description: 班型ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ClassTypeQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 根据ID获取班型
+      tags:
+      - 学校管理
+  /v1/school/classType/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新班型
+      parameters:
+      - description: 班型信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ClassTypeCreateEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建班型
+      tags:
+      - 学校管理
+  /v1/school/classType/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定班型
+      parameters:
+      - description: 班型ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ClassType'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除班型
+      tags:
+      - 学校管理
+  /v1/school/classType/edit:
+    post:
+      consumes:
+      - application/json
+      description: 修改班型信息
+      parameters:
+      - description: 班型信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ClassTypeCreateEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 编辑班型
+      tags:
+      - 学校管理
+  /v1/school/classType/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询班型列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ClassTypeQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取班型列表
+      tags:
+      - 学校管理
+  /v1/school/grade/all:
+    post:
+      consumes:
+      - application/json
+      description: 获取全部年级列表（不分页）
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.GradeQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取所有年级
+      tags:
+      - 学校管理
+  /v1/school/grade/byId:
+    post:
+      consumes:
+      - application/json
+      description: 根据年级ID获取年级详情
+      parameters:
+      - description: 年级ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.GradeQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 根据ID获取年级
+      tags:
+      - 学校管理
+  /v1/school/grade/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新年级
+      parameters:
+      - description: 年级信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.GradeCreateEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建年级
+      tags:
+      - 学校管理
+  /v1/school/grade/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定年级
+      parameters:
+      - description: 年级ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Grade'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除年级
+      tags:
+      - 学校管理
+  /v1/school/grade/edit:
+    post:
+      consumes:
+      - application/json
+      description: 修改年级信息
+      parameters:
+      - description: 年级信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.GradeCreateEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 编辑年级
+      tags:
+      - 学校管理
+  /v1/school/grade/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询年级列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.GradeQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取年级列表
+      tags:
+      - 学校管理
+  /v1/slide/all:
+    post:
+      consumes:
+      - application/json
+      description: 获取全部课件列表（不分页）
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.SlideQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取所有课件
+      tags:
+      - 课程
+  /v1/slide/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新课件
+      parameters:
+      - description: 课件信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.SlideCreateEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建课件
+      tags:
+      - 课程
+  /v1/slide/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定课件
+      parameters:
+      - description: 课件ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Slide'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除课件
+      tags:
+      - 课程
+  /v1/slide/edit:
+    post:
+      consumes:
+      - application/json
+      description: 修改课件信息
+      parameters:
+      - description: 课件信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.SlideCreateEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 编辑课件
+      tags:
+      - 课程
+  /v1/slide/getById:
+    post:
+      consumes:
+      - application/json
+      description: 根据课件ID获取课件详情
+      parameters:
+      - description: 课件ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.SlideQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 根据ID获取课件
+      tags:
+      - 课程
+  /v1/slide/link:
+    post:
+      consumes:
+      - application/json
+      description: 获取课件的访问哈希值
+      parameters:
+      - description: 课件ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.SlideQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取课件链接
+      tags:
+      - 课程
+  /v1/slide/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询课件列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.SlideQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取课件列表
+      tags:
+      - 课程
+  /v1/statistic/orderCreated:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定时间范围内的订单创建数量统计
+      parameters:
+      - description: 开始日期 (2006-01-02)
+        in: query
+        name: startAt
+        type: string
+      - description: 结束日期 (2006-01-02)
+        in: query
+        name: endAt
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 订单创建统计
+      tags:
+      - 系统设置
+  /v1/statistic/orderPaidCount:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定时间范围内的订单支付数量统计
+      parameters:
+      - description: 开始日期 (2006-01-02)
+        in: query
+        name: startAt
+        type: string
+      - description: 结束日期 (2006-01-02)
+        in: query
+        name: endAt
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 订单支付数量统计
+      tags:
+      - 系统设置
+  /v1/statistic/orderPaidSum:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定时间范围内的订单支付金额统计
+      parameters:
+      - description: 开始日期 (2006-01-02)
+        in: query
+        name: startAt
+        type: string
+      - description: 结束日期 (2006-01-02)
+        in: query
+        name: endAt
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 订单支付金额统计
+      tags:
+      - 系统设置
+  /v1/statistic/userRegister:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定时间范围内的用户注册数量统计
+      parameters:
+      - description: 开始日期 (2006-01-02)
+        in: query
+        name: startAt
+        type: string
+      - description: 结束日期 (2006-01-02)
+        in: query
+        name: endAt
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 用户注册统计
+      tags:
+      - 系统设置
+  /v1/syllabus/all:
+    post:
+      consumes:
+      - application/json
+      description: 获取全部考纲列表（不分页）
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.SyllabusQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取所有考纲
+      tags:
+      - 考纲管理
+  /v1/syllabus/auto-migrate-keypoints:
+    post:
+      consumes:
+      - application/json
+      description: 批量自动化迁移考纲知识点（仅管理员）
+      parameters:
+      - description: 考纲ID和迁移选项
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 批量自动迁移考纲
+      tags:
+      - 知识点
+  /v1/syllabus/byId:
+    post:
+      consumes:
+      - application/json
+      description: 根据考纲ID获取考纲详情
+      parameters:
+      - description: 考纲ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.SyllabusQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 根据ID获取考纲
+      tags:
+      - 考纲管理
+  /v1/syllabus/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新考纲
+      parameters:
+      - description: 考纲信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Syllabus'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建考纲
+      tags:
+      - 考纲管理
+  /v1/syllabus/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定考纲
+      parameters:
+      - description: 考纲ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Syllabus'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除考纲
+      tags:
+      - 考纲管理
+  /v1/syllabus/edit:
+    post:
+      consumes:
+      - application/json
+      description: 修改考纲信息
+      parameters:
+      - description: 考纲信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Syllabus'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 编辑考纲
+      tags:
+      - 考纲管理
+  /v1/syllabus/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询考纲列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.SyllabusQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取考纲列表
+      tags:
+      - 考纲管理
+  /v1/syssetting/image/migrate:
+    post:
+      consumes:
+      - application/json
+      description: 将题目中的Base64图片迁移到存储服务（仅管理员）
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 迁移Base64图片
+      tags:
+      - 系统设置
+  /v1/syssetting/imageUpload:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前的图片上传存储配置
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取图片上传配置
+      tags:
+      - 系统设置
+    post:
+      consumes:
+      - application/json
+      description: 保存图片上传存储配置
+      parameters:
+      - description: 图片上传配置
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ImageUploadConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 保存图片上传配置
+      tags:
+      - 系统设置
+  /v1/syssetting/videoUpload:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前的视频上传存储配置
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取视频上传配置
+      tags:
+      - 系统设置
+    post:
+      consumes:
+      - application/json
+      description: 保存视频上传存储配置
+      parameters:
+      - description: 视频上传配置
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.VideoUploadConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 保存视频上传配置
+      tags:
+      - 系统设置
+  /v1/syssetting/webSite:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前的网站基本配置
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取网站配置
+      tags:
+      - 系统设置
+    post:
+      consumes:
+      - application/json
+      description: 保存网站基本配置
+      parameters:
+      - description: 网站配置
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.WebSiteConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 保存网站配置
+      tags:
+      - 系统设置
+  /v1/task/byId:
+    post:
+      consumes:
+      - application/json
+      description: 获取指定ID的学习任务详情
+      parameters:
+      - description: 任务ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 根据ID获取任务
+      tags:
+      - 学习导航
+  /v1/task/complete:
+    post:
+      consumes:
+      - application/json
+      description: 标记指定任务为已完成
+      parameters:
+      - description: 任务ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.TaskCompleteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 完成任务
+      tags:
+      - 学习导航
+  /v1/task/create:
+    post:
+      consumes:
+      - application/json
+      description: 为当前用户创建新学习任务
+      parameters:
+      - description: 任务信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.TaskCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建任务
+      tags:
+      - 学习导航
+  /v1/task/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定学习任务
+      parameters:
+      - description: 任务ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除任务
+      tags:
+      - 学习导航
+  /v1/task/edit:
+    post:
+      consumes:
+      - application/json
+      description: 更新现有学习任务
+      parameters:
+      - description: 任务信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.TaskUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 更新任务
+      tags:
+      - 学习导航
+  /v1/task/generate-plan:
+    post:
+      consumes:
+      - application/json
+      description: 为新目标生成初始7天学习任务计划
+      parameters:
+      - description: 目标ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 生成初始学习计划
+      tags:
+      - 学习导航
+  /v1/task/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询当前用户的学习任务列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.TaskQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取任务列表
+      tags:
+      - 学习导航
+  /v1/task/stream:
+    post:
+      consumes:
+      - application/json
+      description: 获取今日任务、即将到期任务和逾期任务
+      parameters:
+      - description: 目标ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取任务流
+      tags:
+      - 学习导航
+  /v1/upload/document:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 上传PDF等文档文件（表单字段名为 file[0]）
+      parameters:
+      - description: 文档文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 上传成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 上传失败
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 上传文档
+      tags:
+      - 媒体
+  /v1/upload/image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 上传图片文件
+      parameters:
+      - description: 图片文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 上传成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 上传失败
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 上传图片
+      tags:
+      - 媒体
+  /v1/user:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前已登录用户的详细信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 未登录
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取当前用户信息
+      tags:
+      - 用户管理
+  /v1/user/all:
+    post:
+      consumes:
+      - application/json
+      description: 获取全部用户列表（不分页）
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取所有用户
+      tags:
+      - 用户管理
+  /v1/user/byId:
+    post:
+      consumes:
+      - application/json
+      description: 根据用户ID获取用户详情
+      parameters:
+      - description: 用户ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 根据ID获取用户
+      tags:
+      - 用户管理
+  /v1/user/byUsername:
+    post:
+      consumes:
+      - application/json
+      description: 根据用户名查询用户信息
+      parameters:
+      - description: 用户名
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 根据用户名获取用户
+      tags:
+      - 用户管理
+  /v1/user/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新用户（默认密码123456）
+      parameters:
+      - description: 用户信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建用户
+      tags:
+      - 用户管理
+  /v1/user/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定用户
+      parameters:
+      - description: 用户ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除用户
+      tags:
+      - 用户管理
+  /v1/user/edit:
+    post:
+      consumes:
+      - application/json
+      description: 修改用户信息
+      parameters:
+      - description: 用户信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 编辑用户
+      tags:
+      - 用户管理
+  /v1/user/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询用户列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取用户列表
+      tags:
+      - 用户管理
+  /v1/user/removeAdmin:
+    post:
+      consumes:
+      - application/json
+      description: 取消指定用户的管理员权限
+      parameters:
+      - description: 用户ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 取消管理员
+      tags:
+      - 用户管理
+  /v1/user/setAdmin:
+    post:
+      consumes:
+      - application/json
+      description: 将指定用户设置为管理员
+      parameters:
+      - description: 用户ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 设置管理员
+      tags:
+      - 用户管理
+  /v1/user/teacher/application:
+    post:
+      consumes:
+      - application/json
+      description: 获取当前用户的教师资格申请详情
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取我的教师申请
+      tags:
+      - 教师申请
+  /v1/user/teacher/apply:
+    post:
+      consumes:
+      - application/json
+      description: 提交教师资格申请
+      parameters:
+      - description: 申请信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.TeacherApplicationCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 申请成为教师
+      tags:
+      - 教师申请
+  /v1/user/vip:
+    post:
+      consumes:
+      - application/json
+      description: 为指定用户授予一个月VIP（仅管理员）
+      parameters:
+      - description: 用户ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 授予VIP
+      tags:
+      - 用户管理
+  /v1/verification/send-code:
+    post:
+      consumes:
+      - application/json
+      description: 向指定邮箱发送验证码（需要图形验证码校验）
+      parameters:
+      - description: 邮箱和图形验证码
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/v1.SendCodeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 发送成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 发送邮箱验证码
+      tags:
+      - 认证
+  /v1/view/cover/{hash}:
+    get:
+      description: 根据文档哈希值获取文档封面图
+      parameters:
+      - description: 文档哈希
+        in: path
+        name: hash
+        required: true
+        type: string
+      produces:
+      - image/png
+      responses:
+        "200":
+          description: 封面图片
+      summary: 查看文档封面
+      tags:
+      - 媒体
+  /v1/view/page/{hash}/{page}:
+    get:
+      description: 根据文档哈希和页码获取文档页面内容
+      parameters:
+      - description: 文档哈希
+        in: path
+        name: hash
+        required: true
+        type: string
+      - description: 页面路径
+        in: path
+        name: page
+        required: true
+        type: string
+      produces:
+      - image/svg+xml
+      responses:
+        "200":
+          description: 页面内容
+      summary: 查看文档页面
+      tags:
+      - 媒体
+  /v1/vocabularyItem/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定词汇条目
+      parameters:
+      - description: 词汇条目ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.VocabularyItemQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除词汇条目
+      tags:
+      - 词汇
+  /v1/vocabularyItem/insert:
+    post:
+      consumes:
+      - application/json
+      description: 向词汇集添加新词汇条目
+      parameters:
+      - description: 词汇条目信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.VocabularyItemCreateEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 添加词汇条目
+      tags:
+      - 词汇
+  /v1/vocabularyItem/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新词汇集中的词汇条目
+      parameters:
+      - description: 词汇条目信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.VocabularyItemCreateEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 更新词汇条目
+      tags:
+      - 词汇
+  /v1/vocabularySet/byId:
+    post:
+      consumes:
+      - application/json
+      description: 根据词汇集ID获取词汇集详情
+      parameters:
+      - description: 词汇集ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.VocabularySetQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 根据ID获取词汇集
+      tags:
+      - 词汇
+  /v1/vocabularySet/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新词汇集
+      parameters:
+      - description: 词汇集信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.VocabularySetCreateEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建词汇集
+      tags:
+      - 词汇
+  /v1/vocabularySet/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定词汇集
+      parameters:
+      - description: 词汇集ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.VocabularySetQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除词汇集
+      tags:
+      - 词汇
+  /v1/vocabularySet/edit:
+    post:
+      consumes:
+      - application/json
+      description: 修改词汇集信息
+      parameters:
+      - description: 词汇集信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.VocabularySetCreateEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 编辑词汇集
+      tags:
+      - 词汇
+  /v1/vocabularySet/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询词汇集列表
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.VocabularySetQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取词汇集列表
+      tags:
+      - 词汇
+securityDefinitions:
+  BearerAuth:
+    description: '输入 "Bearer {token}" 格式的 JWT，例如: Bearer eyJhbGci...'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

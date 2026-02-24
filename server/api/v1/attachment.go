@@ -31,6 +31,16 @@ type AttachmentController struct {
 	mediaImageSvr *service.MediaImageService
 }
 
+// @Summary      上传文档
+// @Description  上传PDF等文档文件（表单字段名为 file[0]）
+// @Tags         媒体
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        file  formData  file  true  "文档文件"
+// @Success      200  {object}  map[string]interface{}  "上传成功"
+// @Failure      400  {object}  map[string]interface{}  "上传失败"
+// @Security     BearerAuth
+// @Router       /v1/upload/document [post]
 func (s *AttachmentController) UploadDocument(c *gin.Context) {
 
 	name := "file[0]"
@@ -64,6 +74,16 @@ func (s *AttachmentController) UploadDocument(c *gin.Context) {
 	http.SuccessData(c, "上传成功！", attachment)
 }
 
+// @Summary      上传图片
+// @Description  上传图片文件
+// @Tags         媒体
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        file  formData  file  true  "图片文件"
+// @Success      200   {object}  map[string]interface{}  "上传成功"
+// @Failure      400   {object}  map[string]interface{}  "上传失败"
+// @Security     BearerAuth
+// @Router       /v1/upload/image [post]
 func (s *AttachmentController) UploadImage(c *gin.Context) {
 	name := "file"
 	fileheader, err := c.FormFile(name)
@@ -162,6 +182,13 @@ func (s *AttachmentController) saveFile(ctx *gin.Context, fileHeader *multipart.
 	return
 }
 
+// @Summary      查看文档封面
+// @Description  根据文档哈希值获取文档封面图
+// @Tags         媒体
+// @Produce      image/png
+// @Param        hash  path  string  true  "文档哈希"
+// @Success      200  "封面图片"
+// @Router       /v1/view/cover/{hash} [get]
 func (s *AttachmentController) ViewDocumentCover(c *gin.Context) {
 	hash := c.Param("hash")
 	if len(hash) != 32 {
@@ -177,6 +204,14 @@ func (s *AttachmentController) ViewDocumentCover(c *gin.Context) {
 	c.File(file)
 }
 
+// @Summary      查看文档页面
+// @Description  根据文档哈希和页码获取文档页面内容
+// @Tags         媒体
+// @Produce      image/svg+xml
+// @Param        hash  path  string  true  "文档哈希"
+// @Param        page  path  string  true  "页面路径"
+// @Success      200  "页面内容"
+// @Router       /v1/view/page/{hash}/{page} [get]
 func (s *AttachmentController) ViewDocumentPages(c *gin.Context) {
 	hash := c.Param("hash")
 	fmt.Println(hash)
@@ -197,6 +232,14 @@ func (s *AttachmentController) ViewDocumentPages(c *gin.Context) {
 	c.File(file)
 }
 
+// @Summary      下载文档
+// @Description  通过JWT令牌下载文档文件
+// @Tags         媒体
+// @Produce      application/octet-stream
+// @Param        jwt       path   string  true  "JWT令牌"
+// @Param        filename  query  string  false "文件名"
+// @Success      200  "文件内容"
+// @Router       /v1/download/{jwt} [get]
 func (ctrl *AttachmentController) DownloadDocument(c *gin.Context) {
 	claims := jwt.RegisteredClaims{}
 	token := c.Param("jwt")

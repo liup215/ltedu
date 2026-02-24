@@ -15,14 +15,14 @@ type CaptchaController struct {
 	CaptchaService *service.CaptchaService
 }
 
-// Image generates a new captcha image.
-// @Summary Generate captcha
-// @Description Generate a new captcha image
-// @Tags Public
-// @Accept json
-// @Produce json
-// @Success 200 {object} service.CaptchaImage
-// @Router /captcha [post]
+// @Summary      获取图形验证码
+// @Description  生成一个新的图形验证码
+// @Tags         认证
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  map[string]interface{}  "成功"
+// @Failure      400  {object}  map[string]interface{}  "生成失败"
+// @Router       /v1/captcha [post]
 func (ctrl *CaptchaController) GetImage(c *gin.Context) {
 	captcha, err := ctrl.CaptchaService.GenerateCaptcha()
 	if err != nil {

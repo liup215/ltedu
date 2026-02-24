@@ -23,6 +23,16 @@ type DocumentController struct {
 	documentSvr *service.DocumentService
 }
 
+// @Summary      创建文档
+// @Description  创建新文档记录
+// @Tags         文档
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.DocumentCreateEditRequest  true  "文档信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/document/create [post]
 func (ctrl *DocumentController) CreateDocument(c *gin.Context) {
 	dc := model.DocumentCreateEditRequest{}
 	if err := c.BindJSON(&dc); err != nil {
@@ -39,6 +49,16 @@ func (ctrl *DocumentController) CreateDocument(c *gin.Context) {
 	http.SuccessData(c, "创建成功!", nil)
 }
 
+// @Summary      编辑文档
+// @Description  修改文档信息
+// @Tags         文档
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.DocumentCreateEditRequest  true  "文档信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/document/edit [post]
 func (ctrl *DocumentController) EditDocument(c *gin.Context) {
 	dc := model.DocumentCreateEditRequest{}
 	if err := c.BindJSON(&dc); err != nil {
@@ -54,6 +74,16 @@ func (ctrl *DocumentController) EditDocument(c *gin.Context) {
 	http.SuccessData(c, "编辑成功!", nil)
 }
 
+// @Summary      删除文档
+// @Description  删除指定文档
+// @Tags         文档
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.DocumentQueryRequest  true  "文档ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/document/delete [post]
 func (ctrl *DocumentController) DeleteDocument(c *gin.Context) {
 	q := model.DocumentQueryRequest{}
 	if err := c.BindJSON(&q); err != nil {
@@ -69,6 +99,15 @@ func (ctrl *DocumentController) DeleteDocument(c *gin.Context) {
 	http.SuccessData(c, "删除成功!", nil)
 }
 
+// @Summary      根据ID获取文档
+// @Description  根据文档ID获取文档详情
+// @Tags         文档
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.DocumentQueryRequest  true  "文档ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/document/byId [post]
 func (ctrl *DocumentController) SelectDocumentById(c *gin.Context) {
 	q := model.DocumentQueryRequest{}
 	if err := c.BindJSON(&q); err != nil {
@@ -85,6 +124,15 @@ func (ctrl *DocumentController) SelectDocumentById(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", o)
 }
 
+// @Summary      获取文档列表
+// @Description  分页查询文档列表
+// @Tags         文档
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.DocumentQueryRequest  true  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/document/list [post]
 func (ctrl *DocumentController) SelectDocumentList(c *gin.Context) {
 	q := model.DocumentQueryRequest{}
 	if err := c.BindJSON(&q); err != nil {
@@ -104,6 +152,15 @@ func (ctrl *DocumentController) SelectDocumentList(c *gin.Context) {
 	})
 }
 
+// @Summary      获取所有文档
+// @Description  获取全部文档列表（不分页）
+// @Tags         文档
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.DocumentQueryRequest  true  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/document/all [post]
 func (ctrl *DocumentController) SelectDocumentAll(c *gin.Context) {
 	oq := model.DocumentQueryRequest{}
 	if err := c.BindJSON(&oq); err != nil {
@@ -122,6 +179,16 @@ func (ctrl *DocumentController) SelectDocumentAll(c *gin.Context) {
 	})
 }
 
+// @Summary      获取文档下载链接
+// @Description  生成文档的临时下载链接
+// @Tags         文档
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.DocumentQueryRequest  true  "文档ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/document/download [post]
 func (ctrl *DocumentController) DownloadDocument(c *gin.Context) {
 
 	q := model.DocumentQueryRequest{}

@@ -18,6 +18,16 @@ type CourseVideoController struct {
 	courseVideoSvr *service.CourseVideoService
 }
 
+// @Summary      创建课程视频
+// @Description  创建新课程视频
+// @Tags         课程
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.CourseVideoCreateEditRequest  true  "课程视频信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/courseVideo/create [post]
 func (ctrl *CourseVideoController) CreateCourseVideo(c *gin.Context) {
 	req := model.CourseVideoCreateEditRequest{}
 
@@ -53,6 +63,16 @@ func (ctrl *CourseVideoController) CreateCourseVideo(c *gin.Context) {
 	http.SuccessData(c, "创建成功!", nil)
 }
 
+// @Summary      编辑课程视频
+// @Description  修改课程视频信息
+// @Tags         课程
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.CourseVideoCreateEditRequest  true  "课程视频信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/courseVideo/edit [post]
 func (ctrl *CourseVideoController) EditCourseVideo(c *gin.Context) {
 	req := model.CourseVideoCreateEditRequest{}
 
@@ -89,6 +109,16 @@ func (ctrl *CourseVideoController) EditCourseVideo(c *gin.Context) {
 	http.SuccessData(c, "编辑成功!", nil)
 }
 
+// @Summary      删除课程视频
+// @Description  删除指定课程视频
+// @Tags         课程
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.CourseVideo  true  "课程视频ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/courseVideo/delete [post]
 func (ctrl *CourseVideoController) DeleteCourseVideo(c *gin.Context) {
 	courseVideo := model.CourseVideo{}
 
@@ -120,6 +150,15 @@ func (ctrl *CourseVideoController) DeleteCourseVideo(c *gin.Context) {
 	http.SuccessData(c, "删除成功!", nil)
 }
 
+// @Summary      根据ID获取课程视频
+// @Description  根据课程视频ID获取课程视频详情
+// @Tags         课程
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.CourseVideoQueryRequest  true  "课程视频ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/courseVideo/byId [post]
 func (ctrl *CourseVideoController) SelectCourseVideoById(c *gin.Context) {
 	q := model.CourseVideoQueryRequest{}
 	if err := c.BindJSON(&q); err != nil {
@@ -136,6 +175,15 @@ func (ctrl *CourseVideoController) SelectCourseVideoById(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", o)
 }
 
+// @Summary      获取课程视频列表
+// @Description  分页查询课程视频列表
+// @Tags         课程
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.CourseVideoQueryRequest  true  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/courseVideo/list [post]
 func (ctrl *CourseVideoController) SelectCourseVideoList(c *gin.Context) {
 	q := model.CourseVideoQueryRequest{}
 	if err := c.BindJSON(&q); err != nil {

@@ -25,6 +25,15 @@ type SendCodeRequest struct {
 }
 
 // SendRegistrationCode sends a verification code to the user's email.
+// @Summary      发送邮箱验证码
+// @Description  向指定邮箱发送验证码（需要图形验证码校验）
+// @Tags         认证
+// @Accept       json
+// @Produce      json
+// @Param        body  body  SendCodeRequest  true  "邮箱和图形验证码"
+// @Success      200   {object}  map[string]interface{}  "发送成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/verification/send-code [post]
 func (ctrl *VerificationController) SendCode(c *gin.Context) {
 	var req SendCodeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

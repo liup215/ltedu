@@ -19,6 +19,16 @@ type UserController struct {
 	// adminSvr *service.AdminService, // Removed as it's no longer used
 }
 
+// @Summary      设置管理员
+// @Description  将指定用户设置为管理员
+// @Tags         用户管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "用户ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/user/setAdmin [post]
 // 设置为管理员
 func (ctrl *UserController) SetAdmin(c *gin.Context) {
 	var req struct {
@@ -36,6 +46,16 @@ func (ctrl *UserController) SetAdmin(c *gin.Context) {
 	http.SuccessData(c, "设置管理员成功!", nil)
 }
 
+// @Summary      取消管理员
+// @Description  取消指定用户的管理员权限
+// @Tags         用户管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "用户ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/user/removeAdmin [post]
 // 取消管理员
 func (ctrl *UserController) RemoveAdmin(c *gin.Context) {
 	var req struct {
@@ -54,6 +74,16 @@ func (ctrl *UserController) RemoveAdmin(c *gin.Context) {
 }
 
 // User管理
+// @Summary      获取用户列表
+// @Description  分页查询用户列表
+// @Tags         用户管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.UserQuery  true  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/user/list [post]
 func (ctrl *UserController) SelectUserList(c *gin.Context) {
 	q := model.UserQuery{}
 	if err := c.BindJSON(&q); err != nil {
@@ -71,6 +101,16 @@ func (ctrl *UserController) SelectUserList(c *gin.Context) {
 	})
 }
 
+// @Summary      根据ID获取用户
+// @Description  根据用户ID获取用户详情
+// @Tags         用户管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.UserQuery  true  "用户ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/user/byId [post]
 func (ctrl *UserController) SelectUserById(c *gin.Context) {
 	q := model.UserQuery{}
 	if err := c.BindJSON(&q); err != nil {
@@ -85,6 +125,16 @@ func (ctrl *UserController) SelectUserById(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", o)
 }
 
+// @Summary      根据用户名获取用户
+// @Description  根据用户名查询用户信息
+// @Tags         用户管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.UserQuery  true  "用户名"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/user/byUsername [post]
 func (ctrl *UserController) SelectUserByUsername(c *gin.Context) {
 	q := model.UserQuery{}
 	if err := c.BindJSON(&q); err != nil {
@@ -99,6 +149,16 @@ func (ctrl *UserController) SelectUserByUsername(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", o)
 }
 
+// @Summary      获取所有用户
+// @Description  获取全部用户列表（不分页）
+// @Tags         用户管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.UserQuery  true  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/user/all [post]
 func (ctrl *UserController) SelectUserAll(c *gin.Context) {
 	oq := model.UserQuery{}
 	if err := c.BindJSON(&oq); err != nil {
@@ -117,6 +177,16 @@ func (ctrl *UserController) SelectUserAll(c *gin.Context) {
 	})
 }
 
+// @Summary      创建用户
+// @Description  创建新用户（默认密码123456）
+// @Tags         用户管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.User  true  "用户信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/user/create [post]
 func (ctrl *UserController) CreateUser(c *gin.Context) {
 	o := model.User{}
 	if err := c.BindJSON(&o); err != nil {
@@ -132,6 +202,16 @@ func (ctrl *UserController) CreateUser(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", r)
 }
 
+// @Summary      编辑用户
+// @Description  修改用户信息
+// @Tags         用户管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.UserEditRequest  true  "用户信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/user/edit [post]
 func (ctrl *UserController) EditUser(c *gin.Context) {
 	o := model.UserEditRequest{}
 	if err := c.BindJSON(&o); err != nil {
@@ -147,6 +227,16 @@ func (ctrl *UserController) EditUser(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", nil)
 }
 
+// @Summary      删除用户
+// @Description  删除指定用户
+// @Tags         用户管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.User  true  "用户ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/user/delete [post]
 func (ctrl *UserController) DeleteUser(c *gin.Context) {
 	o := model.User{}
 	if err := c.BindJSON(&o); err != nil {
@@ -162,6 +252,16 @@ func (ctrl *UserController) DeleteUser(c *gin.Context) {
 }
 
 // Grant one month VIP to user
+// @Summary      授予VIP
+// @Description  为指定用户授予一个月VIP（仅管理员）
+// @Tags         用户管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "用户ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/user/vip [post]
 func (ctrl *UserController) GrantVipMonth(c *gin.Context) {
 	var req struct {
 		ID uint `json:"id"`
@@ -189,6 +289,15 @@ func (ctrl *UserController) GrantVipMonth(c *gin.Context) {
 	http.SuccessData(c, "VIP granted for 1 month!", nil)
 }
 
+// @Summary      获取当前用户信息
+// @Description  获取当前已登录用户的详细信息
+// @Tags         用户管理
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  map[string]interface{}  "成功"
+// @Failure      400  {object}  map[string]interface{}  "未登录"
+// @Security     BearerAuth
+// @Router       /v1/user [get]
 func (ac *UserController) User(c *gin.Context) {
 	// Get UserID from JWT claims (auth.CurrentUser contains the ID)
 	u, err := auth.GetCurrentUser(c)

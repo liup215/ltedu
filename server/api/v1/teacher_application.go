@@ -18,6 +18,16 @@ type TeacherApplicationController struct {
 }
 
 // Apply handles the submission of a teacher application
+// @Summary      申请成为教师
+// @Description  提交教师资格申请
+// @Tags         教师申请
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.TeacherApplicationCreateRequest  true  "申请信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/user/teacher/apply [post]
 func (ctrl *TeacherApplicationController) Apply(c *gin.Context) {
 	u, err := auth.GetCurrentUser(c)
 	if err != nil {
@@ -46,6 +56,15 @@ func (ctrl *TeacherApplicationController) Apply(c *gin.Context) {
 }
 
 // GetByUser gets the current user's teacher application
+// @Summary      获取我的教师申请
+// @Description  获取当前用户的教师资格申请详情
+// @Tags         教师申请
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  map[string]interface{}  "成功"
+// @Failure      400  {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/user/teacher/application [post]
 func (ctrl *TeacherApplicationController) GetByUser(c *gin.Context) {
 	u, err := auth.GetCurrentUser(c)
 	if err != nil {
@@ -69,6 +88,16 @@ func (ctrl *TeacherApplicationController) GetByUser(c *gin.Context) {
 }
 
 // List lists teacher applications (admin only)
+// @Summary      获取教师申请列表
+// @Description  获取所有教师申请列表（仅管理员）
+// @Tags         教师申请
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.TeacherApplicationQuery  true  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/admin/teacher-applications/list [post]
 func (ctrl *TeacherApplicationController) List(c *gin.Context) {
 	// Check admin access
 	u, err := auth.GetCurrentUser(c)
@@ -107,6 +136,16 @@ func (ctrl *TeacherApplicationController) List(c *gin.Context) {
 }
 
 // Get gets a specific teacher application by ID (admin only)
+// @Summary      获取教师申请详情
+// @Description  获取指定教师申请的详细信息（仅管理员）
+// @Tags         教师申请
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "申请ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/admin/teacher-applications/detail [post]
 func (ctrl *TeacherApplicationController) Get(c *gin.Context) {
 	// Check admin access
 	u, err := auth.GetCurrentUser(c)
@@ -144,6 +183,16 @@ func (ctrl *TeacherApplicationController) Get(c *gin.Context) {
 }
 
 // Approve approves a teacher application (admin only)
+// @Summary      审批通过教师申请
+// @Description  通过指定的教师资格申请（仅管理员）
+// @Tags         教师申请
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "申请ID和备注"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/admin/teacher-applications/approve [post]
 func (ctrl *TeacherApplicationController) Approve(c *gin.Context) {
 	// Check admin access
 	u, err := auth.GetCurrentUser(c)
@@ -181,6 +230,16 @@ func (ctrl *TeacherApplicationController) Approve(c *gin.Context) {
 }
 
 // Reject rejects a teacher application (admin only)
+// @Summary      拒绝教师申请
+// @Description  拒绝指定的教师资格申请（仅管理员）
+// @Tags         教师申请
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "申请ID和拒绝理由"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/admin/teacher-applications/reject [post]
 func (ctrl *TeacherApplicationController) Reject(c *gin.Context) {
 	// Check admin access
 	u, err := auth.GetCurrentUser(c)

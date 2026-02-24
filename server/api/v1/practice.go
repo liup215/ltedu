@@ -18,6 +18,15 @@ type PracticeController struct {
 	practiceSvr *service.PracticeService
 }
 
+// @Summary      快速练习
+// @Description  根据条件生成一组快速练习题目
+// @Tags         练习
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.PracticeQuickRequest  true  "练习条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/practice/quick [post]
 // POST /practice/quick
 func (ctrl *PracticeController) QuickPractice(c *gin.Context) {
 	var req model.PracticeQuickRequest
@@ -37,6 +46,15 @@ func (ctrl *PracticeController) QuickPractice(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", resp)
 }
 
+// @Summary      试卷练习
+// @Description  根据试卷生成练习题目列表
+// @Tags         练习
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.PracticePaperRequest  true  "练习条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/practice/paper [post]
 // POST /practice/paper
 func (ctrl *PracticeController) PaperPractice(c *gin.Context) {
 	var req model.PracticePaperRequest
@@ -55,6 +73,16 @@ func (ctrl *PracticeController) PaperPractice(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", resp)
 }
 
+// @Summary      批改练习
+// @Description  批改练习提交，返回得分和答题详情
+// @Tags         练习
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.PracticeGradeRequest  true  "答题数据"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/practice/grade [post]
 // POST /practice/grade
 func (ctrl *PracticeController) GradePractice(c *gin.Context) {
 	var req model.PracticeGradeRequest

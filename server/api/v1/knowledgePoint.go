@@ -14,6 +14,16 @@ var KnowledgePointCtrl = &KnowledgePointController{}
 type KnowledgePointController struct{}
 
 // GenerateKeypoints 为章节生成知识点
+// @Summary      生成章节知识点
+// @Description  为指定章节自动生成知识点
+// @Tags         知识点
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "章节ID和模式"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/chapter/generate-keypoints [post]
 func (ctrl *KnowledgePointController) GenerateKeypoints(c *gin.Context) {
 	u, _ := auth.GetCurrentUser(c)
 	_ = u
@@ -41,6 +51,16 @@ func (ctrl *KnowledgePointController) GenerateKeypoints(c *gin.Context) {
 }
 
 // AutoLinkQuestion 自动关联题目到知识点
+// @Summary      自动关联题目到知识点
+// @Description  将题目自动关联到匹配的知识点
+// @Tags         知识点
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "题目ID、章节ID和考纲ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/question/auto-link-keypoints [post]
 func (ctrl *KnowledgePointController) AutoLinkQuestion(c *gin.Context) {
 	u, _ := auth.GetCurrentUser(c)
 	_ = u
@@ -77,6 +97,16 @@ func (ctrl *KnowledgePointController) AutoLinkQuestion(c *gin.Context) {
 }
 
 // AutoLinkQuestionIntelligent 智能关联题目到知识点（两阶段方法）
+// @Summary      智能关联题目到知识点
+// @Description  使用两阶段智能方法将题目关联到知识点
+// @Tags         知识点
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "题目ID和考纲ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/question/auto-link-keypoints-intelligent [post]
 func (ctrl *KnowledgePointController) AutoLinkQuestionIntelligent(c *gin.Context) {
 	u, _ := auth.GetCurrentUser(c)
 	_ = u
@@ -106,6 +136,16 @@ func (ctrl *KnowledgePointController) AutoLinkQuestionIntelligent(c *gin.Context
 }
 
 // AutoMigrateSyllabus 批量自动化迁移考纲
+// @Summary      批量自动迁移考纲
+// @Description  批量自动化迁移考纲知识点（仅管理员）
+// @Tags         知识点
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "考纲ID和迁移选项"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/syllabus/auto-migrate-keypoints [post]
 func (ctrl *KnowledgePointController) AutoMigrateSyllabus(c *gin.Context) {
 	u, _ := auth.GetCurrentUser(c)
 
@@ -136,6 +176,16 @@ func (ctrl *KnowledgePointController) AutoMigrateSyllabus(c *gin.Context) {
 }
 
 // Create 创建知识点
+// @Summary      创建知识点
+// @Description  创建新知识点
+// @Tags         知识点
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.KnowledgePoint  true  "知识点信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/knowledge-point/create [post]
 func (ctrl *KnowledgePointController) Create(c *gin.Context) {
 	u, _ := auth.GetCurrentUser(c)
 	_ = u
@@ -156,6 +206,16 @@ func (ctrl *KnowledgePointController) Create(c *gin.Context) {
 }
 
 // Update 更新知识点
+// @Summary      更新知识点
+// @Description  更新现有知识点信息
+// @Tags         知识点
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.KnowledgePoint  true  "知识点信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/knowledge-point/edit [post]
 func (ctrl *KnowledgePointController) Update(c *gin.Context) {
 	u, _ := auth.GetCurrentUser(c)
 	_ = u
@@ -176,6 +236,16 @@ func (ctrl *KnowledgePointController) Update(c *gin.Context) {
 }
 
 // Delete 删除知识点
+// @Summary      删除知识点
+// @Description  删除指定知识点
+// @Tags         知识点
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "知识点ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/knowledge-point/delete [post]
 func (ctrl *KnowledgePointController) Delete(c *gin.Context) {
 	u, _ := auth.GetCurrentUser(c)
 	_ = u
@@ -199,6 +269,16 @@ func (ctrl *KnowledgePointController) Delete(c *gin.Context) {
 }
 
 // GetByID 根据ID获取知识点
+// @Summary      根据ID获取知识点
+// @Description  根据知识点ID获取知识点详情
+// @Tags         知识点
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "知识点ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/knowledge-point/byId [post]
 func (ctrl *KnowledgePointController) GetByID(c *gin.Context) {
 	u, _ := auth.GetCurrentUser(c)
 	_ = u
@@ -222,6 +302,16 @@ func (ctrl *KnowledgePointController) GetByID(c *gin.Context) {
 }
 
 // GetByChapter 根据章节ID获取知识点列表
+// @Summary      根据章节获取知识点
+// @Description  根据章节ID获取该章节下的所有知识点
+// @Tags         知识点
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "章节ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/knowledge-point/byChapter [post]
 func (ctrl *KnowledgePointController) GetByChapter(c *gin.Context) {
 	u, _ := auth.GetCurrentUser(c)
 	_ = u
@@ -250,6 +340,16 @@ func (ctrl *KnowledgePointController) GetByChapter(c *gin.Context) {
 }
 
 // GetBySyllabus 根据考纲ID获取知识点列表
+// @Summary      根据考纲获取知识点
+// @Description  根据考纲ID获取该考纲下的所有知识点
+// @Tags         知识点
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "考纲ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/knowledge-point/bySyllabus [post]
 func (ctrl *KnowledgePointController) GetBySyllabus(c *gin.Context) {
 	u, _ := auth.GetCurrentUser(c)
 	_ = u
@@ -278,6 +378,16 @@ func (ctrl *KnowledgePointController) GetBySyllabus(c *gin.Context) {
 }
 
 // List 获取知识点列表（带分页）
+// @Summary      获取知识点列表
+// @Description  分页查询知识点列表
+// @Tags         知识点
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.KnowledgePointQuery  true  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/knowledge-point/list [post]
 func (ctrl *KnowledgePointController) List(c *gin.Context) {
 	u, _ := auth.GetCurrentUser(c)
 	_ = u

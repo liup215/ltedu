@@ -19,6 +19,16 @@ type MediaImageController struct {
 	attachmentSvr *service.AttachmentService
 }
 
+// @Summary      上传图片到磁盘
+// @Description  上传图片文件并保存到本地存储
+// @Tags         媒体
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        file  formData  file  true  "图片文件"
+// @Success      200   {object}  map[string]interface{}  "上传成功"
+// @Failure      400   {object}  map[string]interface{}  "上传失败"
+// @Security     BearerAuth
+// @Router       /v1/mediaImage/uploadToDisk [post]
 func (ctrl *MediaImageController) UploadImageToDisk(c *gin.Context) {
 	name := "file"
 	fileheader, err := c.FormFile(name)
@@ -77,6 +87,16 @@ func (ctrl *MediaImageController) saveImage(fileHeader *multipart.FileHeader) (a
 	return
 }
 
+// @Summary      创建图片记录
+// @Description  根据已有附件信息创建图片媒体记录
+// @Tags         媒体
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.Attachment  true  "附件信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/mediaImage/create [post]
 func (ctrl *MediaImageController) CreateImage(c *gin.Context) {
 	att := model.Attachment{}
 	if err := c.BindJSON(&att); err != nil {
@@ -105,6 +125,15 @@ func (ctrl *MediaImageController) CreateImage(c *gin.Context) {
 	http.SuccessData(c, "创建成功！", nil)
 }
 
+// @Summary      获取图片列表
+// @Description  分页查询图片列表
+// @Tags         媒体
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.ImageQueryRequest  true  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/mediaImage/list [post]
 func (ctrl *MediaImageController) SelectImageList(c *gin.Context) {
 	req := model.ImageQueryRequest{}
 	if err := c.BindJSON(&req); err != nil {
@@ -120,6 +149,15 @@ func (ctrl *MediaImageController) SelectImageList(c *gin.Context) {
 	}
 }
 
+// @Summary      根据ID获取图片
+// @Description  根据图片ID获取图片详情
+// @Tags         媒体
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.ImageQueryRequest  true  "图片ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/mediaImage/byId [post]
 func (ctrl *MediaImageController) SelectImageById(c *gin.Context) {
 	req := model.ImageQueryRequest{}
 	if err := c.BindJSON(&req); err != nil {
@@ -135,12 +173,29 @@ func (ctrl *MediaImageController) SelectImageById(c *gin.Context) {
 	}
 }
 
+// @Summary      获取图片存储类型
+// @Description  获取当前图片存储磁盘类型配置
+// @Tags         媒体
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  map[string]interface{}  "成功"
+// @Security     BearerAuth
+// @Router       /v1/mediaImage/disk [get]
 func (ctrl *MediaImageController) UploadDisk(c *gin.Context) {
 	disk := ctrl.mediaImageSvr.GetImageUploadDisk()
 
 	http.SuccessData(c, "数据获取成功!", gin.H{"disk": disk})
 }
 
+// @Summary      获取七牛上传Token
+// @Description  获取七牛云存储上传令牌
+// @Tags         媒体
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  map[string]interface{}  "成功"
+// @Failure      400  {object}  map[string]interface{}  "获取失败"
+// @Security     BearerAuth
+// @Router       /v1/mediaImage/token/qiniu [post]
 func (ctrl *MediaImageController) QiniuUploadToken(c *gin.Context) {
 
 	token, key, e1 := ctrl.mediaImageSvr.QiniuUploadToken()

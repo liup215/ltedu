@@ -154,6 +154,16 @@ func (lc *AuthController) LoginResponse(c *gin.Context, code int, message string
 	})
 }
 
+// @Summary      修改密码
+// @Description  修改当前用户密码（需要原密码验证，成功后强制重新登录）
+// @Tags         认证
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "旧密码与新密码"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/change-password [post]
 func (lc *AuthController) ChangePassword(c *gin.Context) {
 	type ChangePasswordRequest struct {
 		OldPassword string `json:"oldPassword" binding:"required"`
@@ -197,6 +207,15 @@ func (lc *AuthController) ChangePassword(c *gin.Context) {
 	http.SuccessData(c, "密码修改成功，已强制重新登录", nil)
 }
 
+// @Summary      用户注册
+// @Description  注册新用户账号（需要邮箱验证码）
+// @Tags         认证
+// @Accept       json
+// @Produce      json
+// @Param        body  body  RegistrationRequest  true  "注册信息"
+// @Success      200   {object}  map[string]interface{}  "注册成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/register [post]
 func (lc *AuthController) Register(c *gin.Context) {
 	var req RegistrationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

@@ -20,6 +20,15 @@ type SlideController struct {
 }
 
 // Slide管理
+// @Summary      获取课件列表
+// @Description  分页查询课件列表
+// @Tags         课程
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.SlideQueryRequest  true  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/slide/list [post]
 func (ctrl *SlideController) SelectSlideList(c *gin.Context) {
 	q := model.SlideQueryRequest{}
 	if err := c.BindJSON(&q); err != nil {
@@ -43,6 +52,15 @@ func (ctrl *SlideController) SelectSlideList(c *gin.Context) {
 	})
 }
 
+// @Summary      根据ID获取课件
+// @Description  根据课件ID获取课件详情
+// @Tags         课程
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.SlideQueryRequest  true  "课件ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/slide/getById [post]
 func (ctrl *SlideController) SelectSlideById(c *gin.Context) {
 	q := model.SlideQueryRequest{}
 	if err := c.BindJSON(&q); err != nil {
@@ -57,6 +75,15 @@ func (ctrl *SlideController) SelectSlideById(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", o.GetResponse())
 }
 
+// @Summary      获取所有课件
+// @Description  获取全部课件列表（不分页）
+// @Tags         课程
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.SlideQueryRequest  true  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/slide/all [post]
 func (ctrl *SlideController) SelectSlideAll(c *gin.Context) {
 	oq := model.SlideQueryRequest{}
 	if err := c.BindJSON(&oq); err != nil {
@@ -80,6 +107,16 @@ func (ctrl *SlideController) SelectSlideAll(c *gin.Context) {
 	})
 }
 
+// @Summary      创建课件
+// @Description  创建新课件
+// @Tags         课程
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.SlideCreateEditRequest  true  "课件信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/slide/create [post]
 func (ctrl *SlideController) CreateSlide(c *gin.Context) {
 	o := model.SlideCreateEditRequest{}
 	if err := c.BindJSON(&o); err != nil {
@@ -126,6 +163,16 @@ func (ctrl *SlideController) CreateSlide(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", nil)
 }
 
+// @Summary      编辑课件
+// @Description  修改课件信息
+// @Tags         课程
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.SlideCreateEditRequest  true  "课件信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/slide/edit [post]
 func (ctrl *SlideController) EditSlide(c *gin.Context) {
 	o := model.SlideCreateEditRequest{}
 	if err := c.BindJSON(&o); err != nil {
@@ -140,6 +187,16 @@ func (ctrl *SlideController) EditSlide(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", nil)
 }
 
+// @Summary      删除课件
+// @Description  删除指定课件
+// @Tags         课程
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.Slide  true  "课件ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/slide/delete [post]
 func (ctrl *SlideController) DeleteSlide(c *gin.Context) {
 	o := model.Slide{}
 	if err := c.BindJSON(&o); err != nil {
@@ -154,6 +211,15 @@ func (ctrl *SlideController) DeleteSlide(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", nil)
 }
 
+// @Summary      获取课件链接
+// @Description  获取课件的访问哈希值
+// @Tags         课程
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.SlideQueryRequest  true  "课件ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/slide/link [post]
 func (ctrl *SlideController) ViewSlide(c *gin.Context) {
 
 	q := model.SlideQueryRequest{}
