@@ -2,6 +2,7 @@ package backend
 
 import (
 	"edu/conf"
+	_ "edu/docs" // swaggo generated docs
 	"edu/lib/net/http/middleware/auth"
 	v1 "edu/server/api/v1"
 	"edu/server/mcp"
@@ -10,6 +11,8 @@ import (
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func NewHandler() *Handler {
@@ -37,6 +40,9 @@ func (h *Handler) Route(r *gin.RouterGroup) {
 }
 
 func (h *Handler) noAuthRout(r *gin.RouterGroup) {
+	// Swagger UI - 访问地址: /api/docs/index.html
+	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	r.POST("/v1/login", h.authMiddleware.LoginHandler)
 	r.POST("/v1/captcha", v1.CaptchaCtrl.GetImage)
 

@@ -18,6 +18,15 @@ type QualificationController struct {
 }
 
 // Organisation管理
+// @Summary      获取机构列表
+// @Description  分页查询机构列表
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.OrganisationQuery  true  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/organisation/list [post]
 func (ctrl *QualificationController) SelectOrganisationList(c *gin.Context) {
 	q := model.OrganisationQuery{}
 	if err := c.BindJSON(&q); err != nil {
@@ -35,6 +44,15 @@ func (ctrl *QualificationController) SelectOrganisationList(c *gin.Context) {
 	})
 }
 
+// @Summary      根据ID获取机构
+// @Description  根据机构ID获取机构详情
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.OrganisationQuery  true  "机构ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/organisation/byId [post]
 func (ctrl *QualificationController) SelectOrganisationById(c *gin.Context) {
 	q := model.OrganisationQuery{}
 	if err := c.BindJSON(&q); err != nil {
@@ -49,6 +67,15 @@ func (ctrl *QualificationController) SelectOrganisationById(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", o)
 }
 
+// @Summary      获取所有机构
+// @Description  获取全部机构列表（不分页）
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.OrganisationQuery  true  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/organisation/all [post]
 func (ctrl *QualificationController) SelectOrganisationAll(c *gin.Context) {
 	oq := model.OrganisationQuery{}
 	if err := c.BindJSON(&oq); err != nil {
@@ -67,6 +94,16 @@ func (ctrl *QualificationController) SelectOrganisationAll(c *gin.Context) {
 	})
 }
 
+// @Summary      创建机构
+// @Description  创建新机构
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.Organisation  true  "机构信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/organisation/create [post]
 func (ctrl *QualificationController) CreateOrganisation(c *gin.Context) {
 	o := model.Organisation{}
 	if err := c.BindJSON(&o); err != nil {
@@ -81,6 +118,16 @@ func (ctrl *QualificationController) CreateOrganisation(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", r)
 }
 
+// @Summary      编辑机构
+// @Description  修改机构信息
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.Organisation  true  "机构信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/organisation/edit [post]
 func (ctrl *QualificationController) EditOrganisation(c *gin.Context) {
 	o := model.Organisation{}
 	if err := c.BindJSON(&o); err != nil {
@@ -95,6 +142,16 @@ func (ctrl *QualificationController) EditOrganisation(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", r)
 }
 
+// @Summary      删除机构
+// @Description  删除指定机构
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.Organisation  true  "机构ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/organisation/delete [post]
 func (ctrl *QualificationController) DeleteOrganisation(c *gin.Context) {
 	o := model.Organisation{}
 	if err := c.BindJSON(&o); err != nil {
@@ -110,6 +167,15 @@ func (ctrl *QualificationController) DeleteOrganisation(c *gin.Context) {
 }
 
 // Qualification管理
+// @Summary      获取资质列表
+// @Description  分页查询资质（考试）列表
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.QualificationQuery  true  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/qualification/list [post]
 func (ctrl *QualificationController) SelectQualificationList(c *gin.Context) {
 	q := model.QualificationQuery{}
 	if err := c.BindJSON(&q); err != nil {
@@ -127,6 +193,15 @@ func (ctrl *QualificationController) SelectQualificationList(c *gin.Context) {
 	})
 }
 
+// @Summary      根据ID获取资质
+// @Description  根据资质ID获取详情
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.QualificationQuery  true  "资质ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/qualification/byId [post]
 func (ctrl *QualificationController) SelectQualificationById(c *gin.Context) {
 	q := model.QualificationQuery{}
 	if err := c.BindJSON(&q); err != nil {
@@ -141,6 +216,15 @@ func (ctrl *QualificationController) SelectQualificationById(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", o)
 }
 
+// @Summary      获取所有资质
+// @Description  获取全部资质列表（不分页）
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.QualificationQuery  true  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/qualification/all [post]
 func (ctrl *QualificationController) SelectQualificationAll(c *gin.Context) {
 	oq := model.QualificationQuery{}
 	if err := c.BindJSON(&oq); err != nil {
@@ -159,6 +243,16 @@ func (ctrl *QualificationController) SelectQualificationAll(c *gin.Context) {
 	})
 }
 
+// @Summary      创建资质
+// @Description  创建新资质（考试）
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.Qualification  true  "资质信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/qualification/create [post]
 func (ctrl *QualificationController) CreateQualification(c *gin.Context) {
 	o := model.Qualification{}
 	if err := c.BindJSON(&o); err != nil {
@@ -174,6 +268,16 @@ func (ctrl *QualificationController) CreateQualification(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", r)
 }
 
+// @Summary      编辑资质
+// @Description  修改资质信息
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.Qualification  true  "资质信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/qualification/edit [post]
 func (ctrl *QualificationController) EditQualification(c *gin.Context) {
 	o := model.Qualification{}
 	if err := c.BindJSON(&o); err != nil {
@@ -188,6 +292,16 @@ func (ctrl *QualificationController) EditQualification(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", r)
 }
 
+// @Summary      删除资质
+// @Description  删除指定资质
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.Qualification  true  "资质ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/qualification/delete [post]
 func (ctrl *QualificationController) DeleteQualification(c *gin.Context) {
 	o := model.Qualification{}
 	if err := c.BindJSON(&o); err != nil {
@@ -295,6 +409,15 @@ func (ctrl *QualificationController) DeleteQualification(c *gin.Context) {
 // }
 
 // Syllabus管理
+// @Summary      获取考纲列表
+// @Description  分页查询考纲列表
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.SyllabusQuery  true  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/syllabus/list [post]
 func (ctrl *QualificationController) SelectSyllabusList(c *gin.Context) {
 	q := model.SyllabusQuery{}
 	if err := c.BindJSON(&q); err != nil {
@@ -312,6 +435,15 @@ func (ctrl *QualificationController) SelectSyllabusList(c *gin.Context) {
 	})
 }
 
+// @Summary      根据ID获取考纲
+// @Description  根据考纲ID获取考纲详情
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.SyllabusQuery  true  "考纲ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/syllabus/byId [post]
 func (ctrl *QualificationController) SelectSyllabusById(c *gin.Context) {
 	q := model.SyllabusQuery{}
 	if err := c.BindJSON(&q); err != nil {
@@ -326,6 +458,15 @@ func (ctrl *QualificationController) SelectSyllabusById(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", o)
 }
 
+// @Summary      获取所有考纲
+// @Description  获取全部考纲列表（不分页）
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.SyllabusQuery  true  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/syllabus/all [post]
 func (ctrl *QualificationController) SelectSyllabusAll(c *gin.Context) {
 	oq := model.SyllabusQuery{}
 	if err := c.BindJSON(&oq); err != nil {
@@ -345,6 +486,16 @@ func (ctrl *QualificationController) SelectSyllabusAll(c *gin.Context) {
 	})
 }
 
+// @Summary      创建考纲
+// @Description  创建新考纲
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.Syllabus  true  "考纲信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/syllabus/create [post]
 func (ctrl *QualificationController) CreateSyllabus(c *gin.Context) {
 	o := model.Syllabus{}
 	if err := c.BindJSON(&o); err != nil {
@@ -359,6 +510,16 @@ func (ctrl *QualificationController) CreateSyllabus(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", r)
 }
 
+// @Summary      编辑考纲
+// @Description  修改考纲信息
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.Syllabus  true  "考纲信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/syllabus/edit [post]
 func (ctrl *QualificationController) EditSyllabus(c *gin.Context) {
 	o := model.Syllabus{}
 	if err := c.BindJSON(&o); err != nil {
@@ -373,6 +534,16 @@ func (ctrl *QualificationController) EditSyllabus(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", r)
 }
 
+// @Summary      删除考纲
+// @Description  删除指定考纲
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.Syllabus  true  "考纲ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/syllabus/delete [post]
 func (ctrl *QualificationController) DeleteSyllabus(c *gin.Context) {
 	o := model.Syllabus{}
 	if err := c.BindJSON(&o); err != nil {
@@ -388,6 +559,15 @@ func (ctrl *QualificationController) DeleteSyllabus(c *gin.Context) {
 }
 
 // 章节管理
+// @Summary      获取章节树
+// @Description  根据考纲ID获取章节树形结构
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.ChapterQuery  true  "考纲ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/chapter/tree [post]
 func (ctrl *QualificationController) GetChapterTree(c *gin.Context) {
 	s := model.ChapterQuery{}
 	if err := c.BindJSON(&s); err != nil {
@@ -399,6 +579,15 @@ func (ctrl *QualificationController) GetChapterTree(c *gin.Context) {
 	http.SuccessData(c, "获取成功！", tree)
 }
 
+// @Summary      根据ID获取章节
+// @Description  根据章节ID获取章节详情
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.ChapterQuery  true  "章节ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/chapter/byId [post]
 func (ctrl *QualificationController) SelectChapterById(c *gin.Context) {
 	q := model.ChapterQuery{}
 	if err := c.BindJSON(&q); err != nil {
@@ -413,6 +602,16 @@ func (ctrl *QualificationController) SelectChapterById(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", o)
 }
 
+// @Summary      创建章节
+// @Description  创建新章节
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.Chapter  true  "章节信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/chapter/create [post]
 func (ctrl *QualificationController) CreateChapter(c *gin.Context) {
 	o := model.Chapter{}
 	if err := c.BindJSON(&o); err != nil {
@@ -427,6 +626,16 @@ func (ctrl *QualificationController) CreateChapter(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", r)
 }
 
+// @Summary      编辑章节
+// @Description  修改章节信息
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.Chapter  true  "章节信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/chapter/edit [post]
 func (ctrl *QualificationController) EditChapter(c *gin.Context) {
 	o := model.Chapter{}
 	if err := c.BindJSON(&o); err != nil {
@@ -441,6 +650,16 @@ func (ctrl *QualificationController) EditChapter(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", r)
 }
 
+// @Summary      删除章节
+// @Description  删除指定章节
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.Chapter  true  "章节ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/chapter/delete [post]
 func (ctrl *QualificationController) DeleteChapter(c *gin.Context) {
 	o := model.Chapter{}
 	if err := c.BindJSON(&o); err != nil {

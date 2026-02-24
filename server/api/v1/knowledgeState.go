@@ -18,6 +18,16 @@ type KnowledgeStateController struct {
 
 // GetKnowledgeState gets knowledge state for a specific chapter
 // POST /api/v1/knowledge-state/byChapter
+// @Summary      获取章节知识状态
+// @Description  获取指定目标和章节的知识掌握状态
+// @Tags         学习导航
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "目标ID和章节ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/knowledge-state/byChapter [post]
 func (ctrl *KnowledgeStateController) GetKnowledgeState(c *gin.Context) {
 	u, err := auth.GetCurrentUser(c)
 	if err != nil {
@@ -45,6 +55,16 @@ func (ctrl *KnowledgeStateController) GetKnowledgeState(c *gin.Context) {
 
 // GetKnowledgeStates gets all knowledge states for a goal
 // POST /api/v1/knowledge-state/list
+// @Summary      获取目标知识状态列表
+// @Description  获取指定目标的所有章节知识状态
+// @Tags         学习导航
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "目标ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/knowledge-state/list [post]
 func (ctrl *KnowledgeStateController) GetKnowledgeStates(c *gin.Context) {
 	u, err := auth.GetCurrentUser(c)
 	if err != nil {
@@ -71,6 +91,16 @@ func (ctrl *KnowledgeStateController) GetKnowledgeStates(c *gin.Context) {
 
 // GetProgress gets user's progress for a goal
 // POST /api/v1/knowledge-state/progress
+// @Summary      获取学习进度
+// @Description  获取用户在指定目标上的学习进度
+// @Tags         学习导航
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "目标ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/knowledge-state/progress [post]
 func (ctrl *KnowledgeStateController) GetProgress(c *gin.Context) {
 	u, err := auth.GetCurrentUser(c)
 	if err != nil {
@@ -97,6 +127,16 @@ func (ctrl *KnowledgeStateController) GetProgress(c *gin.Context) {
 
 // GetDueForReview gets chapters that are due for review
 // POST /api/v1/knowledge-state/due-review
+// @Summary      获取待复习章节
+// @Description  获取指定目标中需要复习的章节列表
+// @Tags         学习导航
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "目标ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/knowledge-state/due-review [post]
 func (ctrl *KnowledgeStateController) GetDueForReview(c *gin.Context) {
 	u, err := auth.GetCurrentUser(c)
 	if err != nil {
