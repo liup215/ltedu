@@ -18,6 +18,15 @@ type QuestionController struct {
 }
 
 // question管理
+// @Summary      获取题目列表
+// @Description  分页查询题目列表
+// @Tags         题目管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.QuestionQueryRequest  true  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/question/list [post]
 func (ctrl *QuestionController) SelectQuestionList(c *gin.Context) {
 	q := model.QuestionQueryRequest{}
 	if err := c.BindJSON(&q); err != nil {
@@ -35,6 +44,15 @@ func (ctrl *QuestionController) SelectQuestionList(c *gin.Context) {
 	})
 }
 
+// @Summary      根据ID获取题目
+// @Description  根据题目ID获取题目详情
+// @Tags         题目管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.PaperSeriesQuery  true  "题目ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/question/byId [post]
 func (ctrl *QuestionController) SelectQuestionById(c *gin.Context) {
 	q := model.PaperSeriesQuery{}
 	if err := c.BindJSON(&q); err != nil {
@@ -49,6 +67,15 @@ func (ctrl *QuestionController) SelectQuestionById(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", o)
 }
 
+// @Summary      获取所有题目
+// @Description  获取全部题目列表（不分页）
+// @Tags         题目管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.QuestionQueryRequest  true  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/question/all [post]
 func (ctrl *QuestionController) SelectQuestionAll(c *gin.Context) {
 	oq := model.QuestionQueryRequest{}
 	if err := c.BindJSON(&oq); err != nil {
@@ -67,6 +94,16 @@ func (ctrl *QuestionController) SelectQuestionAll(c *gin.Context) {
 	})
 }
 
+// @Summary      创建题目
+// @Description  创建新题目
+// @Tags         题目管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.Question  true  "题目信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/question/create [post]
 func (ctrl *QuestionController) CreateQuestion(c *gin.Context) {
 	o := model.Question{}
 	if err := c.BindJSON(&o); err != nil {
@@ -94,6 +131,16 @@ func (ctrl *QuestionController) CreateQuestion(c *gin.Context) {
 	http.SuccessData(c, "添加成功!", nil)
 }
 
+// @Summary      编辑题目
+// @Description  修改题目信息
+// @Tags         题目管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.Question  true  "题目信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/question/edit [post]
 func (ctrl *QuestionController) EditQuestion(c *gin.Context) {
 	o := model.Question{}
 	if err := c.BindJSON(&o); err != nil {
@@ -108,6 +155,16 @@ func (ctrl *QuestionController) EditQuestion(c *gin.Context) {
 	http.SuccessData(c, "编辑成功!", nil)
 }
 
+// @Summary      删除题目
+// @Description  删除指定题目
+// @Tags         题目管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.QuestionQueryRequest  true  "题目ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/question/delete [post]
 func (ctrl *QuestionController) DeleteQuestion(c *gin.Context) {
 	o := model.QuestionQueryRequest{}
 	if err := c.BindJSON(&o); err != nil {
@@ -122,6 +179,16 @@ func (ctrl *QuestionController) DeleteQuestion(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", nil)
 }
 
+// @Summary      添加题目章节关联
+// @Description  为题目添加章节关联
+// @Tags         题目管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.QuestionChapterUpdateRequest  true  "题目与章节ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/question/addChapter [post]
 func (ctrl *QuestionController) AddQuestionChapter(c *gin.Context) {
 	o := model.QuestionChapterUpdateRequest{}
 	if err := c.BindJSON(&o); err != nil {
@@ -136,6 +203,16 @@ func (ctrl *QuestionController) AddQuestionChapter(c *gin.Context) {
 	http.SuccessData(c, "添加成功!", nil)
 }
 
+// @Summary      删除题目章节关联
+// @Description  删除题目与章节的关联
+// @Tags         题目管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.QuestionChapterUpdateRequest  true  "题目与章节ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/question/deleteChapter [post]
 func (ctrl *QuestionController) DeleteQuestionChapter(c *gin.Context) {
 	o := model.QuestionChapterUpdateRequest{}
 	if err := c.BindJSON(&o); err != nil {
