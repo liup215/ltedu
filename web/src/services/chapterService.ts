@@ -2,11 +2,19 @@ import apiClient from './apiClient'
 import type { 
   ChapterResponse,
   ChapterTreeResponse,
+  ChapterListResponse,
   ChapterCreateRequest,
-  ChapterUpdateRequest
+  ChapterUpdateRequest,
+  ChapterQuery
 } from '../models/chapter.model'
 
 class ChapterService {
+  async getChapterList(query: ChapterQuery): Promise<ChapterListResponse> {
+    const client = await apiClient();
+    const response = await client.post('/api/v1/chapter/list', query)
+    return response.data
+  }
+
   async getChapterTree(syllabusId: number): Promise<ChapterTreeResponse> {
     const client = await apiClient(); // Ensure we use the async client
     const response = await client.post('/api/v1/chapter/tree', { syllabusId })
