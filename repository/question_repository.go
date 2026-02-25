@@ -77,6 +77,7 @@ func (r *questionRepository) FindPage(query *model.QuestionQueryRequest, offset,
 	var questions []*model.Question
 	var total int64
 
+	tableName := GetTableName(r.db, &model.Question{})
 	q := r.db.Model(&model.Question{}).
 		Preload("Syllabus").
 		Preload("Syllabus.Qualification").
@@ -99,14 +100,13 @@ func (r *questionRepository) FindPage(query *model.QuestionQueryRequest, offset,
 		Preload("Chapters.Syllabus.Qualification.Organisation")
 
 	if query.ID != 0 {
-		tableName := GetTableName(r.db, &model.Question{})
 		q = q.Where(tableName+".id = ?", query.ID)
 	}
 	if query.Stem != "" {
 		q = q.Where("stem LIKE ?", "%"+query.Stem+"%")
 	}
 	if query.SyllabusId != 0 {
-		q = q.Where("syllabus_id = ?", query.SyllabusId)
+		q = q.Where(tableName+".syllabus_id = ?", query.SyllabusId)
 	}
 	if query.Difficult != 0 {
 		q = q.Where("difficult = ?", query.Difficult)
@@ -123,7 +123,6 @@ func (r *questionRepository) FindPage(query *model.QuestionQueryRequest, offset,
 	}
 
 	q.Count(&total)
-	tableName := GetTableName(r.db, &model.Question{})
 	err := q.Order(tableName + ".id DESC").Offset(offset).Limit(limit).Find(&questions).Error
 	for _, q := range questions {
 		_ = q.Format()
@@ -133,6 +132,7 @@ func (r *questionRepository) FindPage(query *model.QuestionQueryRequest, offset,
 
 func (r *questionRepository) FindAll(query *model.QuestionQueryRequest) ([]*model.Question, error) {
 	var questions []*model.Question
+	tableName := GetTableName(r.db, &model.Question{})
 	q := r.db.Model(&model.Question{}).
 		Preload("Syllabus").
 		Preload("Syllabus.Qualification").
@@ -155,14 +155,13 @@ func (r *questionRepository) FindAll(query *model.QuestionQueryRequest) ([]*mode
 		Preload("Chapters.Syllabus.Qualification.Organisation")
 
 	if query.ID != 0 {
-		tableName := GetTableName(r.db, &model.Question{})
 		q = q.Where(tableName+".id = ?", query.ID)
 	}
 	if query.Stem != "" {
 		q = q.Where("stem LIKE ?", "%"+query.Stem+"%")
 	}
 	if query.SyllabusId != 0 {
-		q = q.Where("syllabus_id = ?", query.SyllabusId)
+		q = q.Where(tableName+".syllabus_id = ?", query.SyllabusId)
 	}
 	if query.Difficult != 0 {
 		q = q.Where("difficult = ?", query.Difficult)
@@ -178,7 +177,6 @@ func (r *questionRepository) FindAll(query *model.QuestionQueryRequest) ([]*mode
 			Where("PastPaper.name LIKE ?", "%"+query.PaperName+"%")
 	}
 
-	tableName := GetTableName(r.db, &model.Question{})
 	err := q.Order(tableName + ".id DESC").Find(&questions).Error
 	for _, q := range questions {
 		_ = q.Format()
@@ -188,17 +186,17 @@ func (r *questionRepository) FindAll(query *model.QuestionQueryRequest) ([]*mode
 
 func (r *questionRepository) Count(query *model.QuestionQueryRequest) (int64, error) {
 	var total int64
+	tableName := GetTableName(r.db, &model.Question{})
 	q := r.db.Model(&model.Question{})
 
 	if query.ID != 0 {
-		tableName := GetTableName(r.db, &model.Question{})
 		q = q.Where(tableName+".id = ?", query.ID)
 	}
 	if query.Stem != "" {
 		q = q.Where("stem LIKE ?", "%"+query.Stem+"%")
 	}
 	if query.SyllabusId != 0 {
-		q = q.Where("syllabus_id = ?", query.SyllabusId)
+		q = q.Where(tableName+".syllabus_id = ?", query.SyllabusId)
 	}
 	if query.Difficult != 0 {
 		q = q.Where("difficult = ?", query.Difficult)
