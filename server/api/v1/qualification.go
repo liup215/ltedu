@@ -602,6 +602,32 @@ func (ctrl *QualificationController) SelectChapterById(c *gin.Context) {
 	http.SuccessData(c, "数据获取成功!", o)
 }
 
+// @Summary      获取章节列表
+// @Description  分页查询章节列表，支持按syllabusId筛选
+// @Tags         考纲管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.ChapterQuery  true  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Router       /v1/chapter/list [post]
+func (ctrl *QualificationController) GetChapterList(c *gin.Context) {
+	q := model.ChapterQuery{}
+	if err := c.BindJSON(&q); err != nil {
+		http.ErrorData(c, "参数解析失败", nil)
+		return
+	}
+	list, total, err := ctrl.qualificationSvr.ChapterList(q)
+	if err != nil {
+		http.ErrorData(c, "参数解析失败", nil)
+		return
+	}
+	http.SuccessData(c, "数据获取成功!", gin.H{
+		"list":  list,
+		"total": total,
+	})
+}
+
 // @Summary      创建章节
 // @Description  创建新章节
 // @Tags         考纲管理

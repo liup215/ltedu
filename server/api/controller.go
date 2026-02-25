@@ -76,6 +76,7 @@ func (h *Handler) noAuthRout(r *gin.RouterGroup) {
 	r.POST("/v1/syllabus/byId", v1.QualificationCtrl.SelectSyllabusById)
 	r.POST("/v1/syllabus/all", v1.QualificationCtrl.SelectSyllabusAll)
 
+	r.POST("/v1/chapter/list", v1.QualificationCtrl.GetChapterList)
 	r.POST("/v1/chapter/tree", v1.QualificationCtrl.GetChapterTree)
 	r.POST("/v1/chapter/byId", v1.QualificationCtrl.SelectChapterById)
 
