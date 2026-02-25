@@ -3,9 +3,11 @@ package mcp
 import (
 	"errors"
 	"strconv"
+	"strings"
 )
 
-// getAvailableTools returns the list of all available MCP tools
+// getAvailableTools returns the list of available MCP tools.
+// Admin users receive all tools; regular users receive only read-only (list/get) tools.
 func (s *MCPServer) getAvailableTools() []map[string]interface{} {
 	var tools []map[string]interface{}
 
@@ -19,7 +21,25 @@ func (s *MCPServer) getAvailableTools() []map[string]interface{} {
 	tools = append(tools, s.getPastPaperTools()...)
 	tools = append(tools, s.getQuestionTools()...)
 
+	// Non-admin users only get read-only tools to reduce token usage
+	if !s.currentUser.IsAdmin {
+		return filterReadOnlyTools(tools)
+	}
+
 	return tools
+}
+
+// filterReadOnlyTools returns only read-only tools (tools whose names end with "_list" or "_get").
+func filterReadOnlyTools(tools []map[string]interface{}) []map[string]interface{} {
+	var readOnly []map[string]interface{}
+	for _, tool := range tools {
+		if name, ok := tool["name"].(string); ok {
+			if strings.HasSuffix(name, "_list") || strings.HasSuffix(name, "_get") {
+				readOnly = append(readOnly, tool)
+			}
+		}
+	}
+	return readOnly
 }
 
 // executeTool executes a tool and returns the result as a string
