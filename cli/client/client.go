@@ -79,7 +79,7 @@ func (c *Client) PostAndDecode(path string, body interface{}, result interface{}
 	if err != nil {
 		return err
 	}
-	if apiResp.Code != 200 {
+	if apiResp.Code != 0 {
 		return fmt.Errorf("API error: %s", apiResp.Message)
 	}
 	if result == nil || len(apiResp.Data) == 0 {
