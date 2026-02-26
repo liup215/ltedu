@@ -47,6 +47,7 @@ func (s *MCPServer) getChapterTools() []map[string]interface{} {
 					"name":       map[string]interface{}{"type": "string", "description": "Chapter name"},
 					"syllabusId": map[string]interface{}{"type": "number", "description": "Syllabus ID"},
 					"parentId":   map[string]interface{}{"type": "number", "description": "Parent chapter ID (0 for root)"},
+					"level":      map[string]interface{}{"type": "string", "description": "Syllabus level: 'AS', 'A2', or '' for non-A-Level"},
 				},
 				"required": []string{"name", "syllabusId"},
 			},
@@ -61,6 +62,7 @@ func (s *MCPServer) getChapterTools() []map[string]interface{} {
 					"name":       map[string]interface{}{"type": "string", "description": "New chapter name"},
 					"syllabusId": map[string]interface{}{"type": "number", "description": "Syllabus ID"},
 					"parentId":   map[string]interface{}{"type": "number", "description": "Parent chapter ID"},
+					"level":      map[string]interface{}{"type": "string", "description": "Syllabus level: 'AS', 'A2', or '' for non-A-Level"},
 				},
 				"required": []string{"id"},
 			},
@@ -158,6 +160,7 @@ func (s *MCPServer) toolChapterCreate(args map[string]interface{}) (string, erro
 		Name:       name,
 		SyllabusId: syllabusId,
 		ParentId:   parentId,
+		Level:      getString(args, "level", ""),
 	})
 	if err != nil {
 		return "", err
@@ -192,6 +195,10 @@ func (s *MCPServer) toolChapterEdit(args map[string]interface{}) (string, error)
 	// Allow parentId to be updated even to 0
 	if _, ok := args["parentId"]; ok {
 		existing.ParentId = getUint(args, "parentId", 0)
+	}
+	// Allow level to be updated (including clearing it)
+	if _, ok := args["level"]; ok {
+		existing.Level = getString(args, "level", "")
 	}
 
 	_, err = service.QualificationSvr.EditChapter(*existing)

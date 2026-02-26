@@ -33,7 +33,7 @@ func (r *chapterRepository) Create(c *model.Chapter) error {
 }
 
 func (r *chapterRepository) Update(c *model.Chapter) error {
-	return r.db.Model(c).Updates(c).Error
+	return r.db.Model(c).Select("name", "level").Updates(c).Error
 }
 
 func (r *chapterRepository) Delete(id uint) error {

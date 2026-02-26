@@ -323,7 +323,11 @@ export default {
     actions: '操作',
     loading: '加载中...',
     noData: '暂无试卷代码',
-    pageInfo: '显示第{from}到{to}条，共{total}条'
+    pageInfo: '显示第{from}到{to}条，共{total}条',
+    selectSyllabus: '请选择大纲',
+    noSyllabusMatch: '无匹配大纲',
+    level: '大纲级别',
+    levelNone: '无级别（非A-Level）'
   },
   syllabusForm: {
     editTitle: '编辑大纲',
@@ -460,7 +464,9 @@ export default {
     selectTitle: '请选择章节',
     selectTip: '请从左侧树中选择章节以查看或编辑详情',
     deleteChapter: '删除章节',
-    saveChanges: '保存更改'
+    saveChanges: '保存更改',
+    level: '大纲级别（AS/A2）',
+    levelNone: '无级别（非A-Level）'
   },
   adminDashboard: {
     title: '管理后台',

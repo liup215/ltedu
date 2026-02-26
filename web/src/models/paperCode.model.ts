@@ -1,9 +1,13 @@
 import { type Syllabus } from './syllabus.model'
 import { type ApiResponse, type Page } from './api.model'
 
+export const PAPER_CODE_LEVEL_AS = 'AS';
+export const PAPER_CODE_LEVEL_A2 = 'A2';
+
 export interface PaperCode {
   id?: number
   name: string // As per user feedback
+  level?: string // syllabus level: "AS", "A2", or "" for non-A-Level
   syllabusId: number
   syllabus?: Syllabus
   createdAt?: string
@@ -22,12 +26,14 @@ export interface PaginatedPaperCodes {
 
 export interface PaperCodeCreateRequest {
   name: string
+  level?: string
   syllabusId: number
 }
 
 export interface PaperCodeUpdateRequest {
   id: number
   name: string
+  level?: string
   syllabusId: number
 }
 
