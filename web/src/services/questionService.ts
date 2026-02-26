@@ -5,7 +5,6 @@ import type {
   PaginatedQuestions,
   QuestionCreateRequest,
   QuestionUpdateRequest,
-  QuestionChapterUpdateRequest
 } from '../models/question.model';
 import type { ApiResponse } from '../models/api.model';
 
@@ -51,20 +50,6 @@ class QuestionService {
   async deleteQuestion(id: number): Promise<ApiResponse<void>> {
     const client = await apiClient(); // Ensure we use the async client
     const response = await client.post(`${this.baseUrl}/delete`, { id });
-    return response.data;
-  }
-
-  // ADD QUESTION CHAPTER - Add chapters to question
-  async addQuestionChapter(request: QuestionChapterUpdateRequest): Promise<ApiResponse<void>> {
-    const client = await apiClient(); // Ensure we use the async client
-    const response = await client.post(`${this.baseUrl}/addChapter`, request);
-    return response.data;
-  }
-
-  // DELETE QUESTION CHAPTER - Remove chapters from question
-  async deleteQuestionChapter(request: QuestionChapterUpdateRequest): Promise<ApiResponse<void>> {
-    const client = await apiClient(); // Ensure we use the async client
-    const response = await client.post(`${this.baseUrl}/deleteChapter`, request);
     return response.data;
   }
 }

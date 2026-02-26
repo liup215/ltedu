@@ -1,7 +1,6 @@
 
 // Import ApiResponse from api model
 import type { ApiResponse } from './api.model';
-import type { Chapter } from './chapter.model';
 import type { PastPaper } from './pastPaper.model';
 import type { Syllabus } from './syllabus.model';
 
@@ -16,7 +15,6 @@ export interface Question {
   syllabus?: Syllabus;
   pastPaperId?: number;
   pastPaper?: PastPaper;
-  chapters?: Chapter[];
   questionContents?: QuestionContent[];
   createdAt?: string;
   updatedAt?: string;
@@ -67,7 +65,6 @@ export interface QuestionQuery {
   pageIndex?: number;
   pageSize?: number;
   syllabusId?: number;
-  chapters?: number[]; // Changed to 'chapters' and type number[] based on feedback
   difficult?: number;
   status?: number;
   stem?: string;
@@ -94,11 +91,6 @@ export interface QuestionUpdateRequest {
   questionContents: QuestionContent[];
 }
 
-export interface QuestionChapterRequest {
-  questionId: number;
-  chapters: number[];
-}
-
 export interface PaginatedQuestions {
   list: Question[];
   total: number;
@@ -115,12 +107,6 @@ export const DIFFICULTY_NAMES = {
 export const QUESTION_STATE_NORMAL = 1;
 export const QUESTION_STATE_FORBIDDEN = 2;
 export const QUESTION_STATE_DELETE = 3;
-
-// Question Chapter Update Request
-export interface QuestionChapterUpdateRequest {
-  questionId: number;
-  chapters: number[];
-}
 
 // API Response Types
 export type QuestionListResponse = ApiResponse<PaginatedQuestions>;

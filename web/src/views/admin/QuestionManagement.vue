@@ -45,48 +45,6 @@
     <option :value="null">{{ $t('question.selectSyllabus') }}</option>
     <option v-for="syllabus in syllabi" :key="syllabus.id" :value="syllabus.id">{{ syllabus.name }}</option>
   </select>
-
-  <!-- Chapter Selection Tree -->
-  <div class="relative flex-[1_1_260px] min-w-[200px] max-w-xl">
-    <button
-      @click="showChapterSelector = !showChapterSelector"
-      :disabled="!selectedSyllabusId || filterableChapters.length === 0"
-      class="flex justify-between items-center w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-    >
-      <span class="text-sm truncate">
-        {{ selectedChapterIds.length ? $t('examPaperForm.chaptersSelected', { count: selectedChapterIds.length }) : $t('examPaperForm.allChapters') }}
-      </span>
-      <svg class="w-5 h-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-      </svg>
-    </button>
-
-    <!-- Chapter Tree Dropdown -->
-    <div v-if="showChapterSelector" class="absolute z-10 w-full lg:w-96 mt-1 bg-white rounded-md shadow-lg border border-gray-200">
-      <div class="max-h-96 overflow-y-auto p-2">
-        <div class="flex items-center justify-between p-2 border-b">
-          <span class="text-sm font-medium text-gray-900">{{ $t('examPaperForm.selectChapters') }}</span>
-          <button 
-            @click="clearChapterSelection"
-            class="text-sm text-gray-500 hover:text-gray-700"
-          >
-            {{ $t('examPaperForm.clear') }}
-          </button>
-        </div>
-        <div class="mt-2">
-          <ChapterOption
-            v-for="(chapter, index) in filterableChapters"
-            :key="chapter.id"
-            :chapter="chapter"
-            :level="0"
-            :is-last="index === filterableChapters.length - 1"
-            :selected-chapters="selectedChapterIds"
-            @update:selected="updateChapterSelection"
-          />
-        </div>
-      </div>
-    </div>
-  </div>
   
   <select 
     v-model="selectedDifficulty"
@@ -311,23 +269,6 @@
             </div>
           </div>
 
-          <!-- Chapters -->
-          <div v-if="question.chapters && question.chapters.length > 0" class="mb-4">
-            <h4 class="text-sm font-medium text-gray-700 mb-2">{{ $t('question.chapter') }}:</h4>
-            <div class="flex flex-wrap gap-1">
-              <span 
-                v-for="chapter in question.chapters.slice(0, 3)" 
-                :key="chapter.id"
-                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
-              >
-                {{ chapter.name }}
-              </span>
-              <span v-if="question.chapters.length > 3" class="text-xs text-gray-500">
-                +{{ question.chapters.length - 3 }} {{ $t('common.more') }}
-              </span>
-            </div>
-          </div>
-
           <!-- Past Paper Info -->
           <div v-if="question.pastPaper" class="mb-4">
             <h4 class="text-sm font-medium text-gray-700 mb-2">{{ $t('pastPaper.title') }}:</h4>
@@ -357,12 +298,6 @@
               >
                 {{ $t('common.edit') }}
               </router-link>
-              <button 
-                @click="openChapterModal(question)"
-                class="text-green-600 hover:text-green-900 text-sm font-medium"
-              >
-                {{ $t('question.manageChapters') }}
-              </button>
               <button 
                 @click="deleteQuestion(question.id)"
                 class="text-red-600 hover:text-red-900 text-sm font-medium"
@@ -413,74 +348,6 @@
         </button>
       </nav>
     </div>
-
-    <!-- Chapter Management Modal -->
-    <div v-if="showChapterModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity">
-      <div class="fixed inset-0 z-10 overflow-y-auto">
-        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-          <div class="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
-            <div class="absolute right-0 top-0 pr-4 pt-4">
-              <button 
-                @click="showChapterModal = false" 
-                class="rounded-md bg-white text-gray-400 hover:text-gray-500"
-              >
-                <span class="sr-only">Close</span>
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <div class="sm:flex sm:items-start">
-              <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                <h3 class="text-lg font-semibold leading-6 text-gray-900 mb-4">Manage Chapters</h3>
-                
-                <!-- Loading State -->
-                <div v-if="loadingChapters" class="py-4 text-center">
-                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-                  <span class="mt-2 block text-sm text-gray-600">Loading chapters...</span>
-                </div>
-
-                <!-- Chapter List -->
-                <div v-else class="space-y-2 max-h-96 overflow-y-auto">
-                  <div 
-                    v-for="(chapter, index) in availableChapters" 
-                    :key="chapter.id"
-                    class="flex items-center justify-between p-2 border border-gray-200 rounded-md hover:bg-gray-50"
-                  >
-                    <div class="flex-1">
-                      <ChapterOption
-                        :chapter="chapter"
-                        :level="0"
-                        :selectedChapters = "selectedQuestionChapterIds"
-                        :is-last="index === availableChapters.length - 1"
-                        @update:selected="updateQuestionChapters"
-                      />
-                    </div>
-                    <!-- <div class="flex space-x-2">
-                      <button
-                        v-if="selectedChapterIds.includes(chapter.id)"
-                        @click="updateQuestionChapters(false, chapter.id)"
-                        class="text-red-600 hover:text-red-800 text-sm"
-                      >
-                        Remove
-                      </button>
-                      <button
-                        v-else
-                        @click="updateQuestionChapters(true, chapter.id)"
-                        class="text-green-600 hover:text-green-800 text-sm"
-                      >
-                        Add
-                      </button>
-                    </div> -->
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -488,7 +355,6 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import questionService from '../../services/questionService';
 import type { Question } from '../../models/question.model';
-import type { Chapter } from '../../models/chapter.model';
 import organisationService from '../../services/organisationService';
 import type { Organisation } from '../../models/organisation.model';
 import qualificationService from '../../services/qualificationService';
@@ -507,35 +373,14 @@ import {
   QUESTION_TYPE_GAP_FILLING,
   QUESTION_TYPE_SHORT_ANSWER
 } from '../../models/question.model';
-import chapterService from '../../services/chapterService';
-import ChapterOption from '../../components/admin/ChapterOption.vue';
 import QuillEditor from '../../components/QuillEditor/index.vue';
 
 // Reactive data
 const questions = ref<Question[]>([]);
 const loading = ref(true);
 const activeTabMap = ref(new Map<number, number>()); // Map to store active tab index for each question
-const showChapterModal = ref(false);
-const selectedQuestionId = ref<number | null>(null);
-const selectedChapterIds = ref<number[]>([]);
-const selectedQuestionChapterIds = ref<number[]>([]);
-const availableChapters = ref<Chapter[]>([]);
-const loadingChapters = ref(false);
 const totalQuestions = ref(0);
 const currentPage = ref(1);
-const showChapterSelector = ref(false);
-
-// Chapter selection methods
-const clearChapterSelection = () => {
-  selectedChapterIds.value = [];
-  fetchQuestions();
-};
-
-const updateChapterSelection = (chapters: number[]) => {
-  selectedChapterIds.value = chapters;
-  console.log('Selected Chapters:', selectedChapterIds.value);
-  fetchQuestions();
-};
 const pageSize = 12; // Cards per page
 const searchQuery = ref('');
 const paperNameQuery = ref('');
@@ -549,8 +394,6 @@ const syllabi = ref<Syllabus[]>([]);
 const selectedOrganisationId = ref<number | null>(null);
 const selectedQualificationId = ref<number | null>(null);
 const selectedSyllabusId = ref<number | null>(null);
-const filterableChapters = ref<Chapter[]>([]);
-const selectedChapterIdFilter = ref<number | string>('');
 
 // Computed properties
 const totalPages = computed(() => {
@@ -637,84 +480,6 @@ const fetchSyllabi = async () => {
 
 
 // Methods
-const openChapterModal = (question: Question) => {
-  selectedQuestionId.value = question.id;
-  selectedQuestionChapterIds.value = question.chapters?.map(c => c.id) || [];
-  showChapterModal.value = true;
-  fetchAvailableChapters();
-};
-
-const fetchAvailableChapters = async () => {
-  if (!selectedQuestionId.value) return;
-  loadingChapters.value = true;
-  try {
-    const questionDetails = await questionService.getQuestionById(selectedQuestionId.value);
-    const syllabusId = questionDetails.data.syllabusId;
-    const questionLevel = questionDetails.data.pastPaper?.paperCode?.level || '';
-    const response = await chapterService.getChapterTree(syllabusId);
-    // Filter chapters by level: only show chapters matching the question's paper code level
-    // If question has no level, show all chapters; if chapter has no level, always show it
-    if (questionLevel) {
-      availableChapters.value = filterChaptersByLevel(response.data, questionLevel);
-    } else {
-      availableChapters.value = response.data;
-    }
-  } catch (error) {
-    console.error('Failed to fetch chapters:', error);
-  } finally {
-    loadingChapters.value = false;
-  }
-};
-
-const filterChaptersByLevel = (chapters: Chapter[], level: string): Chapter[] => {
-  return chapters
-    .filter(chapter => !chapter.level || chapter.level === level)
-    .map(chapter => ({
-      ...chapter,
-      children: chapter.children ? filterChaptersByLevel(chapter.children, level) : undefined
-    }));
-};
-
-const updateQuestionChapters = async (chapterIds: number[]) => {
-  if (!selectedQuestionId.value) return;
-  try {
-    const r = await questionService.getQuestionById(selectedQuestionId.value)
-    // compare with the current selected chapters
-    const currentChapters = r.data.chapters?.map(c => c.id) || [];
-    const chaptersToAdd = chapterIds.filter(id => !currentChapters.includes(id));
-    const chaptersToRemove = currentChapters.filter(id => !chapterIds.includes(id));
-    await questionService.addQuestionChapter({
-      questionId: selectedQuestionId.value,
-      chapters: chaptersToAdd
-    });
-
-    console.log('Chapters to add:', chaptersToAdd);
-
-    await questionService.deleteQuestionChapter({
-      questionId: selectedQuestionId.value,
-      chapters: chaptersToRemove
-    });
-
-    console.log('Chapters to remove:', chaptersToRemove);
-
-  //   const request = {
-  //     questionId: selectedQuestionId.value,
-  //     chapters: [chapterId]
-  //   };
-  //   if (add) {
-  //     await questionService.addQuestionChapter(request);
-  //   } else {
-  //     await questionService.deleteQuestionChapter(request);
-  //   }
-    // showChapterModal.value = false;
-    selectedQuestionChapterIds.value = chapterIds; // Update selected chapters
-    fetchQuestions();
-  } catch (error) {
-    console.error('Failed to update chapter:', error);
-  }
-
-};
-
 const fetchQuestions = async () => {
   loading.value = true;
   try {
@@ -722,7 +487,6 @@ const fetchQuestions = async () => {
       pageIndex: currentPage.value,
       pageSize,
       syllabusId: selectedSyllabusId.value ? Number(selectedSyllabusId.value) : undefined,
-      chapters: selectedChapterIds.value.length > 0 ? selectedChapterIds.value : undefined,
       difficult: selectedDifficulty.value ? Number(selectedDifficulty.value) : undefined,
       status: selectedStatus.value ? Number(selectedStatus.value) : undefined,
       stem: searchQuery.value.trim() || undefined,
@@ -796,7 +560,7 @@ const formatDate = (dateString?: string): string => {
 
 // Search debounce
 let searchDebounceTimer: number | undefined;
-watch([searchQuery, paperNameQuery, selectedSyllabusId, selectedChapterIds, selectedDifficulty, selectedStatus], () => {
+watch([searchQuery, paperNameQuery, selectedSyllabusId, selectedDifficulty, selectedStatus], () => {
   clearTimeout(searchDebounceTimer);
   searchDebounceTimer = window.setTimeout(() => {
     currentPage.value = 1;
@@ -804,33 +568,10 @@ watch([searchQuery, paperNameQuery, selectedSyllabusId, selectedChapterIds, sele
   }, 500);
 });
 
-const fetchFilterableChapters = async () => {
-  selectedChapterIdFilter.value = ''; // Reset chapter filter
-  filterableChapters.value = []; // Reset chapters list
-
-  if (!selectedSyllabusId.value) return;
-
-  try {
-    const response = await chapterService.getChapterTree(Number(selectedSyllabusId.value));
-    filterableChapters.value = response.data;
-  } catch (error) {
-    console.error('Failed to fetch chapters for filter:', error);
-  }
-};
-
 watch(selectedSyllabusId, (newValue) => {
-  // When syllabus changes, fetch its chapters for the filter dropdown
-  // and reset the chapter filter itself.
-  fetchFilterableChapters(); 
-  // selectedChapterIdFilter.value = ''; // fetchFilterableChapters already does this.
-  // The main filter watch above will trigger fetchQuestions if selectedSyllabusId changes.
-  // If selectedSyllabusId is cleared, filterableChapters will be empty, and selectedChapterIdFilter will be cleared.
-  // fetchQuestions will then run without syllabus or chapter filters (unless they were the only ones active).
   if (!newValue) { // If syllabus is cleared
-    questions.value = []; // Optionally clear questions, or let the main watcher handle it.
+    questions.value = [];
     totalQuestions.value = 0;
-    // The main watcher will call fetchQuestions. If selectedSyllabusId is empty,
-    // it will fetch based on other filters (e.g., qualification, organisation, or all if those are also empty).
   }
 });
 
