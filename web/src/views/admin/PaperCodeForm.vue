@@ -75,6 +75,21 @@
         <p v-if="errors.syllabusId" class="text-red-500 text-xs italic">{{ errors.syllabusId }}</p>
       </div>
 
+      <div class="mb-6">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="level">
+          {{ $t('paperCode.level') }}
+        </label>
+        <select
+          id="level"
+          v-model="form.level"
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        >
+          <option value="">{{ $t('paperCode.levelNone') }}</option>
+          <option value="AS">AS</option>
+          <option value="A2">A2</option>
+        </select>
+      </div>
+
       <div class="flex items-center justify-between">
         <button
           type="submit"
@@ -112,6 +127,7 @@ const router = useRouter()
 
 const form = ref<Partial<PaperCode>>({
   name: '',
+  level: '',
   syllabusId: 0,
 })
 const errors = ref<{ name?: string; syllabusId?: string }>({})
@@ -163,6 +179,7 @@ const fetchPaperCodeDetails = async (id: number) => {
     form.value = {
       id: seriesData.id,
       name: seriesData.name,
+      level: seriesData.level || '',
       syllabusId: seriesData.syllabusId,
     }
     // Pre-fill filters if syllabus is set
@@ -234,6 +251,7 @@ const handleSubmit = async () => {
   try {
     const payload = {
       name: form.value.name!,
+      level: form.value.level || '',
       syllabusId: form.value.syllabusId!,
     }
     if (isEditMode.value && paperCodeId.value) {

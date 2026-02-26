@@ -650,13 +650,29 @@ const fetchAvailableChapters = async () => {
   try {
     const questionDetails = await questionService.getQuestionById(selectedQuestionId.value);
     const syllabusId = questionDetails.data.syllabusId;
+    const questionLevel = questionDetails.data.pastPaper?.paperCode?.level || '';
     const response = await chapterService.getChapterTree(syllabusId);
-    availableChapters.value = response.data;
+    // Filter chapters by level: only show chapters matching the question's paper code level
+    // If question has no level, show all chapters; if chapter has no level, always show it
+    if (questionLevel) {
+      availableChapters.value = filterChaptersByLevel(response.data, questionLevel);
+    } else {
+      availableChapters.value = response.data;
+    }
   } catch (error) {
     console.error('Failed to fetch chapters:', error);
   } finally {
     loadingChapters.value = false;
   }
+};
+
+const filterChaptersByLevel = (chapters: Chapter[], level: string): Chapter[] => {
+  return chapters
+    .filter(chapter => !chapter.level || chapter.level === level)
+    .map(chapter => ({
+      ...chapter,
+      children: chapter.children ? filterChaptersByLevel(chapter.children, level) : undefined
+    }));
 };
 
 const updateQuestionChapters = async (chapterIds: number[]) => {

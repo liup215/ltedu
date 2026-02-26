@@ -133,9 +133,59 @@ func (svr *QuestionService) GenerateQuestionExercise(query model.QuestionQueryRe
 
 // 兼容 controller 空实现
 func (svr *QuestionService) AddQuestionChapter(o interface{}) error {
+	req, ok := o.(model.QuestionChapterUpdateRequest)
+	if !ok {
+		return errors.New("无效的请求参数")
+	}
+	if req.QuestionId == 0 {
+		return errors.New("题目ID不能为空")
+	}
+
+	// Fetch the question to determine its level from PaperCode
+	question, err := repository.QuestionRepo.FindByID(req.QuestionId)
+	if err != nil {
+		return errors.New("题目查询失败")
+	}
+	if question == nil {
+		return errors.New("题目不存在")
+	}
+
+	questionLevel := ""
+	if question.PastPaperId != 0 && question.PastPaper.PaperCodeId != 0 {
+		questionLevel = question.PastPaper.PaperCode.Level
+	}
+
+	for _, chapterId := range req.Chapters {
+		// Validate chapter level consistency when both levels are set
+		if questionLevel != "" {
+			chapter, err := repository.ChapterRepo.FindByID(chapterId)
+			if err != nil || chapter == nil {
+				return errors.New("章节查询失败")
+			}
+			if chapter.Level != "" && chapter.Level != questionLevel {
+				return fmt.Errorf("章节 '%s' 属于 %s 级别，与试题的 %s 级别不匹配", chapter.Name, chapter.Level, questionLevel)
+			}
+		}
+		if err := repository.QuestionRepo.AddChapter(req.QuestionId, chapterId); err != nil {
+			return err
+		}
+	}
 	return nil
 }
+
 func (svr *QuestionService) DeleteQuestionChapter(o interface{}) error {
+	req, ok := o.(model.QuestionChapterUpdateRequest)
+	if !ok {
+		return errors.New("无效的请求参数")
+	}
+	if req.QuestionId == 0 {
+		return errors.New("题目ID不能为空")
+	}
+	for _, chapterId := range req.Chapters {
+		if err := repository.QuestionRepo.RemoveChapter(req.QuestionId, chapterId); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

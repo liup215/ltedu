@@ -44,6 +44,7 @@ func (s *MCPServer) getPaperCodeTools() []map[string]interface{} {
 				"properties": map[string]interface{}{
 					"name":       map[string]interface{}{"type": "string", "description": "Paper code name"},
 					"syllabusId": map[string]interface{}{"type": "number", "description": "Syllabus ID"},
+					"level":      map[string]interface{}{"type": "string", "description": "Syllabus level: 'AS', 'A2', or '' for non-A-Level"},
 				},
 				"required": []string{"name", "syllabusId"},
 			},
@@ -57,6 +58,7 @@ func (s *MCPServer) getPaperCodeTools() []map[string]interface{} {
 					"id":         map[string]interface{}{"type": "number", "description": "Paper code ID"},
 					"name":       map[string]interface{}{"type": "string", "description": "New paper code name"},
 					"syllabusId": map[string]interface{}{"type": "number", "description": "Syllabus ID"},
+					"level":      map[string]interface{}{"type": "string", "description": "Syllabus level: 'AS', 'A2', or '' for non-A-Level"},
 				},
 				"required": []string{"id"},
 			},
@@ -134,6 +136,7 @@ func (s *MCPServer) toolPaperCodeCreate(args map[string]interface{}) (string, er
 	code := model.PaperCode{
 		Name:       name,
 		SyllabusId: syllabusId,
+		Level:      getString(args, "level", ""),
 	}
 	err := service.QuestionPaperSvr.CreateCode(code)
 	if err != nil {
@@ -165,6 +168,10 @@ func (s *MCPServer) toolPaperCodeEdit(args map[string]interface{}) (string, erro
 	}
 	if sylId := getUint(args, "syllabusId", 0); sylId != 0 {
 		existing.SyllabusId = sylId
+	}
+	// Allow level to be updated (including clearing it)
+	if _, ok := args["level"]; ok {
+		existing.Level = getString(args, "level", "")
 	}
 
 	err = service.QuestionPaperSvr.EditCode(*existing)

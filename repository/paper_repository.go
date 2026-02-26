@@ -136,6 +136,7 @@ func (r *paperCodeRepository) Update(code *model.PaperCode) error {
 	updates := map[string]interface{}{
 		"name":        code.Name,
 		"syllabus_id": code.SyllabusId,
+		"level":       code.Level,
 	}
 	return r.db.Model(&model.PaperCode{}).
 		Where("id = ?", code.ID).

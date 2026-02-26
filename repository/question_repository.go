@@ -19,6 +19,8 @@ type IQuestionRepository interface {
 	AddKnowledgePoint(questionId, knowledgePointId uint) error
 	RemoveKnowledgePoint(questionId, knowledgePointId uint) error
 	ClearKnowledgePoints(questionId uint) error
+	AddChapter(questionId, chapterId uint) error
+	RemoveChapter(questionId, chapterId uint) error
 }
 
 type questionRepository struct {
@@ -121,6 +123,11 @@ func (r *questionRepository) FindPage(query *model.QuestionQueryRequest, offset,
 		q = q.Joins("PastPaper").
 			Where("PastPaper.name LIKE ?", "%"+query.PaperName+"%")
 	}
+	if len(query.Chapters) > 0 {
+		q = q.Joins("JOIN question_chapters ON question_chapters.question_id = "+tableName+".id").
+			Where("question_chapters.chapter_id IN ?", query.Chapters).
+			Distinct(tableName + ".*")
+	}
 
 	q.Count(&total)
 	err := q.Order(tableName + ".id DESC").Offset(offset).Limit(limit).Find(&questions).Error
@@ -175,6 +182,11 @@ func (r *questionRepository) FindAll(query *model.QuestionQueryRequest) ([]*mode
 	if query.PaperName != "" {
 		q = q.Joins("PastPaper").
 			Where("PastPaper.name LIKE ?", "%"+query.PaperName+"%")
+	}
+	if len(query.Chapters) > 0 {
+		q = q.Joins("JOIN question_chapters ON question_chapters.question_id = "+tableName+".id").
+			Where("question_chapters.chapter_id IN ?", query.Chapters).
+			Distinct(tableName + ".*")
 	}
 
 	err := q.Order(tableName + ".id DESC").Find(&questions).Error
@@ -257,4 +269,14 @@ func (r *questionRepository) RemoveKnowledgePoint(questionId, knowledgePointId u
 
 func (r *questionRepository) ClearKnowledgePoints(questionId uint) error {
 	return r.db.Exec("DELETE FROM question_keypoints WHERE question_id = ?", questionId).Error
+}
+
+func (r *questionRepository) AddChapter(questionId, chapterId uint) error {
+	return r.db.Exec("INSERT IGNORE INTO question_chapters (question_id, chapter_id) VALUES (?, ?)",
+		questionId, chapterId).Error
+}
+
+func (r *questionRepository) RemoveChapter(questionId, chapterId uint) error {
+	return r.db.Exec("DELETE FROM question_chapters WHERE question_id = ? AND chapter_id = ?",
+		questionId, chapterId).Error
 }

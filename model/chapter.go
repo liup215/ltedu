@@ -1,11 +1,17 @@
 package model
 
+const (
+	ChapterLevelAS = "AS"
+	ChapterLevelA2 = "A2"
+)
+
 type Chapter struct {
 	Model
 	Name       string      `json:"name"`
 	SyllabusId uint        `json:"syllabusId"`
 	Syllabus   Syllabus    `json:"syllabus"`
 	ParentId   uint        `json:"parentId" gorm:"index"`
+	Level      string      `json:"level"` // syllabus level: "AS", "A2", or "" for non-A-Level
 	Children   []*Chapter  `gorm:"-" json:"children,omitempty"`
 	IsLeaf     int         `gorm:"-" json:"isLeaf"`
 	Questions  []*Question `gorm:"many2many:question_chapters;"`
