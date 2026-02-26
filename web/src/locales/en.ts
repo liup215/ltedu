@@ -555,7 +555,8 @@ export default {
     profile: 'Profile',
     settings: 'Settings',
     teacherApplication: 'Teacher Application',
-    mcpTokens: 'MCP Tokens'
+    mcpTokens: 'MCP Tokens',
+    cliTokens: 'CLI Tokens'
   },
   adminSidebar: {
     menu: 'Admin Menu',
