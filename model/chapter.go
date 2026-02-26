@@ -14,7 +14,6 @@ type Chapter struct {
 	Level      string      `json:"level"` // syllabus level: "AS", "A2", or "" for non-A-Level
 	Children   []*Chapter  `gorm:"-" json:"children,omitempty"`
 	IsLeaf     int         `gorm:"-" json:"isLeaf"`
-	Questions  []*Question `gorm:"many2many:question_chapters;"`
 }
 
 func BuildChapterString(chapters []*Chapter, currentID uint) string {

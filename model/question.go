@@ -73,7 +73,6 @@ type Question struct {
 	Stem                   string            `json:"stem" gorm:"type:longtext"` // 原问题，接受后存入QuestionString后储存
 	QuestionContents       []QuestionContent `gorm:"-" json:"questionContents"`
 	QuestionContentsString string            `json:"-" gorm:"type:longtext;"` // JSON中没有此信息，只用于存储原问题
-	Chapters               []*Chapter        `gorm:"many2many:question_chapters" json:"chapters"`
 	KnowledgePoints        []*KnowledgePoint `gorm:"many2many:question_keypoints" json:"knowledgePoints,omitempty"`
 	PastPaperId            uint              `json:"pastPaperId"`
 	PastPaper              PastPaper         `json:"pastPaper"`
@@ -109,14 +108,8 @@ type QuestionQueryRequest struct {
 	Stem        string `json:"stem"`
 	SyllabusId  uint   `json:"syllabusId"`
 	Difficult   int    `json:"difficult"`
-	Chapters    []uint `json:"chapters"`
 	Status      int    `json:"Status"`
 	PastPaperId uint   `json:"pastPaperId"`
 	PaperName   string `json:"paperName"`
 	Page
-}
-
-type QuestionChapterUpdateRequest struct {
-	QuestionId uint   `json:"questionId"`
-	Chapters   []uint `json:"chapters"`
 }

@@ -24,7 +24,6 @@ func (s *MCPServer) getQuestionTools() []map[string]interface{} {
 					"difficult":   map[string]interface{}{"type": "number", "description": "Filter by difficulty (1-5)"},
 					"status":      map[string]interface{}{"type": "number", "description": "Filter by status (1=normal, 2=forbidden, 3=deleted)"},
 					"paperName":   map[string]interface{}{"type": "string", "description": "Filter by paper name"},
-					"chapters":    map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "number"}, "description": "Filter by chapter IDs"},
 					"pageIndex":   map[string]interface{}{"type": "number", "description": "Page index (default: 1)"},
 					"pageSize":    map[string]interface{}{"type": "number", "description": "Page size (default: 20)"},
 					"fields":      map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": "Fields to return (default: id, stem)"},
@@ -127,18 +126,6 @@ func (s *MCPServer) toolQuestionList(args map[string]interface{}) (string, error
 	paperName := getString(args, "paperName", "")
 	fields := parseFields(args)
 
-	// Parse chapters array
-	var chapters []uint
-	if chaptersVal, ok := args["chapters"]; ok {
-		if chaptersArray, ok := chaptersVal.([]interface{}); ok {
-			for _, v := range chaptersArray {
-				if num, ok := v.(float64); ok {
-					chapters = append(chapters, uint(num))
-				}
-			}
-		}
-	}
-
 	query := model.QuestionQueryRequest{
 		ID:          id,
 		Stem:        stem,
@@ -147,7 +134,6 @@ func (s *MCPServer) toolQuestionList(args map[string]interface{}) (string, error
 		Difficult:   difficult,
 		Status:      status,
 		PaperName:   paperName,
-		Chapters:    chapters,
 		Page:        model.Page{PageIndex: pageIndex, PageSize: pageSize},
 	}
 
