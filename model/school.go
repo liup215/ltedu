@@ -47,7 +47,7 @@ const (
 
 type Class struct {
 	Model
-	Name        string    `json:"name"`
+ 	Name        string    `json:"name"`
 	ClassType   int       `json:"classType" gorm:"default:1"` // 1: 教学班, 2: 行政班
 	InviteCode  string    `json:"inviteCode" gorm:"uniqueIndex;size:32"`
 	AdminUserId uint      `json:"adminUserId" gorm:"index"`
