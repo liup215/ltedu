@@ -267,7 +267,7 @@ async function loadPlans() {
     if (filterUserId.value) query.userId = filterUserId.value
     if (filterPlanType.value) query.planType = filterPlanType.value
     const res = await learningPlanService.list(query)
-    if (res.code === 0) plans.value = res.data.list
+    if (res.code === 0) plans.value = res.data.list ?? []
   } catch (e) {
     console.error(e)
   } finally {
@@ -324,7 +324,7 @@ async function openVersionsModal(plan: StudentLearningPlan) {
   versions.value = []
   try {
     const res = await learningPlanService.versions(plan.id)
-    if (res.code === 0) versions.value = res.data.list
+    if (res.code === 0) versions.value = res.data.list ?? []
   } catch (e) {
     console.error(e)
   } finally {

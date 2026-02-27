@@ -93,7 +93,13 @@ func (ctrl *ExamNodeController) ListExamNodes(c *gin.Context) {
 		http.ErrorData(c, "数据获取失败: "+err.Error(), nil)
 		return
 	}
-	http.SuccessData(c, "数据获取成功!", nodes)
+	if nodes == nil {
+		nodes = []*model.SyllabusExamNode{}
+	}
+	http.SuccessData(c, "数据获取成功!", gin.H{
+		"list":  nodes,
+		"total": len(nodes),
+	})
 }
 
 // AddChapter 为考试节点添加章节（自动递归包含所有子章节）
