@@ -776,3 +776,215 @@ func (ctrl *SchoolController) UnbindClassSyllabus(c *gin.Context) {
 	}
 	http.SuccessData(c, "Syllabus解绑成功!", nil)
 }
+
+// @Summary      获取班级教师列表
+// @Description  获取指定班级的所有教师
+// @Tags         学校管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.Class  true  "班级ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/school/class/teacherList [post]
+func (ctrl *SchoolController) GetTeachersByClassId(c *gin.Context) {
+	o := model.Class{}
+	if err := c.BindJSON(&o); err != nil {
+		http.ErrorData(c, "参数解析失败", nil)
+		return
+	}
+	list, err := ctrl.schoolSvr.GetTeachersByClassId(o.ID)
+	if err != nil {
+		http.ErrorData(c, "数据获取失败:"+err.Error(), nil)
+		return
+	}
+	http.SuccessData(c, "数据获取成功!", gin.H{
+		"list":  list,
+		"total": len(list),
+	})
+}
+
+type AssignTeacherRequest struct {
+	ClassId   uint `json:"classId" binding:"required"`
+	TeacherId uint `json:"teacherId" binding:"required"`
+}
+
+// @Summary      为班级指定教师
+// @Description  管理员为班级指定额外的教师
+// @Tags         学校管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  AssignTeacherRequest  true  "班级ID和教师ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/school/class/assignTeacher [post]
+func (ctrl *SchoolController) AssignTeacherToClass(c *gin.Context) {
+	u, err := auth.GetCurrentUser(c)
+	if err != nil {
+		http.ErrorData(c, "无法获取当前用户信息", nil)
+		return
+	}
+	o := AssignTeacherRequest{}
+	if err := c.BindJSON(&o); err != nil {
+		http.ErrorData(c, "参数解析失败", nil)
+		return
+	}
+	if err := ctrl.schoolSvr.AssignTeacherToClass(o.ClassId, o.TeacherId, u.ID); err != nil {
+		http.ErrorData(c, err.Error(), nil)
+		return
+	}
+	http.SuccessData(c, "教师指定成功!", nil)
+}
+
+type RemoveTeacherRequest struct {
+	ClassId   uint `json:"classId" binding:"required"`
+	TeacherId uint `json:"teacherId" binding:"required"`
+}
+
+// @Summary      从班级移除教师
+// @Description  管理员从班级移除教师
+// @Tags         学校管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  RemoveTeacherRequest  true  "班级ID和教师ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/school/class/removeTeacher [post]
+func (ctrl *SchoolController) RemoveTeacherFromClass(c *gin.Context) {
+	u, err := auth.GetCurrentUser(c)
+	if err != nil {
+		http.ErrorData(c, "无法获取当前用户信息", nil)
+		return
+	}
+	o := RemoveTeacherRequest{}
+	if err := c.BindJSON(&o); err != nil {
+		http.ErrorData(c, "参数解析失败", nil)
+		return
+	}
+	if err := ctrl.schoolSvr.RemoveTeacherFromClass(o.ClassId, o.TeacherId, u.ID); err != nil {
+		http.ErrorData(c, err.Error(), nil)
+		return
+	}
+	http.SuccessData(c, "教师移除成功!", nil)
+}
+
+// @Summary      教师申请加入班级
+// @Description  教师申请加入指定班级进行协作教学
+// @Tags         学校管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "班级ID和申请消息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/school/class/teacher/apply [post]
+func (ctrl *SchoolController) ApplyAsTeacher(c *gin.Context) {
+	u, err := auth.GetCurrentUser(c)
+	if err != nil {
+		http.ErrorData(c, "无法获取当前用户信息", nil)
+		return
+	}
+	var req struct {
+		ClassId uint   `json:"classId" binding:"required"`
+		Message string `json:"message"`
+	}
+	if err := c.BindJSON(&req); err != nil {
+		http.ErrorData(c, "参数解析失败", nil)
+		return
+	}
+	app, err := ctrl.schoolSvr.ApplyAsTeacherToClass(req.ClassId, u.ID, req.Message)
+	if err != nil {
+		http.ErrorData(c, err.Error(), nil)
+		return
+	}
+	http.SuccessData(c, "申请已提交，等待管理员审核", app)
+}
+
+// @Summary      获取教师加入申请列表
+// @Description  获取班级的教师加入申请列表（管理员）
+// @Tags         学校管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.ClassTeacherApplicationQuery  true  "查询条件"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/school/class/teacher/applications [post]
+func (ctrl *SchoolController) ListTeacherApplications(c *gin.Context) {
+	q := model.ClassTeacherApplicationQuery{}
+	if err := c.BindJSON(&q); err != nil {
+		http.ErrorData(c, "参数解析失败", nil)
+		return
+	}
+	list, total, err := ctrl.schoolSvr.ListTeacherApplications(q)
+	if err != nil {
+		http.ErrorData(c, "数据获取失败", nil)
+		return
+	}
+	http.SuccessData(c, "数据获取成功!", gin.H{
+		"list":  list,
+		"total": total,
+	})
+}
+
+// @Summary      审核通过教师加入申请
+// @Description  管理员审核通过教师的加入申请
+// @Tags         学校管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "申请ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/school/class/teacher/approve [post]
+func (ctrl *SchoolController) ApproveTeacherApplication(c *gin.Context) {
+	u, err := auth.GetCurrentUser(c)
+	if err != nil {
+		http.ErrorData(c, "无法获取当前用户信息", nil)
+		return
+	}
+	var req struct {
+		ID uint `json:"id" binding:"required"`
+	}
+	if err := c.BindJSON(&req); err != nil {
+		http.ErrorData(c, "参数解析失败", nil)
+		return
+	}
+	if err := ctrl.schoolSvr.ApproveTeacherApplication(req.ID, u.ID); err != nil {
+		http.ErrorData(c, err.Error(), nil)
+		return
+	}
+	http.SuccessData(c, "申请已通过", nil)
+}
+
+// @Summary      拒绝教师加入申请
+// @Description  管理员拒绝教师的加入申请
+// @Tags         学校管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "申请ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/school/class/teacher/reject [post]
+func (ctrl *SchoolController) RejectTeacherApplication(c *gin.Context) {
+	u, err := auth.GetCurrentUser(c)
+	if err != nil {
+		http.ErrorData(c, "无法获取当前用户信息", nil)
+		return
+	}
+	var req struct {
+		ID uint `json:"id" binding:"required"`
+	}
+	if err := c.BindJSON(&req); err != nil {
+		http.ErrorData(c, "参数解析失败", nil)
+		return
+	}
+	if err := ctrl.schoolSvr.RejectTeacherApplication(req.ID, u.ID); err != nil {
+		http.ErrorData(c, err.Error(), nil)
+		return
+	}
+	http.SuccessData(c, "申请已拒绝", nil)
+}

@@ -4,6 +4,7 @@ import (
 	"edu/cli/client"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -16,23 +17,37 @@ var userCmd = &cobra.Command{
 // ---- list ----
 
 var (
-	userListPage     int
-	userListPageSize int
-	userListUsername string
-	userListRealname string
-	userListStatus   int
-	userListClassID  uint
+	userListPage           int
+	userListPageSize       int
+	userListUsername       string
+	userListRealname       string
+	userListStatus         int
+	userListClassID        uint
+	userListStudentID      uint
+	userListShowBasic      bool
+	userListShowAdminClass bool
+	userListShowTeaching   bool
+	userListShowTeachers   bool
+	userListShowAll        bool
 )
 
 var userListCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List users",
+	Short: "List users with optional class and teacher info",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		c := client.NewClient()
-		var result struct {
-			List  []map[string]interface{} `json:"list"`
-			Total int                      `json:"total"`
+
+		// Determine what to show
+		showAdminClass := userListShowAdminClass || userListShowAll
+		showTeaching := userListShowTeaching || userListShowAll
+		showTeachers := userListShowTeachers || userListShowAll
+		// If none of the display flags are set, default to --all
+		if !userListShowBasic && !userListShowAdminClass && !userListShowTeaching && !userListShowTeachers && !userListShowAll {
+			showAdminClass = true
+			showTeaching = true
+			showTeachers = true
 		}
+
 		body := map[string]interface{}{
 			"pageIndex": userListPage,
 			"pageSize":  userListPageSize,
@@ -41,26 +56,118 @@ var userListCmd = &cobra.Command{
 			"status":    userListStatus,
 			"classId":   userListClassID,
 		}
+		if userListStudentID != 0 {
+			body["id"] = userListStudentID
+		}
+
+		var result struct {
+			List  []map[string]interface{} `json:"list"`
+			Total int                      `json:"total"`
+		}
 		if err := c.PostAndDecode("/v1/user/list", body, &result); err != nil {
 			return err
 		}
 		fmt.Printf("Total: %d\n\n", result.Total)
-		headers := []string{"ID", "Username", "Realname", "Email", "Mobile", "Status", "IsAdmin"}
-		rows := make([][]string, 0, len(result.List))
+
+		if !showAdminClass && !showTeaching && !showTeachers {
+			// Basic mode: simple table
+			headers := []string{"ID", "Username", "Realname", "Email", "Mobile", "Status", "IsAdmin"}
+			rows := make([][]string, 0, len(result.List))
+			for _, item := range result.List {
+				rows = append(rows, []string{
+					fmtFloat(item["id"]),
+					fmtStr(item["username"]),
+					fmtStr(item["realname"]),
+					fmtStr(item["email"]),
+					fmtStr(item["mobile"]),
+					fmtFloat(item["status"]),
+					fmtBool(item["isAdmin"]),
+				})
+			}
+			printTable(headers, rows)
+			return nil
+		}
+
+		// Enriched mode: show user info with class details
 		for _, item := range result.List {
-			rows = append(rows, []string{
+			fmt.Printf("=== User ID: %s | %s (%s) ===\n",
 				fmtFloat(item["id"]),
 				fmtStr(item["username"]),
 				fmtStr(item["realname"]),
-				fmtStr(item["email"]),
-				fmtStr(item["mobile"]),
-				fmtFloat(item["status"]),
-				fmtBool(item["isAdmin"]),
-			})
+			)
+
+			classes, _ := item["classes"].([]interface{})
+
+			if showAdminClass {
+				fmt.Println("  行政班 (Administrative Class):")
+				found := false
+				for _, cls := range classes {
+					clsMap, ok := cls.(map[string]interface{})
+					if !ok {
+						continue
+					}
+					if t, ok := clsMap["classType"].(float64); ok && int(t) == 2 {
+						found = true
+						fmt.Printf("    - [%s] %s\n", fmtFloat(clsMap["id"]), fmtStr(clsMap["name"]))
+						if showTeachers {
+							printClassTeachers(c, clsMap)
+						}
+					}
+				}
+				if !found {
+					fmt.Println("    (none)")
+				}
+			}
+
+			if showTeaching {
+				fmt.Println("  教学班 (Teaching Classes):")
+				found := false
+				for _, cls := range classes {
+					clsMap, ok := cls.(map[string]interface{})
+					if !ok {
+						continue
+					}
+					if t, ok := clsMap["classType"].(float64); ok && int(t) == 1 {
+						found = true
+						fmt.Printf("    - [%s] %s\n", fmtFloat(clsMap["id"]), fmtStr(clsMap["name"]))
+						if showTeachers {
+							printClassTeachers(c, clsMap)
+						}
+					}
+				}
+				if !found {
+					fmt.Println("    (none)")
+				}
+			}
+			fmt.Println()
 		}
-		printTable(headers, rows)
 		return nil
 	},
+}
+
+// printClassTeachers fetches and prints teachers for a given class map entry.
+func printClassTeachers(c *client.Client, clsMap map[string]interface{}) {
+	classID := fmtFloat(clsMap["id"])
+	id, err := strconv.Atoi(classID)
+	if err != nil || id == 0 {
+		return
+	}
+	var teacherResult struct {
+		List  []map[string]interface{} `json:"list"`
+		Total int                      `json:"total"`
+	}
+	if err := c.PostAndDecode("/v1/school/class/teacherList", map[string]interface{}{"id": id}, &teacherResult); err != nil {
+		return
+	}
+	names := make([]string, 0, len(teacherResult.List))
+	for _, t := range teacherResult.List {
+		names = append(names, fmt.Sprintf("%s(%s)", fmtStr(t["realname"]), fmtStr(t["username"])))
+	}
+	if len(names) > 0 {
+		fmt.Printf("      Teachers: %s\n", strings.Join(names, ", "))
+	} else {
+		fmt.Println("      Teachers: (none)")
+	}
 }
 
 // ---- get ----
@@ -179,6 +286,12 @@ func init() {
 	userListCmd.Flags().StringVar(&userListRealname, "realname", "", "Filter by realname")
 	userListCmd.Flags().IntVar(&userListStatus, "status", 0, "Filter by status")
 	userListCmd.Flags().UintVar(&userListClassID, "class-id", 0, "Filter by class ID")
+	userListCmd.Flags().UintVar(&userListStudentID, "student-id", 0, "Show specific user by ID (e.g. a student's user ID)")
+	userListCmd.Flags().BoolVar(&userListShowBasic, "basic", false, "Show basic info only")
+	userListCmd.Flags().BoolVar(&userListShowAdminClass, "admin-class", false, "Show administrative class info")
+	userListCmd.Flags().BoolVar(&userListShowTeaching, "teaching-classes", false, "Show teaching class info")
+	userListCmd.Flags().BoolVar(&userListShowTeachers, "teachers", false, "Show teacher info for each class")
+	userListCmd.Flags().BoolVar(&userListShowAll, "all", false, "Show all info (default when no flag specified)")
 
 	userCreateCmd.Flags().StringVar(&userCreateUsername, "username", "", "Username (required)")
 	userCreateCmd.Flags().StringVar(&userCreateRealname, "realname", "", "Real name")
