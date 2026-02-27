@@ -21,6 +21,11 @@ type IClassRepository interface {
 	// IsStudentInOtherAdministrativeClass checks whether a user is already in an administrative class
 	// other than the one identified by excludeClassId.
 	IsStudentInOtherAdministrativeClass(userId, excludeClassId uint) (bool, error)
+	// Teacher management
+	AddTeacher(classId, userId uint) error
+	RemoveTeacher(classId, userId uint) error
+	FindTeachers(classId uint) ([]*model.User, error)
+	IsTeacherInClass(classId, userId uint) (bool, error)
 }
 
 type classRepository struct {
@@ -144,6 +149,36 @@ func (r *classRepository) IsStudentInOtherAdministrativeClass(userId, excludeCla
 	return count > 0, err
 }
 
+func (r *classRepository) AddTeacher(classId, userId uint) error {
+	class := model.Class{Model: model.Model{ID: classId}}
+	user := model.User{Model: model.Model{ID: userId}}
+	return r.db.Model(&class).Association("Teachers").Append(&user)
+}
+
+func (r *classRepository) RemoveTeacher(classId, userId uint) error {
+	class := model.Class{Model: model.Model{ID: classId}}
+	user := model.User{Model: model.Model{ID: userId}}
+	return r.db.Model(&class).Association("Teachers").Delete(&user)
+}
+
+func (r *classRepository) FindTeachers(classId uint) ([]*model.User, error) {
+	var class model.Class
+	err := r.db.Where("id = ?", classId).Preload("Teachers").First(&class).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
+	return class.Teachers, err
+}
+
+func (r *classRepository) IsTeacherInClass(classId, userId uint) (bool, error) {
+	var count int64
+	err := r.db.Model(&model.Class{}).
+		Joins("JOIN class_teacher_relation ON class_teacher_relation.class_id = classes.id").
+		Where("classes.id = ? AND class_teacher_relation.user_id = ?", classId, userId).
+		Count(&count).Error
+	return count > 0, err
+}
+
 // IClassJoinRequestRepository 入班申请数据访问接口
 type IClassJoinRequestRepository interface {
 	Create(r *model.ClassJoinRequest) error
@@ -197,6 +232,77 @@ func (r *classJoinRequestRepository) FindPage(query *model.ClassJoinRequestQuery
 	var total int64
 
 	q := r.db.Model(&model.ClassJoinRequest{}).
+		Preload("Class").
+		Preload("User")
+
+	if query.ClassId != 0 {
+		q = q.Where("class_id = ?", query.ClassId)
+	}
+	if query.UserId != 0 {
+		q = q.Where("user_id = ?", query.UserId)
+	}
+	if query.Status != nil {
+		q = q.Where("status = ?", *query.Status)
+	}
+
+	q.Count(&total)
+	err := q.Order("id DESC").Offset(offset).Limit(limit).Find(&requests).Error
+	return requests, total, err
+}
+
+// IClassTeacherApplicationRepository 教师加入班级申请数据访问接口
+type IClassTeacherApplicationRepository interface {
+	Create(r *model.ClassTeacherApplication) error
+	Update(r *model.ClassTeacherApplication) error
+	FindByID(id uint) (*model.ClassTeacherApplication, error)
+	FindByClassAndUser(classId, userId uint) (*model.ClassTeacherApplication, error)
+	FindPage(query *model.ClassTeacherApplicationQuery, offset, limit int) ([]*model.ClassTeacherApplication, int64, error)
+}
+
+type classTeacherApplicationRepository struct {
+	db *gorm.DB
+}
+
+func NewClassTeacherApplicationRepository(db *gorm.DB) IClassTeacherApplicationRepository {
+	return &classTeacherApplicationRepository{db: db}
+}
+
+func (r *classTeacherApplicationRepository) Create(req *model.ClassTeacherApplication) error {
+	return r.db.Create(req).Error
+}
+
+func (r *classTeacherApplicationRepository) Update(req *model.ClassTeacherApplication) error {
+	return r.db.Model(req).Updates(req).Error
+}
+
+func (r *classTeacherApplicationRepository) FindByID(id uint) (*model.ClassTeacherApplication, error) {
+	var req model.ClassTeacherApplication
+	err := r.db.Where("id = ?", id).
+		Preload("Class").
+		Preload("User").
+		First(&req).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
+	return &req, err
+}
+
+func (r *classTeacherApplicationRepository) FindByClassAndUser(classId, userId uint) (*model.ClassTeacherApplication, error) {
+	var req model.ClassTeacherApplication
+	err := r.db.Where("class_id = ? AND user_id = ?", classId, userId).
+		Order("created_at DESC").
+		First(&req).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
+	return &req, err
+}
+
+func (r *classTeacherApplicationRepository) FindPage(query *model.ClassTeacherApplicationQuery, offset, limit int) ([]*model.ClassTeacherApplication, int64, error) {
+	var requests []*model.ClassTeacherApplication
+	var total int64
+
+	q := r.db.Model(&model.ClassTeacherApplication{}).
 		Preload("Class").
 		Preload("User")
 

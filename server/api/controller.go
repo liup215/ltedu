@@ -289,6 +289,13 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/school/class/joinRequest/list", v1.SchoolCtrl.ListJoinRequests)
 	r.POST("/v1/school/class/joinRequest/approve", v1.SchoolCtrl.ApproveJoinRequest)
 	r.POST("/v1/school/class/joinRequest/reject", v1.SchoolCtrl.RejectJoinRequest)
+	r.POST("/v1/school/class/teacherList", v1.SchoolCtrl.GetTeachersByClassId)
+	r.POST("/v1/school/class/assignTeacher", v1.SchoolCtrl.AssignTeacherToClass)
+	r.POST("/v1/school/class/removeTeacher", v1.SchoolCtrl.RemoveTeacherFromClass)
+	r.POST("/v1/school/class/teacher/apply", v1.SchoolCtrl.ApplyAsTeacher)
+	r.POST("/v1/school/class/teacher/applications", v1.SchoolCtrl.ListTeacherApplications)
+	r.POST("/v1/school/class/teacher/approve", v1.SchoolCtrl.ApproveTeacherApplication)
+	r.POST("/v1/school/class/teacher/reject", v1.SchoolCtrl.RejectTeacherApplication)
 
 	r.POST("/v1/pastPaper/series/create", v1.PaperCtrl.CreateSeries)
 	r.POST("/v1/pastPaper/series/edit", v1.PaperCtrl.EditSeries)
