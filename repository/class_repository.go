@@ -18,6 +18,9 @@ type IClassRepository interface {
 	AddStudent(classId, userId uint) error
 	RemoveStudent(classId, userId uint) error
 	FindStudents(classId uint) ([]*model.User, error)
+	// IsStudentInOtherAdministrativeClass checks whether a user is already in an administrative class
+	// other than the one identified by excludeClassId.
+	IsStudentInOtherAdministrativeClass(userId, excludeClassId uint) (bool, error)
 }
 
 type classRepository struct {
@@ -77,6 +80,9 @@ func (r *classRepository) FindPage(query *model.ClassQuery, offset, limit int) (
 	if query.InviteCode != "" {
 		q = q.Where("invite_code = ?", query.InviteCode)
 	}
+	if query.ClassType != 0 {
+		q = q.Where("class_type = ?", query.ClassType)
+	}
 
 	q.Count(&total)
 	err := q.Order("id DESC").Offset(offset).Limit(limit).Find(&classes).Error
@@ -96,6 +102,9 @@ func (r *classRepository) FindAll(query *model.ClassQuery) ([]*model.Class, erro
 	}
 	if query.InviteCode != "" {
 		q = q.Where("invite_code = ?", query.InviteCode)
+	}
+	if query.ClassType != 0 {
+		q = q.Where("class_type = ?", query.ClassType)
 	}
 
 	err := q.Order("id DESC").Find(&classes).Error
@@ -121,6 +130,18 @@ func (r *classRepository) FindStudents(classId uint) ([]*model.User, error) {
 		return nil, nil
 	}
 	return class.Students, err
+}
+
+func (r *classRepository) IsStudentInOtherAdministrativeClass(userId, excludeClassId uint) (bool, error) {
+	var count int64
+	q := r.db.Model(&model.Class{}).
+		Joins("JOIN user_class_relation ON user_class_relation.class_id = classes.id").
+		Where("user_class_relation.user_id = ? AND classes.class_type = ?", userId, model.ClassTypeAdministrative)
+	if excludeClassId != 0 {
+		q = q.Where("classes.id != ?", excludeClassId)
+	}
+	err := q.Count(&count).Error
+	return count > 0, err
 }
 
 // IClassJoinRequestRepository 入班申请数据访问接口

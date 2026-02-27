@@ -38,13 +38,21 @@ type ClassTypeCreateEditRequest struct {
 	IsMain int    `json:"isMain"`
 }
 
+const (
+	// ClassTypeTeaching 教学班 - 用于管理教学，用户可加入多个
+	ClassTypeTeaching = 1
+	// ClassTypeAdministrative 行政班 - 用于管理日常行为，每个用户只能属于一个
+	ClassTypeAdministrative = 2
+)
+
 type Class struct {
 	Model
-	Name         string  `json:"name"`
-	InviteCode   string  `json:"inviteCode" gorm:"uniqueIndex;size:32"`
-	AdminUserId  uint    `json:"adminUserId" gorm:"index"`
-	AdminUser    *User   `json:"adminUser,omitempty" gorm:"foreignKey:AdminUserId"`
-	Students     []*User `json:"students" gorm:"many2many:user_class_relation;"`
+	Name        string  `json:"name"`
+	ClassType   int     `json:"classType" gorm:"default:1"` // 1: 教学班, 2: 行政班
+	InviteCode  string  `json:"inviteCode" gorm:"uniqueIndex;size:32"`
+	AdminUserId uint    `json:"adminUserId" gorm:"index"`
+	AdminUser   *User   `json:"adminUser,omitempty" gorm:"foreignKey:AdminUserId"`
+	Students    []*User `json:"students" gorm:"many2many:user_class_relation;"`
 }
 
 const (
@@ -64,12 +72,14 @@ type ClassJoinRequest struct {
 }
 
 type ClassCreateEditRequest struct {
-	ID   uint   `json:"id"`
-	Name string `json:"name"`
+	ID        uint   `json:"id"`
+	Name      string `json:"name"`
+	ClassType int    `json:"classType"` // 1: 教学班 (default), 2: 行政班
 }
 
 type ClassQuery struct {
 	ID          uint   `json:"id"`
+	ClassType   int    `json:"classType"` // 0 = all, 1 = 教学班, 2 = 行政班
 	AdminUserId uint   `json:"adminUserId"`
 	InviteCode  string `json:"inviteCode"`
 	Page

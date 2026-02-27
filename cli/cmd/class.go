@@ -37,12 +37,17 @@ var classListCmd = &cobra.Command{
 			return err
 		}
 		fmt.Printf("Total: %d\n\n", result.Total)
-		headers := []string{"ID", "Name", "InviteCode", "AdminUserId"}
+		headers := []string{"ID", "Name", "Type", "InviteCode", "AdminUserId"}
 		rows := make([][]string, 0, len(result.List))
 		for _, item := range result.List {
+			classTypeStr := "教学班"
+			if t, ok := item["classType"].(float64); ok && int(t) == 2 {
+				classTypeStr = "行政班"
+			}
 			rows = append(rows, []string{
 				fmtFloat(item["id"]),
 				fmtStr(item["name"]),
+				classTypeStr,
 				fmtStr(item["inviteCode"]),
 				fmtFloat(item["adminUserId"]),
 			})
@@ -77,18 +82,24 @@ var classGetCmd = &cobra.Command{
 
 var (
 	classCreateName string
+	classCreateType int
 )
 
 var classCreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a new class (教师权限，自动生成邀请码)",
+	Long:  "Create a new class. --type 1 = 教学班 (default), --type 2 = 行政班 (each user may only belong to one)",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if classCreateName == "" {
 			return fmt.Errorf("--name is required")
 		}
+		if classCreateType != 1 && classCreateType != 2 {
+			classCreateType = 1
+		}
 		c := client.NewClient()
 		body := map[string]interface{}{
-			"name": classCreateName,
+			"name":      classCreateName,
+			"classType": classCreateType,
 		}
 		var result interface{}
 		if err := c.PostAndDecode("/v1/school/class/create", body, &result); err != nil {
@@ -375,6 +386,7 @@ func init() {
 	classListCmd.Flags().IntVar(&classListPageSize, "page-size", 20, "Page size")
 
 	classCreateCmd.Flags().StringVar(&classCreateName, "name", "", "Class name (required)")
+	classCreateCmd.Flags().IntVar(&classCreateType, "type", 1, "Class type: 1=教学班 (default), 2=行政班")
 
 	classEditCmd.Flags().UintVar(&classEditID, "id", 0, "Class ID (required)")
 	classEditCmd.Flags().StringVar(&classEditName, "name", "", "Class name")

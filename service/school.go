@@ -123,12 +123,17 @@ func (svr *SchoolService) CreateClass(req model.ClassCreateEditRequest, creatorI
 	if !user.IsTeacher {
 		return nil, errors.New("只有教师身份可以创建班级")
 	}
+	classType := req.ClassType
+	if classType != model.ClassTypeTeaching && classType != model.ClassTypeAdministrative {
+		classType = model.ClassTypeTeaching
+	}
 	code, err := generateInviteCode()
 	if err != nil {
 		return nil, errors.New("邀请码生成失败")
 	}
 	class := &model.Class{
 		Name:        req.Name,
+		ClassType:   classType,
 		InviteCode:  code,
 		AdminUserId: creatorId,
 	}
@@ -181,6 +186,9 @@ func (svr *SchoolService) AddStudentDirectly(classId, userId, adminId uint) erro
 	if err != nil || user == nil {
 		return errors.New("用户不存在")
 	}
+	if err := svr.checkAdministrativeClassConstraint(class, userId); err != nil {
+		return err
+	}
 	return repository.ClassRepo.AddStudent(classId, userId)
 }
 
@@ -226,6 +234,21 @@ func (svr *SchoolService) ListClassJoinRequests(q model.ClassJoinRequestQuery) (
 	return repository.ClassJoinRequestRepo.FindPage(&q, (page.PageIndex-1)*page.PageSize, page.PageSize)
 }
 
+// checkAdministrativeClassConstraint ensures a user does not join a second administrative class
+func (svr *SchoolService) checkAdministrativeClassConstraint(class *model.Class, userId uint) error {
+	if class.ClassType != model.ClassTypeAdministrative {
+		return nil
+	}
+	already, err := repository.ClassRepo.IsStudentInOtherAdministrativeClass(userId, class.ID)
+	if err != nil {
+		return err
+	}
+	if already {
+		return errors.New("每个用户只能属于一个行政班")
+	}
+	return nil
+}
+
 // checkClassAdminPermission verifies that the user is either the class admin or a system admin
 func (svr *SchoolService) checkClassAdminPermission(class *model.Class, userId uint) error {
 	if class.AdminUserId == userId {
@@ -255,6 +278,9 @@ func (svr *SchoolService) ApproveJoinRequest(requestId, adminUserId uint) error 
 		return errors.New("班级不存在")
 	}
 	if err := svr.checkClassAdminPermission(class, adminUserId); err != nil {
+		return err
+	}
+	if err := svr.checkAdministrativeClassConstraint(class, req.UserId); err != nil {
 		return err
 	}
 	req.Status = model.ClassJoinStatusApproved
