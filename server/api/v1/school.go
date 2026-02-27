@@ -336,10 +336,24 @@ func (ctrl *SchoolController) DeleteClassType(c *gin.Context) {
 // @Security     BearerAuth
 // @Router       /v1/school/class/list [post]
 func (ctrl *SchoolController) SelectClassList(c *gin.Context) {
+	u, err := auth.GetCurrentUser(c)
+	if err != nil {
+		http.ErrorData(c, "无法获取当前用户信息", nil)
+		return
+	}
 	q := model.ClassQuery{}
 	if err := c.BindJSON(&q); err != nil {
 		http.ErrorData(c, "参数解析失败", nil)
 		return
+	}
+	// Non-admin users can only see their own classes
+	user, err := service.UserSvr.SelectUserById(u.ID)
+	if err != nil {
+		http.ErrorData(c, "用户信息获取失败", nil)
+		return
+	}
+	if !user.IsAdmin {
+		q.AdminUserId = u.ID
 	}
 	list, total, err := ctrl.schoolSvr.SelectClassList(q)
 	if err != nil {
@@ -387,10 +401,24 @@ func (ctrl *SchoolController) SelectClassById(c *gin.Context) {
 // @Security     BearerAuth
 // @Router       /v1/school/class/all [post]
 func (ctrl *SchoolController) SelectClassAll(c *gin.Context) {
+	u, err := auth.GetCurrentUser(c)
+	if err != nil {
+		http.ErrorData(c, "无法获取当前用户信息", nil)
+		return
+	}
 	oq := model.ClassQuery{}
 	if err := c.BindJSON(&oq); err != nil {
 		http.ErrorData(c, "数据获取失败!", nil)
 		return
+	}
+	// Non-admin users can only see their own classes
+	user, err := service.UserSvr.SelectUserById(u.ID)
+	if err != nil {
+		http.ErrorData(c, "用户信息获取失败", nil)
+		return
+	}
+	if !user.IsAdmin {
+		oq.AdminUserId = u.ID
 	}
 	list, err := ctrl.schoolSvr.SelectClassAll(oq)
 	if err != nil {
@@ -505,6 +533,39 @@ func (ctrl *SchoolController) GetStudentsByClassId(c *gin.Context) {
 		"list":  list,
 		"total": len(list),
 	})
+}
+
+type AddStudentToClassRequest struct {
+	ClassId uint `json:"classId" binding:"required"`
+	UserId  uint `json:"userId" binding:"required"`
+}
+
+// @Summary      直接添加学生到班级
+// @Description  超级管理员直接将学生添加到班级（绕过邀请码流程）
+// @Tags         学校管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  AddStudentToClassRequest  true  "班级ID和学生ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/school/class/addStudent [post]
+func (ctrl *SchoolController) AddStudentToClass(c *gin.Context) {
+	u, err := auth.GetCurrentUser(c)
+	if err != nil {
+		http.ErrorData(c, "无法获取当前用户信息", nil)
+		return
+	}
+	o := AddStudentToClassRequest{}
+	if err := c.BindJSON(&o); err != nil {
+		http.ErrorData(c, "参数解析失败", nil)
+		return
+	}
+	if err := ctrl.schoolSvr.AddStudentDirectly(o.ClassId, o.UserId, u.ID); err != nil {
+		http.ErrorData(c, err.Error(), nil)
+		return
+	}
+	http.SuccessData(c, "添加成功!", nil)
 }
 
 type RemoveStudentFromClassRequest struct {

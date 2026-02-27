@@ -164,6 +164,26 @@ func (svr *SchoolService) DeleteStudentFromClass(classId, userId uint) error {
 	return repository.ClassRepo.RemoveStudent(classId, userId)
 }
 
+// AddStudentDirectly 超级管理员直接添加学生到班级（绕过邀请码流程）
+func (svr *SchoolService) AddStudentDirectly(classId, userId, adminId uint) error {
+	admin, err := repository.UserRepo.FindByID(adminId)
+	if err != nil || admin == nil || !admin.IsAdmin {
+		return errors.New("只有超级管理员可以直接添加学生")
+	}
+	if classId == 0 || userId == 0 {
+		return errors.New("班级ID和用户ID不能为空")
+	}
+	class, err := repository.ClassRepo.FindByID(classId)
+	if err != nil || class == nil {
+		return errors.New("班级不存在")
+	}
+	user, err := repository.UserRepo.FindByID(userId)
+	if err != nil || user == nil {
+		return errors.New("用户不存在")
+	}
+	return repository.ClassRepo.AddStudent(classId, userId)
+}
+
 // ApplyToJoinClass 学生使用邀请码申请加入班级
 func (svr *SchoolService) ApplyToJoinClass(inviteCode string, userId uint, message string) (*model.ClassJoinRequest, error) {
 	class, err := repository.ClassRepo.FindByInviteCode(inviteCode)

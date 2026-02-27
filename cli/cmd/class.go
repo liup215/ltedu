@@ -191,6 +191,31 @@ var studentListCmd = &cobra.Command{
 }
 
 var (
+	studentAddClassID uint
+	studentAddUserID  uint
+)
+
+var studentAddCmd = &cobra.Command{
+	Use:   "add",
+	Short: "Directly add a student to a class (超级管理员专用)",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if studentAddClassID == 0 || studentAddUserID == 0 {
+			return fmt.Errorf("--class-id and --user-id are required")
+		}
+		c := client.NewClient()
+		body := map[string]interface{}{
+			"classId": studentAddClassID,
+			"userId":  studentAddUserID,
+		}
+		if err := c.PostAndDecode("/v1/school/class/addStudent", body, nil); err != nil {
+			return err
+		}
+		fmt.Printf("User %d added to class %d successfully.\n", studentAddUserID, studentAddClassID)
+		return nil
+	},
+}
+
+var (
 	studentRemoveClassID uint
 	studentRemoveUserID  uint
 )
@@ -356,6 +381,9 @@ func init() {
 
 	studentListCmd.Flags().UintVar(&studentListClassID, "class-id", 0, "Class ID (required)")
 
+	studentAddCmd.Flags().UintVar(&studentAddClassID, "class-id", 0, "Class ID (required)")
+	studentAddCmd.Flags().UintVar(&studentAddUserID, "user-id", 0, "User ID (required)")
+
 	studentRemoveCmd.Flags().UintVar(&studentRemoveClassID, "class-id", 0, "Class ID (required)")
 	studentRemoveCmd.Flags().UintVar(&studentRemoveUserID, "user-id", 0, "User ID (required)")
 
@@ -367,6 +395,7 @@ func init() {
 	requestListCmd.Flags().IntVar(&requestListSize, "page-size", 20, "Page size")
 
 	studentCmd.AddCommand(studentListCmd)
+	studentCmd.AddCommand(studentAddCmd)
 	studentCmd.AddCommand(studentRemoveCmd)
 
 	requestCmd.AddCommand(requestListCmd)
