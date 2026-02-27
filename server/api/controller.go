@@ -349,6 +349,7 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/learning-plan/list", v1.LearningPlanCtrl.ListPlans)
 	r.POST("/v1/learning-plan/versions", v1.LearningPlanCtrl.ListPlanVersions)
 	r.POST("/v1/learning-plan/rollback", v1.LearningPlanCtrl.RollbackPlan)
+	r.POST("/v1/learning-plan/generateTemplate", v1.LearningPlanCtrl.GenerateTemplatePlans)
 
 	// Syllabus Exam Node endpoints
 	r.POST("/v1/syllabus/examNode/create", v1.ExamNodeCtrl.CreateExamNode)

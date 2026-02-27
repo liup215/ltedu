@@ -62,7 +62,24 @@ type StudentLearningPlanVersionQuery struct {
 
 // StudentLearningPlanRollbackRequest 版本回滚请求
 type StudentLearningPlanRollbackRequest struct {
-	PlanId  uint `json:"planId" binding:"required"`
-	Version int  `json:"version" binding:"required"`
+	PlanId  uint   `json:"planId" binding:"required"`
+	Version int    `json:"version" binding:"required"`
 	Comment string `json:"comment"`
+}
+
+// GeneratePlansRequest 批量生成模板学习计划请求
+type GeneratePlansRequest struct {
+	ClassId     uint   `json:"classId" binding:"required"`
+	SyllabusId  uint   `json:"syllabusId" binding:"required"`
+	StartMonth  string `json:"startMonth" binding:"required"` // "YYYY-MM"
+	EndMonth    string `json:"endMonth" binding:"required"`   // "YYYY-MM"
+	PhaseRatios []int  `json:"phaseRatios" binding:"required"` // e.g. [30,20,20,10]
+	Comment     string `json:"comment"`
+}
+
+// GeneratePlansResult 批量生成模板学习计划结果
+type GeneratePlansResult struct {
+	StudentCount int      `json:"studentCount"`
+	Count        int      `json:"count"` // total plans created
+	Errors       []string `json:"errors,omitempty"`
 }

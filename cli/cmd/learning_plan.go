@@ -4,6 +4,7 @@ import (
 	"edu/cli/client"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -251,6 +252,70 @@ var planRollbackCmd = &cobra.Command{
 	},
 }
 
+// ---- generate-template ----
+
+var (
+	genTplClassID     uint
+	genTplSyllabusID  uint
+	genTplStartMonth  string
+	genTplEndMonth    string
+	genTplPhaseRatios string
+	genTplComment     string
+)
+
+var planGenerateTemplateCmd = &cobra.Command{
+	Use:   "generate-template",
+	Short: "Batch-generate template learning plans for all students in a class (批量生成模板学习计划)",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if genTplClassID == 0 || genTplSyllabusID == 0 {
+			return fmt.Errorf("--class-id and --syllabus-id are required")
+		}
+		if genTplStartMonth == "" || genTplEndMonth == "" {
+			return fmt.Errorf("--start-month and --end-month are required")
+		}
+
+		// Parse comma-separated phase ratios into []int.
+		parts := strings.Split(genTplPhaseRatios, ",")
+		if len(parts) != 4 {
+			return fmt.Errorf("--phase-ratios must be 4 comma-separated integers, e.g. 30,20,20,10")
+		}
+		ratios := make([]int, 4)
+		for i, p := range parts {
+			v, err := strconv.Atoi(strings.TrimSpace(p))
+			if err != nil {
+				return fmt.Errorf("invalid phase ratio value %q: %v", p, err)
+			}
+			ratios[i] = v
+		}
+
+		c := client.NewClient()
+		body := map[string]interface{}{
+			"classId":     genTplClassID,
+			"syllabusId":  genTplSyllabusID,
+			"startMonth":  genTplStartMonth,
+			"endMonth":    genTplEndMonth,
+			"phaseRatios": ratios,
+			"comment":     genTplComment,
+		}
+		var result struct {
+			StudentCount int      `json:"studentCount"`
+			Count        int      `json:"count"`
+			Errors       []string `json:"errors"`
+		}
+		if err := c.PostAndDecode("/v1/learning-plan/generateTemplate", body, &result); err != nil {
+			return err
+		}
+		fmt.Printf("Done. Students: %d, Plans created: %d\n", result.StudentCount, result.Count)
+		if len(result.Errors) > 0 {
+			fmt.Printf("Errors (%d):\n", len(result.Errors))
+			for _, e := range result.Errors {
+				fmt.Printf("  - %s\n", e)
+			}
+		}
+		return nil
+	},
+}
+
 func init() {
 	planListCmd.Flags().UintVar(&planListClassID, "class-id", 0, "Filter by class ID")
 	planListCmd.Flags().UintVar(&planListUserID, "user-id", 0, "Filter by user ID")
@@ -276,6 +341,13 @@ func init() {
 	planRollbackCmd.Flags().IntVar(&planRollbackVersion, "version", 0, "Target version number (required)")
 	planRollbackCmd.Flags().StringVar(&planRollbackComment, "comment", "", "Rollback comment")
 
+	planGenerateTemplateCmd.Flags().UintVar(&genTplClassID, "class-id", 0, "Target teaching class ID (required)")
+	planGenerateTemplateCmd.Flags().UintVar(&genTplSyllabusID, "syllabus-id", 0, "Syllabus ID to base plans on (required)")
+	planGenerateTemplateCmd.Flags().StringVar(&genTplStartMonth, "start-month", "", "Start month in YYYY-MM format (required)")
+	planGenerateTemplateCmd.Flags().StringVar(&genTplEndMonth, "end-month", "", "End month in YYYY-MM format (required)")
+	planGenerateTemplateCmd.Flags().StringVar(&genTplPhaseRatios, "phase-ratios", "30,20,20,10", "Comma-separated phase ratios summing to <=100, e.g. 30,20,20,10")
+	planGenerateTemplateCmd.Flags().StringVar(&genTplComment, "comment", "", "Version comment for the initial plans")
+
 	learningPlanCmd.AddCommand(planListCmd)
 	learningPlanCmd.AddCommand(planGetCmd)
 	learningPlanCmd.AddCommand(planCreateCmd)
@@ -283,4 +355,5 @@ func init() {
 	learningPlanCmd.AddCommand(planDeleteCmd)
 	learningPlanCmd.AddCommand(planVersionsCmd)
 	learningPlanCmd.AddCommand(planRollbackCmd)
+	learningPlanCmd.AddCommand(planGenerateTemplateCmd)
 }

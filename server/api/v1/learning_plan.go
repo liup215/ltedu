@@ -145,3 +145,23 @@ func (ctrl *LearningPlanController) RollbackPlan(c *gin.Context) {
 	}
 	http.SuccessData(c, "学习计划回滚成功!", plan)
 }
+
+// GenerateTemplatePlans 批量为班级所有学生生成模板学习计划
+func (ctrl *LearningPlanController) GenerateTemplatePlans(c *gin.Context) {
+	u, err := auth.GetCurrentUser(c)
+	if err != nil {
+		http.ErrorData(c, "无法获取当前用户信息", nil)
+		return
+	}
+	req := model.GeneratePlansRequest{}
+	if err := c.BindJSON(&req); err != nil {
+		http.ErrorData(c, "参数解析失败", nil)
+		return
+	}
+	result, err := ctrl.planSvr.GenerateTemplatePlans(req, u.ID)
+	if err != nil {
+		http.ErrorData(c, err.Error(), nil)
+		return
+	}
+	http.SuccessData(c, "模板学习计划生成完成!", result)
+}
