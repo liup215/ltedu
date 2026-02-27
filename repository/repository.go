@@ -45,6 +45,7 @@ var (
 	ClassRepo                IClassRepository
 	ClassJoinRequestRepo     IClassJoinRequestRepository
 	StudentLearningPlanRepo  IStudentLearningPlanRepository
+	ExamNodeRepo             IExamNodeRepository
 )
 
 func GetTableName(db *gorm.DB, model interface{}) string {
@@ -96,5 +97,6 @@ func InitRepositories(db *gorm.DB) {
 	ClassRepo = NewClassRepository(db)
 	ClassJoinRequestRepo = NewClassJoinRequestRepository(db)
 	StudentLearningPlanRepo = NewStudentLearningPlanRepository(db)
+	ExamNodeRepo = NewExamNodeRepository(db)
 	// ... 其他repository按需添加
 }

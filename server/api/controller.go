@@ -349,4 +349,15 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/learning-plan/list", v1.LearningPlanCtrl.ListPlans)
 	r.POST("/v1/learning-plan/versions", v1.LearningPlanCtrl.ListPlanVersions)
 	r.POST("/v1/learning-plan/rollback", v1.LearningPlanCtrl.RollbackPlan)
+
+	// Syllabus Exam Node endpoints
+	r.POST("/v1/syllabus/examNode/create", v1.ExamNodeCtrl.CreateExamNode)
+	r.POST("/v1/syllabus/examNode/edit", v1.ExamNodeCtrl.UpdateExamNode)
+	r.POST("/v1/syllabus/examNode/delete", v1.ExamNodeCtrl.DeleteExamNode)
+	r.POST("/v1/syllabus/examNode/byId", v1.ExamNodeCtrl.GetExamNodeById)
+	r.POST("/v1/syllabus/examNode/list", v1.ExamNodeCtrl.ListExamNodes)
+	r.POST("/v1/syllabus/examNode/chapter/add", v1.ExamNodeCtrl.AddChapter)
+	r.POST("/v1/syllabus/examNode/chapter/remove", v1.ExamNodeCtrl.RemoveChapter)
+	r.POST("/v1/syllabus/examNode/paperCode/add", v1.ExamNodeCtrl.AddPaperCode)
+	r.POST("/v1/syllabus/examNode/paperCode/remove", v1.ExamNodeCtrl.RemovePaperCode)
 }
