@@ -169,6 +169,20 @@
             <input v-model="genForm.endMonth" type="month" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
           </div>
           <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('learningPlan.examNodeMode') }}</label>
+            <p class="text-xs text-gray-500 mb-2">{{ t('learningPlan.examNodeModeDesc') }}</p>
+            <div class="flex gap-3">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" v-model="genForm.examNodeMode" value="sequential" class="text-green-600 focus:ring-green-500" />
+                <span class="text-sm text-gray-700">{{ t('learningPlan.examNodeModeSequential') }}</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" v-model="genForm.examNodeMode" value="parallel" class="text-green-600 focus:ring-green-500" />
+                <span class="text-sm text-gray-700">{{ t('learningPlan.examNodeModeParallel') }}</span>
+              </label>
+            </div>
+          </div>
+          <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('learningPlan.phaseRatios') }}</label>
             <p class="text-xs text-gray-500 mb-1">{{ t('learningPlan.phaseRatiosDesc') }}</p>
             <div class="grid grid-cols-4 gap-2">
@@ -358,6 +372,7 @@ const genForm = ref({
   startMonth: '',
   endMonth: '',
   phaseRatios: [30, 20, 20, 10],
+  examNodeMode: 'sequential',
   comment: ''
 })
 const phaseLabels = ['新课学习(%)', '一轮复习(%)', '专题综合(%)', '集中刷题(%)']
@@ -387,6 +402,7 @@ async function submitGenerate() {
       startMonth: genForm.value.startMonth,
       endMonth: genForm.value.endMonth,
       phaseRatios: genForm.value.phaseRatios,
+      examNodeMode: genForm.value.examNodeMode,
       comment: genForm.value.comment
     })
     if (res.code === 0) generateResult.value = res.data

@@ -195,14 +195,21 @@ func (svr *LearningPlanService) RollbackPlan(req model.StudentLearningPlanRollba
 // --- Batch template plan generation ---
 
 // phaseNames and phaseDrillEnabled define the 4 standard learning phases in order.
-var phaseNames = []string{"新课学习", "一轮复习", "题型综合复习", "最终冲刺"}
+// Each exam node goes through all 4 phases (新课 → 一轮复习 → 专题综合复习 → 集中刷题).
+var phaseNames = []string{"新课学习", "一轮复习", "专题综合复习", "集中刷题"}
 var phaseDrillEnabled = []bool{false, true, true, true}
 
+const (
+	ExamNodeModeSequential = "sequential" // 顺序模式：先完成考试节点A，再进行考试节点B
+	ExamNodeModeParallel   = "parallel"   // 并行模式：同时准备所有考试节点
+)
+
 // longPhaseInfo holds computed phase data used when building mid-term plans.
+// Each entry represents a time range and the set of chapters scheduled in that range.
 type longPhaseInfo struct {
-	StartMonth   time.Time
-	EndMonth     time.Time
-	Chapters     []*model.Chapter
+	StartMonth time.Time
+	EndMonth   time.Time
+	Chapters   []*model.Chapter
 }
 
 // midWeekInfo holds computed week data used when building short-term plans.
@@ -240,112 +247,267 @@ func collectAllDescendants(allChapters []*model.Chapter, parentId uint) []*model
 	return result
 }
 
-// buildLongPlanContent generates the JSON content for the long-term plan and returns
-// phase info for downstream mid-term generation.
-func buildLongPlanContent(ratios []int, startTime time.Time, totalMonths int, rootChapters []*model.Chapter) (string, []longPhaseInfo, error) {
-	type phaseAlloc struct {
-		index      int
-		ratio      int
-		monthCount int
-		chapStart  int
-		chapEnd    int
+// buildLongPlanContent generates the JSON content for the long-term plan organised
+// around exam nodes. Each exam node gets its own complete 4-phase cycle.
+//
+// Sequential mode: exam nodes are prepared one after another.
+//   - Total months are divided evenly among nodes; the last node absorbs the remainder.
+//   - Within each node's time slice, the 4 phases are distributed by phaseRatios.
+//
+// Parallel mode: all exam nodes are prepared simultaneously throughout the full period.
+//   - The 4 phases are distributed over the full period by phaseRatios.
+//   - Within each phase, all exam nodes contribute their proportional chapter slices.
+//
+// Returns the JSON string, a flat list of longPhaseInfo (for mid-term derivation), and an error.
+func buildLongPlanContent(ratios []int, startTime time.Time, totalMonths int, mode string, examNodes []*model.SyllabusExamNode) (string, []longPhaseInfo, error) {
+	if len(examNodes) == 0 {
+		return `{"mode":"` + mode + `","examNodes":[]}`, nil, nil
 	}
 
-	// Determine active phases and their month allocations.
-	var activePhases []phaseAlloc
+	// Validate / default mode.
+	if mode != ExamNodeModeParallel {
+		mode = ExamNodeModeSequential
+	}
+
+	// Build active phase descriptors (skip zero-ratio phases).
+	type activePhase struct {
+		index int // 0-3
+		ratio int
+	}
+	var activePhases []activePhase
 	for i, r := range ratios {
 		if r > 0 {
-			mc := int(math.Round(float64(totalMonths) * float64(r) / 100.0))
-			if mc < 1 {
-				mc = 1
-			}
-			activePhases = append(activePhases, phaseAlloc{index: i, ratio: r, monthCount: mc})
+			activePhases = append(activePhases, activePhase{index: i, ratio: r})
 		}
 	}
-
 	if len(activePhases) == 0 {
-		return `{"phases":[]}`, nil, nil
+		return `{"mode":"` + mode + `","examNodes":[]}`, nil, nil
 	}
 
-	// Clamp total allocated months to totalMonths to avoid phases extending beyond endMonth.
-	// Reduce month counts from the last phase backwards until the sum fits.
-	allocTotal := 0
-	for _, p := range activePhases {
-		allocTotal += p.monthCount
-	}
-	for i := len(activePhases) - 1; i >= 0 && allocTotal > totalMonths; i-- {
-		excess := allocTotal - totalMonths
-		reduce := activePhases[i].monthCount - 1 // keep at least 1
-		if reduce > excess {
-			reduce = excess
+	// Helper: distribute nMonths across phases proportionally.
+	distributeMonths := func(nMonths int) []int {
+		sumRatio := 0
+		for _, p := range activePhases {
+			sumRatio += p.ratio
 		}
-		activePhases[i].monthCount -= reduce
-		allocTotal -= reduce
-	}
-
-	// Distribute chapters proportionally across active phases by ratio.
-	nChapters := len(rootChapters)
-	sumActiveRatios := 0
-	for _, p := range activePhases {
-		sumActiveRatios += p.ratio
-	}
-	chapIdx := 0
-	for i := range activePhases {
-		count := int(math.Round(float64(nChapters) * float64(activePhases[i].ratio) / float64(sumActiveRatios)))
-		activePhases[i].chapStart = chapIdx
-		end := chapIdx + count
-		if end > nChapters {
-			end = nChapters
+		months := make([]int, len(activePhases))
+		alloc := 0
+		for i, p := range activePhases {
+			m := int(math.Round(float64(nMonths) * float64(p.ratio) / float64(sumRatio)))
+			if m < 1 {
+				m = 1
+			}
+			months[i] = m
+			alloc += m
 		}
-		activePhases[i].chapEnd = end
-		chapIdx = end
-	}
-	// Assign any remainder to the last active phase.
-	if chapIdx < nChapters {
-		activePhases[len(activePhases)-1].chapEnd = nChapters
-	}
-
-	type phaseJSON struct {
-		Name         string   `json:"name"`
-		StartMonth   string   `json:"startMonth"`
-		EndMonth     string   `json:"endMonth"`
-		Chapters     []string `json:"chapters"`
-		DrillEnabled bool     `json:"drillEnabled"`
+		// Clamp to nMonths.
+		for i := len(activePhases) - 1; i >= 0 && alloc > nMonths; i-- {
+			excess := alloc - nMonths
+			reduce := months[i] - 1
+			if reduce > excess {
+				reduce = excess
+			}
+			months[i] -= reduce
+			alloc -= reduce
+		}
+		return months
 	}
 
-	var phasesJSON []phaseJSON
+	// Helper: distribute nChapters across phases proportionally.
+	distributeChapters := func(chapters []*model.Chapter) []int {
+		n := len(chapters)
+		sumRatio := 0
+		for _, p := range activePhases {
+			sumRatio += p.ratio
+		}
+		ends := make([]int, len(activePhases))
+		idx := 0
+		for i, p := range activePhases {
+			count := int(math.Round(float64(n) * float64(p.ratio) / float64(sumRatio)))
+			end := idx + count
+			if end > n {
+				end = n
+			}
+			ends[i] = end
+			idx = end
+		}
+		// Assign remainder to last phase.
+		if idx < n {
+			ends[len(ends)-1] = n
+		}
+		return ends
+	}
+
 	var longInfos []longPhaseInfo
 
-	curMonth := startTime
-	for _, p := range activePhases {
-		endMonth := curMonth.AddDate(0, p.monthCount-1, 0)
-
-		chapNames := make([]string, 0, p.chapEnd-p.chapStart)
-		chapModels := make([]*model.Chapter, 0, p.chapEnd-p.chapStart)
-		for _, ch := range rootChapters[p.chapStart:p.chapEnd] {
-			chapNames = append(chapNames, ch.Name)
-			chapModels = append(chapModels, ch)
+	if mode == ExamNodeModeSequential {
+		// --- Sequential: each exam node occupies its own consecutive time slice ---
+		type nodePhaseJSON struct {
+			Name         string   `json:"name"`
+			StartMonth   string   `json:"startMonth"`
+			EndMonth     string   `json:"endMonth"`
+			Chapters     []string `json:"chapters"`
+			DrillEnabled bool     `json:"drillEnabled"`
+		}
+		type nodeJSON struct {
+			ID         uint            `json:"id"`
+			Name       string          `json:"name"`
+			StartMonth string          `json:"startMonth"`
+			EndMonth   string          `json:"endMonth"`
+			Phases     []nodePhaseJSON `json:"phases"`
 		}
 
-		phasesJSON = append(phasesJSON, phaseJSON{
-			Name:         phaseNames[p.index],
-			StartMonth:   curMonth.Format("2006-01"),
-			EndMonth:     endMonth.Format("2006-01"),
-			Chapters:     chapNames,
-			DrillEnabled: phaseDrillEnabled[p.index],
+		// Divide total months among nodes; last node absorbs remainder.
+		baseMonths := totalMonths / len(examNodes)
+		if baseMonths < 1 {
+			baseMonths = 1
+		}
+
+		var nodesJSON []nodeJSON
+		curMonth := startTime
+
+		for ni, node := range examNodes {
+			nodeMonths := baseMonths
+			if ni == len(examNodes)-1 {
+				// Last node gets the remainder so all months are consumed.
+				used := baseMonths * ni
+				remaining := totalMonths - used
+				if remaining > 0 {
+					nodeMonths = remaining
+				}
+			}
+
+			// Distribute phases within this node's time slice.
+			phaseMonths := distributeMonths(nodeMonths)
+
+			// Distribute node's chapters across phases.
+			nodeChapters := node.Chapters
+			chapEnds := distributeChapters(nodeChapters)
+
+			nodeStart := curMonth
+			var phasesJSON []nodePhaseJSON
+			chapStart := 0
+			for i, ap := range activePhases {
+				phaseStart := curMonth
+				phaseEnd := curMonth.AddDate(0, phaseMonths[i]-1, 0)
+
+				chapSlice := nodeChapters[chapStart:chapEnds[i]]
+				chapNames := make([]string, 0, len(chapSlice))
+				for _, ch := range chapSlice {
+					chapNames = append(chapNames, ch.Name)
+				}
+
+				phasesJSON = append(phasesJSON, nodePhaseJSON{
+					Name:         phaseNames[ap.index],
+					StartMonth:   phaseStart.Format("2006-01"),
+					EndMonth:     phaseEnd.Format("2006-01"),
+					Chapters:     chapNames,
+					DrillEnabled: phaseDrillEnabled[ap.index],
+				})
+				// Accumulate longPhaseInfo for mid-term derivation.
+				longInfos = append(longInfos, longPhaseInfo{
+					StartMonth: phaseStart,
+					EndMonth:   phaseEnd,
+					Chapters:   chapSlice,
+				})
+
+				chapStart = chapEnds[i]
+				curMonth = phaseEnd.AddDate(0, 1, 0)
+			}
+
+			nodeEnd := curMonth.AddDate(0, -1, 0)
+			nodesJSON = append(nodesJSON, nodeJSON{
+				ID:         node.ID,
+				Name:       node.Name,
+				StartMonth: nodeStart.Format("2006-01"),
+				EndMonth:   nodeEnd.Format("2006-01"),
+				Phases:     phasesJSON,
+			})
+		}
+
+		b, err := json.Marshal(struct {
+			Mode  string     `json:"mode"`
+			Nodes []nodeJSON `json:"examNodes"`
+		}{Mode: mode, Nodes: nodesJSON})
+		if err != nil {
+			return "", nil, err
+		}
+		return string(b), longInfos, nil
+	}
+
+	// --- Parallel: all exam nodes are prepared simultaneously ---
+	// Phases span the full period; within each phase, every exam node contributes chapters.
+	type nodeChaptersJSON struct {
+		ID       uint     `json:"id"`
+		Name     string   `json:"name"`
+		Chapters []string `json:"chapters"`
+	}
+	type parallelPhaseJSON struct {
+		Name         string             `json:"name"`
+		StartMonth   string             `json:"startMonth"`
+		EndMonth     string             `json:"endMonth"`
+		DrillEnabled bool               `json:"drillEnabled"`
+		ExamNodes    []nodeChaptersJSON `json:"examNodes"`
+	}
+
+	phaseMonths := distributeMonths(totalMonths)
+
+	// Precompute chapter distribution for each node across all phases once,
+	// so the inner phase loop can look up chapter slices without recomputing.
+	type nodeDistrib struct {
+		node     *model.SyllabusExamNode
+		chapEnds []int // cumulative end indices per active phase
+	}
+	nodeDistribs := make([]nodeDistrib, len(examNodes))
+	for j, node := range examNodes {
+		nodeDistribs[j] = nodeDistrib{
+			node:     node,
+			chapEnds: distributeChapters(node.Chapters),
+		}
+	}
+
+	var phasesJSON []parallelPhaseJSON
+	curMonth := startTime
+	for i, ap := range activePhases {
+		phaseStart := curMonth
+		phaseEnd := curMonth.AddDate(0, phaseMonths[i]-1, 0)
+
+		var nodeEntries []nodeChaptersJSON
+		var phaseChapters []*model.Chapter
+		for _, nd := range nodeDistribs {
+			start := 0
+			if i > 0 {
+				start = nd.chapEnds[i-1]
+			}
+			chapSlice := nd.node.Chapters[start:nd.chapEnds[i]]
+			phaseChapters = append(phaseChapters, chapSlice...)
+			names := make([]string, 0, len(chapSlice))
+			for _, ch := range chapSlice {
+				names = append(names, ch.Name)
+			}
+			nodeEntries = append(nodeEntries, nodeChaptersJSON{ID: nd.node.ID, Name: nd.node.Name, Chapters: names})
+		}
+
+		phasesJSON = append(phasesJSON, parallelPhaseJSON{
+			Name:         phaseNames[ap.index],
+			StartMonth:   phaseStart.Format("2006-01"),
+			EndMonth:     phaseEnd.Format("2006-01"),
+			DrillEnabled: phaseDrillEnabled[ap.index],
+			ExamNodes:    nodeEntries,
 		})
 		longInfos = append(longInfos, longPhaseInfo{
-			StartMonth: curMonth,
-			EndMonth:   endMonth,
-			Chapters:   chapModels,
+			StartMonth: phaseStart,
+			EndMonth:   phaseEnd,
+			Chapters:   phaseChapters,
 		})
 
-		curMonth = endMonth.AddDate(0, 1, 0)
+		curMonth = phaseEnd.AddDate(0, 1, 0)
 	}
 
 	b, err := json.Marshal(struct {
-		Phases []phaseJSON `json:"phases"`
-	}{Phases: phasesJSON})
+		Mode   string              `json:"mode"`
+		Phases []parallelPhaseJSON `json:"phases"`
+	}{Mode: mode, Phases: phasesJSON})
 	if err != nil {
 		return "", nil, err
 	}
@@ -492,6 +654,8 @@ func buildShortPlanContent(midWeeks []midWeekInfo, allChapters []*model.Chapter)
 }
 
 // GenerateTemplatePlans 批量为班级所有学生生成模板学习计划（长期/中期/短期）。
+// 以考试节点为核心组织计划：每个考试节点都包含完整的新课→一轮复习→专题复习→集中刷题四个阶段。
+// 支持顺序模式（sequential，先完成一个考试节点再进入下一个）和并行模式（parallel，同时准备所有节点）。
 // 每个学生已存在对应类型计划时跳过，其余错误收集后继续处理。
 func (svr *LearningPlanService) GenerateTemplatePlans(req model.GeneratePlansRequest, creatorId uint) (*model.GeneratePlansResult, error) {
 	// Validate phase ratios.
@@ -523,26 +687,29 @@ func (svr *LearningPlanService) GenerateTemplatePlans(req model.GeneratePlansReq
 
 	totalMonths := monthsBetween(startTime, endTime)
 
-	// Fetch all chapters for the syllabus once.
+	// Fetch exam nodes for the syllabus (ordered by sort_order ASC).
+	examNodes, err := repository.ExamNodeRepo.FindBySyllabusID(req.SyllabusId)
+	if err != nil {
+		return nil, fmt.Errorf("获取考试节点失败: %v", err)
+	}
+	if len(examNodes) == 0 {
+		return nil, errors.New("考纲暂无考试节点，请先添加考试节点后再生成计划")
+	}
+
+	// Fetch all chapters for the syllabus (used by mid/short plan derivation).
 	allChapters, err := repository.ChapterRepo.FindAll(&model.ChapterQuery{SyllabusId: req.SyllabusId})
 	if err != nil {
 		return nil, fmt.Errorf("获取章节失败: %v", err)
 	}
 
-	// Extract root chapters (parentId == 0) in ascending creation order.
-	var rootChapters []*model.Chapter
-	for _, ch := range allChapters {
-		if ch.ParentId == 0 {
-			rootChapters = append(rootChapters, ch)
-		}
-	}
-	// FindAll returns DESC order; reverse to get ascending (creation) order.
-	for i, j := 0, len(rootChapters)-1; i < j; i, j = i+1, j-1 {
-		rootChapters[i], rootChapters[j] = rootChapters[j], rootChapters[i]
+	// Default mode is sequential.
+	mode := req.ExamNodeMode
+	if mode != ExamNodeModeParallel {
+		mode = ExamNodeModeSequential
 	}
 
 	// Build the three plan contents.
-	longContent, longPhases, err := buildLongPlanContent(req.PhaseRatios, startTime, totalMonths, rootChapters)
+	longContent, longPhases, err := buildLongPlanContent(req.PhaseRatios, startTime, totalMonths, mode, examNodes)
 	if err != nil {
 		return nil, fmt.Errorf("生成长期计划失败: %v", err)
 	}

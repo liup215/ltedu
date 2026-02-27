@@ -69,12 +69,13 @@ type StudentLearningPlanRollbackRequest struct {
 
 // GeneratePlansRequest 批量生成模板学习计划请求
 type GeneratePlansRequest struct {
-	ClassId     uint   `json:"classId" binding:"required"`
-	SyllabusId  uint   `json:"syllabusId" binding:"required"`
-	StartMonth  string `json:"startMonth" binding:"required"` // "YYYY-MM"
-	EndMonth    string `json:"endMonth" binding:"required"`   // "YYYY-MM"
-	PhaseRatios []int  `json:"phaseRatios" binding:"required"` // e.g. [30,20,20,10]
-	Comment     string `json:"comment"`
+	ClassId      uint   `json:"classId" binding:"required"`
+	SyllabusId   uint   `json:"syllabusId" binding:"required"`
+	StartMonth   string `json:"startMonth" binding:"required"` // "YYYY-MM"
+	EndMonth     string `json:"endMonth" binding:"required"`   // "YYYY-MM"
+	PhaseRatios  []int  `json:"phaseRatios" binding:"required"` // e.g. [30,20,20,10]
+	ExamNodeMode string `json:"examNodeMode"` // "sequential" | "parallel" (default: "sequential")
+	Comment      string `json:"comment"`
 }
 
 // GeneratePlansResult 批量生成模板学习计划结果

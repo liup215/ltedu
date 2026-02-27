@@ -87,6 +87,7 @@ class LearningPlanService {
     startMonth: string;
     endMonth: string;
     phaseRatios: number[];
+    examNodeMode?: string;
     comment?: string;
   }): Promise<ApiResponse<{ studentCount: number; count: number; errors?: string[] }>> {
     const client = await apiClient()

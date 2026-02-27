@@ -255,12 +255,13 @@ var planRollbackCmd = &cobra.Command{
 // ---- generate-template ----
 
 var (
-	genTplClassID     uint
-	genTplSyllabusID  uint
-	genTplStartMonth  string
-	genTplEndMonth    string
-	genTplPhaseRatios string
-	genTplComment     string
+	genTplClassID      uint
+	genTplSyllabusID   uint
+	genTplStartMonth   string
+	genTplEndMonth     string
+	genTplPhaseRatios  string
+	genTplExamNodeMode string
+	genTplComment      string
 )
 
 var planGenerateTemplateCmd = &cobra.Command{
@@ -290,12 +291,13 @@ var planGenerateTemplateCmd = &cobra.Command{
 
 		c := client.NewClient()
 		body := map[string]interface{}{
-			"classId":     genTplClassID,
-			"syllabusId":  genTplSyllabusID,
-			"startMonth":  genTplStartMonth,
-			"endMonth":    genTplEndMonth,
-			"phaseRatios": ratios,
-			"comment":     genTplComment,
+			"classId":      genTplClassID,
+			"syllabusId":   genTplSyllabusID,
+			"startMonth":   genTplStartMonth,
+			"endMonth":     genTplEndMonth,
+			"phaseRatios":  ratios,
+			"examNodeMode": genTplExamNodeMode,
+			"comment":      genTplComment,
 		}
 		var result struct {
 			StudentCount int      `json:"studentCount"`
@@ -346,6 +348,7 @@ func init() {
 	planGenerateTemplateCmd.Flags().StringVar(&genTplStartMonth, "start-month", "", "Start month in YYYY-MM format (required)")
 	planGenerateTemplateCmd.Flags().StringVar(&genTplEndMonth, "end-month", "", "End month in YYYY-MM format (required)")
 	planGenerateTemplateCmd.Flags().StringVar(&genTplPhaseRatios, "phase-ratios", "30,20,20,10", "Comma-separated phase ratios summing to <=100, e.g. 30,20,20,10")
+	planGenerateTemplateCmd.Flags().StringVar(&genTplExamNodeMode, "exam-node-mode", "sequential", "How to arrange exam nodes: 'sequential' (one after another) or 'parallel' (simultaneously)")
 	planGenerateTemplateCmd.Flags().StringVar(&genTplComment, "comment", "", "Version comment for the initial plans")
 
 	learningPlanCmd.AddCommand(planListCmd)
