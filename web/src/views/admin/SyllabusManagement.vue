@@ -70,6 +70,12 @@
                 {{ $t('syllabusManagement.manageChapters') }}
               </router-link>
               <router-link 
+                :to="`/admin/syllabuses/${syllabus.id}/exam-nodes`" 
+                class="text-orange-600 hover:text-orange-900"
+              >
+                {{ $t('examNode.title') }}
+              </router-link>
+              <router-link 
                 :to="`/admin/syllabuses/${syllabus.id}/knowledge-points`" 
                 class="text-purple-600 hover:text-purple-900"
               >
