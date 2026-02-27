@@ -28,6 +28,11 @@ const accountRoutes: RouteRecordRaw[] = [
         path: 'mcp-tokens',
         name: 'AccountMCPTokens',
         component: () => import('./MCPTokenManagement.vue')
+      },
+      {
+        path: 'cli-tokens',
+        name: 'AccountCLITokens',
+        component: () => import('./CLITokens.vue')
       }
     ]
   }

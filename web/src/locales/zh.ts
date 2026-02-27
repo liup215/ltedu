@@ -555,7 +555,8 @@ export default {
     profile: '个人资料',
     settings: '设置',
     teacherApplication: '教师申请',
-    mcpTokens: 'MCP 令牌'
+    mcpTokens: 'MCP 令牌',
+    cliTokens: 'CLI 令牌'
   },
   adminSidebar: {
     menu: '管理菜单',

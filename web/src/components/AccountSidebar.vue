@@ -32,6 +32,13 @@
       >
         {{ $t('accountSidebar.mcpTokens') }}
       </router-link>
+      <router-link
+        to="/account/cli-tokens"
+        class="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-200 hover:text-gray-900"
+        active-class="bg-gray-200 text-gray-900"
+      >
+        {{ $t('accountSidebar.cliTokens') }}
+      </router-link>
       <!-- Add more account-related links here as needed -->
       <!-- Example:
       <router-link
