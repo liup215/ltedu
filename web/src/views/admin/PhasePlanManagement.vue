@@ -197,7 +197,6 @@ async function loadParentPlan() {
     if (res.code === 0) {
       parentPlan.value = res.data
       // Load exam nodes for this plan's class syllabus
-      const classId = res.data.classId
       // We need syllabusId — try loading it from class info via the plan's class
       if (res.data.class?.syllabusId) {
         loadExamNodes(res.data.class.syllabusId)
