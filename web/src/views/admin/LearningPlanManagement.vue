@@ -11,6 +11,12 @@
         </div>
         <div class="flex gap-2">
           <button
+            @click="openGenerateModal"
+            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none"
+          >
+            {{ t('learningPlan.generateTemplate') }}
+          </button>
+          <button
             @click="openCreateModal"
             class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none"
           >
@@ -144,6 +150,52 @@
         </div>
         <div class="mt-6 flex justify-end">
           <button @click="showVersionsModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">{{ t('learningPlan.cancel') }}</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Generate Template Plans Modal -->
+    <div v-if="showGenerateModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">{{ t('learningPlan.generateTemplate') }}</h2>
+        <p class="text-sm text-gray-600 mb-4">{{ t('learningPlan.generateTemplateDesc') }}</p>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('learningPlan.startMonth') }} (YYYY-MM)</label>
+            <input v-model="genForm.startMonth" type="month" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('learningPlan.endMonth') }} (YYYY-MM)</label>
+            <input v-model="genForm.endMonth" type="month" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('learningPlan.phaseRatios') }}</label>
+            <p class="text-xs text-gray-500 mb-1">{{ t('learningPlan.phaseRatiosDesc') }}</p>
+            <div class="grid grid-cols-4 gap-2">
+              <div v-for="(label, i) in phaseLabels" :key="i">
+                <label class="block text-xs text-gray-500 mb-1">{{ label }}</label>
+                <input v-model.number="genForm.phaseRatios[i]" type="number" min="0" max="100"
+                  class="w-full border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+              </div>
+            </div>
+            <p class="text-xs text-gray-400 mt-1">{{ t('learningPlan.phaseRatiosSum') }}: {{ genForm.phaseRatios.reduce((a, b) => a + b, 0) }}%</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('learningPlan.comment') }}</label>
+            <input v-model="genForm.comment" type="text" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+          </div>
+        </div>
+        <div v-if="generateResult" class="mt-4 p-3 rounded-md" :class="generateResult.errors?.length ? 'bg-yellow-50 border border-yellow-200' : 'bg-green-50 border border-green-200'">
+          <p class="text-sm font-medium">{{ t('learningPlan.generateSuccess') }}: {{ generateResult.count }} {{ t('learningPlan.plans') }} ({{ generateResult.studentCount }} {{ t('learningPlan.students') }})</p>
+          <ul v-if="generateResult.errors?.length" class="mt-2 text-xs text-yellow-700 space-y-1">
+            <li v-for="e in generateResult.errors" :key="e">{{ e }}</li>
+          </ul>
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+          <button @click="closeGenerateModal" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">{{ t('learningPlan.cancel') }}</button>
+          <button @click="submitGenerate" :disabled="generating" class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50">
+            {{ generating ? t('learningPlan.generating') : t('learningPlan.generate') }}
+          </button>
         </div>
       </div>
     </div>
@@ -296,6 +348,52 @@ async function doDelete() {
     console.error(e)
   } finally {
     saving.value = false
+  }
+}
+
+const showGenerateModal = ref(false)
+const generating = ref(false)
+const generateResult = ref<any>(null)
+const genForm = ref({
+  startMonth: '',
+  endMonth: '',
+  phaseRatios: [30, 20, 20, 10],
+  comment: ''
+})
+const phaseLabels = ['新课学习(%)', '一轮复习(%)', '专题综合(%)', '集中刷题(%)']
+
+function openGenerateModal() {
+  generateResult.value = null
+  showGenerateModal.value = true
+}
+
+function closeGenerateModal() {
+  showGenerateModal.value = false
+  if (generateResult.value) loadPlans()
+}
+
+async function submitGenerate() {
+  if (!genForm.value.startMonth || !genForm.value.endMonth) return
+  if (!classInfo.value?.syllabusId) {
+    alert(t('learningPlan.noSyllabus'))
+    return
+  }
+  generating.value = true
+  generateResult.value = null
+  try {
+    const res = await learningPlanService.generateTemplate({
+      classId,
+      syllabusId: classInfo.value.syllabusId,
+      startMonth: genForm.value.startMonth,
+      endMonth: genForm.value.endMonth,
+      phaseRatios: genForm.value.phaseRatios,
+      comment: genForm.value.comment
+    })
+    if (res.code === 0) generateResult.value = res.data
+  } catch (e) {
+    console.error(e)
+  } finally {
+    generating.value = false
   }
 }
 

@@ -81,6 +81,19 @@ class LearningPlanService {
     return response.data
   }
 
+  async generateTemplate(req: {
+    classId: number;
+    syllabusId: number;
+    startMonth: string;
+    endMonth: string;
+    phaseRatios: number[];
+    comment?: string;
+  }): Promise<ApiResponse<{ studentCount: number; count: number; errors?: string[] }>> {
+    const client = await apiClient()
+    const response = await client.post('/api/v1/learning-plan/generateTemplate', req)
+    return response.data
+  }
+
   async addChapterToPhasePlan(phasePlanId: number, chapterId: number): Promise<ApiResponse> {
     const client = await apiClient()
     const response = await client.post('/api/v1/learning-plan/phase/chapter/add', { phasePlanId, chapterId })

@@ -356,11 +356,12 @@ func buildLongPlanContent(ratios []int, startTime time.Time, totalMonths int, ro
 // using chapters from the first 2 months of the long-term plan.
 func buildMidPlanContent(longPhases []longPhaseInfo, startTime time.Time, allChapters []*model.Chapter) (string, []midWeekInfo, error) {
 	// Collect root chapters scheduled in the first 2 months of the long-term plan.
-	// afterFirst2Months is the exclusive upper bound: phases starting on or after this are excluded.
+	// afterFirst2Months is the exclusive upper bound; phases starting on or after this are outside
+	// the first 2 months. Using !Before() is equivalent to >= (i.e. on or after).
 	afterFirst2Months := startTime.AddDate(0, 2, 0)
 	var first2MonthChapters []*model.Chapter
 	for _, p := range longPhases {
-		if !p.StartMonth.Before(afterFirst2Months) {
+		if !p.StartMonth.Before(afterFirst2Months) { // p.StartMonth >= afterFirst2Months → stop
 			break
 		}
 		first2MonthChapters = append(first2MonthChapters, p.Chapters...)
