@@ -284,18 +284,7 @@
                 <p class="text-xs text-gray-500">{{ q.syllabus?.code || '' }}</p>
               </div>
 
-              <div v-if="q.chapters && q.chapters.length > 0">
-                <h4 class="text-sm font-medium text-gray-700 mb-1">Chapters:</h4>
-                <div class="flex flex-wrap gap-1">
-                  <span v-for="chapter in q.chapters.slice(0, 3)" :key="chapter.id"
-                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    {{ chapter.name }}
-                  </span>
-                  <span v-if="q.chapters.length > 3" class="text-xs text-gray-500">
-                    +{{ q.chapters.length - 3 }} more
-                  </span>
-                </div>
-              </div>
+
             </div>
 
             <!-- Card Footer -->
@@ -498,7 +487,6 @@ watch(
             id: qid,
 stem: 'Load failed',
             questionContents: [],
-            chapters: [],
             syllabusId: 0,
             totalScore: 0,
             difficult: 1,
@@ -554,7 +542,6 @@ const fetchQuestions = async () => {
     paperName: questionFilter.paperName?.trim() || undefined,
     difficult: questionFilter.difficult ? Number(questionFilter.difficult) : undefined,
     syllabusId: form.syllabusId || undefined,
-    chapters: selectedChapterIds.value,
     status: QUESTION_STATE_NORMAL, // Only fetch normal questions
     pageIndex: currentPage.value,
     pageSize

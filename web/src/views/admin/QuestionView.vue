@@ -103,19 +103,7 @@
               </dl>
             </div>
 
-            <!-- Chapters -->
-            <div v-if="question.chapters && question.chapters.length > 0">
-              <h3 class="text-lg font-medium text-gray-900 mb-3">Chapters</h3>
-              <div class="flex flex-wrap gap-2">
-                <span 
-                  v-for="chapter in question.chapters" 
-                  :key="chapter.id"
-                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
-                >
-                  {{ chapter.name }}
-                </span>
-              </div>
-            </div>
+
           </div>
         </div>
 
