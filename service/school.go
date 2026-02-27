@@ -1,6 +1,8 @@
 package service
 
 import (
+"crypto/rand"
+"encoding/hex"
 "edu/repository"
 "edu/model"
 "errors"
@@ -82,33 +84,186 @@ func (svr *SchoolService) DeleteClassType(id uint) error {
 return nil
 }
 
-// 班级相关方法补充，保证 controller 编译通过
-func (svr *SchoolService) SelectClassList(q interface{}) ([]interface{}, int64, error) {
-return nil, 0, nil
-}
-func (svr *SchoolService) SelectClassById(id uint) (interface{}, error) {
-return nil, nil
-}
-func (svr *SchoolService) SelectClassAll(q interface{}) ([]interface{}, error) {
-return nil, nil
-}
-func (svr *SchoolService) CreateClass(o interface{}) error {
-return nil
-}
-func (svr *SchoolService) EditClass(o interface{}) error {
-return nil
-}
-func (svr *SchoolService) DeleteClass(id uint) error {
-return nil
-}
-func (svr *SchoolService) GetStudentsByClassId(classId uint) ([]interface{}, error) {
-return nil, nil
-}
-func (svr *SchoolService) AddStudentToClass(class model.Class, user model.User) error {
-return nil
-}
-func (svr *SchoolService) DeleteStudentFromClass(class model.Class, user model.User) error {
-return nil
+// generateInviteCode 生成唯一邀请码
+func generateInviteCode() (string, error) {
+	b := make([]byte, 8)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(b), nil
 }
 
-// TODO: 班级类型、班级、学生相关Repository与Service迁移，建议继续分步实现
+// 班级管理
+
+func (svr *SchoolService) SelectClassList(q model.ClassQuery) ([]*model.Class, int64, error) {
+	page := q.Page.CheckPage()
+	return repository.ClassRepo.FindPage(&q, (page.PageIndex-1)*page.PageSize, page.PageSize)
+}
+
+func (svr *SchoolService) SelectClassById(id uint) (*model.Class, error) {
+	if id == 0 {
+		return nil, errors.New("无效的ID")
+	}
+	return repository.ClassRepo.FindByID(id)
+}
+
+func (svr *SchoolService) SelectClassAll(q model.ClassQuery) ([]*model.Class, error) {
+	return repository.ClassRepo.FindAll(&q)
+}
+
+// CreateClass 创建班级（仅教师可创建，创建者自动成为管理员）
+func (svr *SchoolService) CreateClass(req model.ClassCreateEditRequest, creatorId uint) (*model.Class, error) {
+	if req.Name == "" {
+		return nil, errors.New("班级名称不能为空")
+	}
+	user, err := repository.UserRepo.FindByID(creatorId)
+	if err != nil || user == nil {
+		return nil, errors.New("用户不存在")
+	}
+	if !user.IsTeacher {
+		return nil, errors.New("只有教师身份可以创建班级")
+	}
+	code, err := generateInviteCode()
+	if err != nil {
+		return nil, errors.New("邀请码生成失败")
+	}
+	class := &model.Class{
+		Name:        req.Name,
+		InviteCode:  code,
+		AdminUserId: creatorId,
+	}
+	if err := repository.ClassRepo.Create(class); err != nil {
+		return nil, err
+	}
+	return class, nil
+}
+
+func (svr *SchoolService) EditClass(req model.ClassCreateEditRequest) error {
+	if req.ID == 0 {
+		return errors.New("无效的ID")
+	}
+	class := &model.Class{
+		Model: model.Model{ID: req.ID},
+		Name:  req.Name,
+	}
+	return repository.ClassRepo.Update(class)
+}
+
+func (svr *SchoolService) DeleteClass(id uint) error {
+	if id == 0 {
+		return errors.New("无效的ID")
+	}
+	return repository.ClassRepo.Delete(id)
+}
+
+func (svr *SchoolService) GetStudentsByClassId(classId uint) ([]*model.User, error) {
+	return repository.ClassRepo.FindStudents(classId)
+}
+
+func (svr *SchoolService) DeleteStudentFromClass(classId, userId uint) error {
+	return repository.ClassRepo.RemoveStudent(classId, userId)
+}
+
+// ApplyToJoinClass 学生使用邀请码申请加入班级
+func (svr *SchoolService) ApplyToJoinClass(inviteCode string, userId uint, message string) (*model.ClassJoinRequest, error) {
+	class, err := repository.ClassRepo.FindByInviteCode(inviteCode)
+	if err != nil {
+		return nil, err
+	}
+	if class == nil {
+		return nil, errors.New("邀请码无效")
+	}
+	// Check if already a member
+	students, _ := repository.ClassRepo.FindStudents(class.ID)
+	for _, s := range students {
+		if s.ID == userId {
+			return nil, errors.New("您已经是该班级成员")
+		}
+	}
+	// Check for existing pending request
+	existing, err := repository.ClassJoinRequestRepo.FindByClassAndUser(class.ID, userId)
+	if err != nil {
+		return nil, err
+	}
+	if existing != nil && existing.Status == model.ClassJoinStatusPending {
+		return nil, errors.New("您已经提交过申请，请等待审核")
+	}
+	req := &model.ClassJoinRequest{
+		ClassId: class.ID,
+		UserId:  userId,
+		Status:  model.ClassJoinStatusPending,
+		Message: message,
+	}
+	if err := repository.ClassJoinRequestRepo.Create(req); err != nil {
+		return nil, err
+	}
+	return req, nil
+}
+
+// ListClassJoinRequests 列出班级的加入申请（管理员）
+func (svr *SchoolService) ListClassJoinRequests(q model.ClassJoinRequestQuery) ([]*model.ClassJoinRequest, int64, error) {
+	page := q.Page.CheckPage()
+	return repository.ClassJoinRequestRepo.FindPage(&q, (page.PageIndex-1)*page.PageSize, page.PageSize)
+}
+
+// checkClassAdminPermission verifies that the user is either the class admin or a system admin
+func (svr *SchoolService) checkClassAdminPermission(class *model.Class, userId uint) error {
+	if class.AdminUserId == userId {
+		return nil
+	}
+	user, err := repository.UserRepo.FindByID(userId)
+	if err != nil || user == nil || !user.IsAdmin {
+		return errors.New("只有班级管理员或系统管理员可以审核申请")
+	}
+	return nil
+}
+
+// ApproveJoinRequest 审核通过加入申请
+func (svr *SchoolService) ApproveJoinRequest(requestId, adminUserId uint) error {
+	req, err := repository.ClassJoinRequestRepo.FindByID(requestId)
+	if err != nil {
+		return err
+	}
+	if req == nil {
+		return errors.New("申请不存在")
+	}
+	if req.Status != model.ClassJoinStatusPending {
+		return errors.New("该申请已处理")
+	}
+	class, err := repository.ClassRepo.FindByID(req.ClassId)
+	if err != nil || class == nil {
+		return errors.New("班级不存在")
+	}
+	if err := svr.checkClassAdminPermission(class, adminUserId); err != nil {
+		return err
+	}
+	req.Status = model.ClassJoinStatusApproved
+	if err := repository.ClassJoinRequestRepo.Update(req); err != nil {
+		return err
+	}
+	return repository.ClassRepo.AddStudent(req.ClassId, req.UserId)
+}
+
+// RejectJoinRequest 拒绝加入申请
+func (svr *SchoolService) RejectJoinRequest(requestId, adminUserId uint) error {
+	req, err := repository.ClassJoinRequestRepo.FindByID(requestId)
+	if err != nil {
+		return err
+	}
+	if req == nil {
+		return errors.New("申请不存在")
+	}
+	if req.Status != model.ClassJoinStatusPending {
+		return errors.New("该申请已处理")
+	}
+	class, err := repository.ClassRepo.FindByID(req.ClassId)
+	if err != nil || class == nil {
+		return errors.New("班级不存在")
+	}
+	if err := svr.checkClassAdminPermission(class, adminUserId); err != nil {
+		return err
+	}
+	req.Status = model.ClassJoinStatusRejected
+	return repository.ClassJoinRequestRepo.Update(req)
+}
+
