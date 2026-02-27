@@ -38,53 +38,56 @@ type ClassTypeCreateEditRequest struct {
 	IsMain int    `json:"isMain"`
 }
 
+const (
+	// ClassTypeTeaching 教学班 - 用于管理教学，用户可加入多个
+	ClassTypeTeaching = 1
+	// ClassTypeAdministrative 行政班 - 用于管理日常行为，每个用户只能属于一个
+	ClassTypeAdministrative = 2
+)
+
 type Class struct {
 	Model
-	Name                   string    `json:"name"`
-	GradeId                uint      `json:"gradeId"`
-	Grade                  Grade     `json:"grade"`
-	SubjectTeacherId       uint      `json:"subjectTeacherId" gorm:"index"`
-	SubjectTeacher         Teacher   `json:"subjectTeacher"`
-	ClassTypeId            uint      `json:"classTypeId"`
-	ClassType              ClassType `json:"classType"`
-	HeadTeacherId          uint      `json:"headTeacherId"`
-	HeadTeacher            Teacher   `json:"headTeacher"`
-	DeputyHeadTeacherId    uint      `json:"deputyHeadTeacherId" `
-	DeputyHeadTeacher      Teacher   `json:"deputyHeadTeacher"`
-	IntershipHeadTeacherId uint      `json:"intershipHeadTeacherId"`
-	IntershipHeadTeacher   Teacher   `json:"intershipHeadTeacher"`
-	Students               []*User   `json:"students" gorm:"many2many:user_class_relation;"`
-}
-
-type ClassCreateEditRequest struct {
-	ID                     uint   `json:"id"`
-	Name                   string `json:"name"`
-	GradeId                uint   `json:"gradeId"`
-	SubjectTeacherId       uint   `json:"subjectTeacherId" gorm:"index"`
-	ClassTypeId            uint   `json:"classTypeId"`
-	HeadTeacherId          uint   `json:"headTeacherId"`
-	DeputyHeadTeacherId    uint   `json:"deputyHeadTeacherId" `
-	IntershipHeadTeacherId uint   `json:"intershipHeadTeacherId"`
+	Name        string  `json:"name"`
+	ClassType   int     `json:"classType" gorm:"default:1"` // 1: 教学班, 2: 行政班
+	InviteCode  string  `json:"inviteCode" gorm:"uniqueIndex;size:32"`
+	AdminUserId uint    `json:"adminUserId" gorm:"index"`
+	AdminUser   *User   `json:"adminUser,omitempty" gorm:"foreignKey:AdminUserId"`
+	Students    []*User `json:"students" gorm:"many2many:user_class_relation;"`
 }
 
 const (
-	CLASS_TEACHER_TYPE_SUBJECT                = 1
-	CLASS_TEACHER_TYPE_HEAD_TEACHER           = 2
-	CLASS_TEACHER_TYPE_DEPUTY_HEAD_TEACHER    = 3
-	CLASS_TEACHER_TYPE_INTERSHIP_HEAD_TEACHER = 4
-	CLASS_TEACHER_TYPE_GRADE_LEAD_TEACHER     = 5
-	CLASS_TEACHER_TYPE_ADMIN                  = 6
+	ClassJoinStatusPending  = 0
+	ClassJoinStatusApproved = 1
+	ClassJoinStatusRejected = 2
 )
 
+type ClassJoinRequest struct {
+	Model
+	ClassId uint   `json:"classId" gorm:"index"`
+	Class   *Class `json:"class,omitempty" gorm:"foreignKey:ClassId"`
+	UserId  uint   `json:"userId" gorm:"index"`
+	User    *User  `json:"user,omitempty" gorm:"foreignKey:UserId"`
+	Status  int    `json:"status" gorm:"default:0"` // 0: pending, 1: approved, 2: rejected
+	Message string `json:"message" gorm:"size:500"`
+}
+
+type ClassCreateEditRequest struct {
+	ID        uint   `json:"id"`
+	Name      string `json:"name"`
+	ClassType int    `json:"classType"` // 1: 教学班 (default), 2: 行政班
+}
+
 type ClassQuery struct {
-	ID                     uint `json:"id"`
-	TeacherId              uint `json:"-"`
-	TeacherType            uint `json:"teacherType"` // 1. 学科老师, 2. 班主任 3. 副班 4. 实习班主任
-	GradeId                uint `json:"gradeId"`
-	SubjectTeacherId       uint `json:"subjectTeacherId"`
-	ClassTypeId            uint `json:"classTypeId"`
-	HeadTeacherId          uint `json:"headTeacherId"`
-	DeputyHeadTeacherId    uint `json:"deputyHeadTeacherId" `
-	IntershipHeadTeacherId uint `json:"intershipHeadTeacherId"`
+	ID          uint   `json:"id"`
+	ClassType   int    `json:"classType"` // 0 = all, 1 = 教学班, 2 = 行政班
+	AdminUserId uint   `json:"adminUserId"`
+	InviteCode  string `json:"inviteCode"`
+	Page
+}
+
+type ClassJoinRequestQuery struct {
+	ClassId uint `json:"classId"`
+	UserId  uint `json:"userId"`
+	Status  *int `json:"status"`
 	Page
 }

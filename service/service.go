@@ -33,6 +33,7 @@ func setDB() {
 		db.AutoMigrate(&model.VocabularyItem{})
 		db.AutoMigrate(&model.VocabularySet{})
 		db.AutoMigrate(&model.Class{})
+		db.AutoMigrate(&model.ClassJoinRequest{})
 		db.AutoMigrate(&model.Teacher{})
 		db.AutoMigrate(&model.Grade{})
 		db.AutoMigrate(&model.ClassType{})

@@ -18,7 +18,6 @@ var classCmd = &cobra.Command{
 var (
 	classListPage     int
 	classListPageSize int
-	classListGradeID  uint
 )
 
 var classListCmd = &cobra.Command{
@@ -33,19 +32,24 @@ var classListCmd = &cobra.Command{
 		body := map[string]interface{}{
 			"pageIndex": classListPage,
 			"pageSize":  classListPageSize,
-			"gradeId":   classListGradeID,
 		}
 		if err := c.PostAndDecode("/v1/school/class/list", body, &result); err != nil {
 			return err
 		}
 		fmt.Printf("Total: %d\n\n", result.Total)
-		headers := []string{"ID", "Name", "GradeId"}
+		headers := []string{"ID", "Name", "Type", "InviteCode", "AdminUserId"}
 		rows := make([][]string, 0, len(result.List))
 		for _, item := range result.List {
+			classTypeStr := "教学班"
+			if t, ok := item["classType"].(float64); ok && int(t) == 2 {
+				classTypeStr = "行政班"
+			}
 			rows = append(rows, []string{
 				fmtFloat(item["id"]),
 				fmtStr(item["name"]),
-				fmtFloat(item["gradeId"]),
+				classTypeStr,
+				fmtStr(item["inviteCode"]),
+				fmtFloat(item["adminUserId"]),
 			})
 		}
 		printTable(headers, rows)
@@ -77,21 +81,25 @@ var classGetCmd = &cobra.Command{
 // ---- create ----
 
 var (
-	classCreateName    string
-	classCreateGradeID uint
+	classCreateName string
+	classCreateType int
 )
 
 var classCreateCmd = &cobra.Command{
 	Use:   "create",
-	Short: "Create a new class",
+	Short: "Create a new class (教师权限，自动生成邀请码)",
+	Long:  "Create a new class. --type 1 = 教学班 (default), --type 2 = 行政班 (each user may only belong to one)",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if classCreateName == "" {
 			return fmt.Errorf("--name is required")
 		}
+		if classCreateType != 1 && classCreateType != 2 {
+			classCreateType = 1
+		}
 		c := client.NewClient()
 		body := map[string]interface{}{
-			"name":    classCreateName,
-			"gradeId": classCreateGradeID,
+			"name":      classCreateName,
+			"classType": classCreateType,
 		}
 		var result interface{}
 		if err := c.PostAndDecode("/v1/school/class/create", body, &result); err != nil {
@@ -106,9 +114,8 @@ var classCreateCmd = &cobra.Command{
 // ---- edit ----
 
 var (
-	classEditID      uint
-	classEditName    string
-	classEditGradeID uint
+	classEditID   uint
+	classEditName string
 )
 
 var classEditCmd = &cobra.Command{
@@ -120,9 +127,8 @@ var classEditCmd = &cobra.Command{
 		}
 		c := client.NewClient()
 		body := map[string]interface{}{
-			"id":      classEditID,
-			"name":    classEditName,
-			"gradeId": classEditGradeID,
+			"id":   classEditID,
+			"name": classEditName,
 		}
 		if err := c.PostAndDecode("/v1/school/class/edit", body, nil); err != nil {
 			return err
@@ -202,7 +208,7 @@ var (
 
 var studentAddCmd = &cobra.Command{
 	Use:   "add",
-	Short: "Add a student to a class",
+	Short: "Directly add a student to a class (超级管理员专用)",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if studentAddClassID == 0 || studentAddUserID == 0 {
 			return fmt.Errorf("--class-id and --user-id are required")
@@ -227,7 +233,7 @@ var (
 
 var studentRemoveCmd = &cobra.Command{
 	Use:   "remove",
-	Short: "Remove a student from a class",
+	Short: "Remove a student from a class (管理员操作)",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if studentRemoveClassID == 0 || studentRemoveUserID == 0 {
 			return fmt.Errorf("--class-id and --user-id are required")
@@ -237,7 +243,7 @@ var studentRemoveCmd = &cobra.Command{
 			"classId": studentRemoveClassID,
 			"userId":  studentRemoveUserID,
 		}
-		if err := c.PostAndDecode("/v1/school/class/deleteStudent", body, nil); err != nil {
+		if err := c.PostAndDecode("/v1/school/class/removeStudent", body, nil); err != nil {
 			return err
 		}
 		fmt.Printf("User %d removed from class %d successfully.\n", studentRemoveUserID, studentRemoveClassID)
@@ -245,17 +251,145 @@ var studentRemoveCmd = &cobra.Command{
 	},
 }
 
+// ---- apply subcommand (学生申请加入班级) ----
+
+var (
+	applyInviteCode string
+	applyMessage    string
+)
+
+var applyCmd = &cobra.Command{
+	Use:   "apply",
+	Short: "Apply to join a class using an invite code (学生使用邀请码申请加入班级)",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if applyInviteCode == "" {
+			return fmt.Errorf("--invite-code is required")
+		}
+		c := client.NewClient()
+		body := map[string]interface{}{
+			"inviteCode": applyInviteCode,
+			"message":    applyMessage,
+		}
+		var result interface{}
+		if err := c.PostAndDecode("/v1/school/class/apply", body, &result); err != nil {
+			return err
+		}
+		fmt.Println("Application submitted successfully. Waiting for admin approval.")
+		prettyPrint(result)
+		return nil
+	},
+}
+
+// ---- request subcommand (管理员审核申请) ----
+
+var requestCmd = &cobra.Command{
+	Use:   "request",
+	Short: "Manage join requests (管理员审核入班申请)",
+}
+
+var (
+	requestListClassID uint
+	requestListPage    int
+	requestListSize    int
+)
+
+var requestListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List join requests for a class",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if requestListClassID == 0 {
+			return fmt.Errorf("--class-id is required")
+		}
+		c := client.NewClient()
+		var result struct {
+			List  []map[string]interface{} `json:"list"`
+			Total int                      `json:"total"`
+		}
+		pending := 0
+		body := map[string]interface{}{
+			"classId":   requestListClassID,
+			"status":    &pending,
+			"pageIndex": requestListPage,
+			"pageSize":  requestListSize,
+		}
+		if err := c.PostAndDecode("/v1/school/class/joinRequest/list", body, &result); err != nil {
+			return err
+		}
+		fmt.Printf("Total: %d\n\n", result.Total)
+		headers := []string{"ID", "UserId", "Username", "Status", "Message"}
+		rows := make([][]string, 0, len(result.List))
+		for _, item := range result.List {
+			statusStr := "pending"
+			if s, ok := item["status"].(float64); ok {
+				switch int(s) {
+				case 1:
+					statusStr = "approved"
+				case 2:
+					statusStr = "rejected"
+				}
+			}
+			username := ""
+			if u, ok := item["user"].(map[string]interface{}); ok {
+				username = fmtStr(u["username"])
+			}
+			rows = append(rows, []string{
+				fmtFloat(item["id"]),
+				fmtFloat(item["userId"]),
+				username,
+				statusStr,
+				fmtStr(item["message"]),
+			})
+		}
+		printTable(headers, rows)
+		return nil
+	},
+}
+
+var requestApproveCmd = &cobra.Command{
+	Use:   "approve <request-id>",
+	Short: "Approve a join request",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		id, err := strconv.Atoi(args[0])
+		if err != nil {
+			return fmt.Errorf("invalid request id: %s", args[0])
+		}
+		c := client.NewClient()
+		if err := c.PostAndDecode("/v1/school/class/joinRequest/approve", map[string]interface{}{"id": id}, nil); err != nil {
+			return err
+		}
+		fmt.Printf("Request %d approved successfully.\n", id)
+		return nil
+	},
+}
+
+var requestRejectCmd = &cobra.Command{
+	Use:   "reject <request-id>",
+	Short: "Reject a join request",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		id, err := strconv.Atoi(args[0])
+		if err != nil {
+			return fmt.Errorf("invalid request id: %s", args[0])
+		}
+		c := client.NewClient()
+		if err := c.PostAndDecode("/v1/school/class/joinRequest/reject", map[string]interface{}{"id": id}, nil); err != nil {
+			return err
+		}
+		fmt.Printf("Request %d rejected successfully.\n", id)
+		return nil
+	},
+}
+
 func init() {
 	classListCmd.Flags().IntVar(&classListPage, "page", 1, "Page number")
 	classListCmd.Flags().IntVar(&classListPageSize, "page-size", 20, "Page size")
-	classListCmd.Flags().UintVar(&classListGradeID, "grade-id", 0, "Filter by grade ID")
 
 	classCreateCmd.Flags().StringVar(&classCreateName, "name", "", "Class name (required)")
-	classCreateCmd.Flags().UintVar(&classCreateGradeID, "grade-id", 0, "Grade ID")
+	classCreateCmd.Flags().IntVar(&classCreateType, "type", 1, "Class type: 1=教学班 (default), 2=行政班")
 
 	classEditCmd.Flags().UintVar(&classEditID, "id", 0, "Class ID (required)")
 	classEditCmd.Flags().StringVar(&classEditName, "name", "", "Class name")
-	classEditCmd.Flags().UintVar(&classEditGradeID, "grade-id", 0, "Grade ID")
 
 	studentListCmd.Flags().UintVar(&studentListClassID, "class-id", 0, "Class ID (required)")
 
@@ -265,9 +399,20 @@ func init() {
 	studentRemoveCmd.Flags().UintVar(&studentRemoveClassID, "class-id", 0, "Class ID (required)")
 	studentRemoveCmd.Flags().UintVar(&studentRemoveUserID, "user-id", 0, "User ID (required)")
 
+	applyCmd.Flags().StringVar(&applyInviteCode, "invite-code", "", "Invite code (required)")
+	applyCmd.Flags().StringVar(&applyMessage, "message", "", "Optional message to the admin")
+
+	requestListCmd.Flags().UintVar(&requestListClassID, "class-id", 0, "Class ID (required)")
+	requestListCmd.Flags().IntVar(&requestListPage, "page", 1, "Page number")
+	requestListCmd.Flags().IntVar(&requestListSize, "page-size", 20, "Page size")
+
 	studentCmd.AddCommand(studentListCmd)
 	studentCmd.AddCommand(studentAddCmd)
 	studentCmd.AddCommand(studentRemoveCmd)
+
+	requestCmd.AddCommand(requestListCmd)
+	requestCmd.AddCommand(requestApproveCmd)
+	requestCmd.AddCommand(requestRejectCmd)
 
 	classCmd.AddCommand(classListCmd)
 	classCmd.AddCommand(classGetCmd)
@@ -275,4 +420,7 @@ func init() {
 	classCmd.AddCommand(classEditCmd)
 	classCmd.AddCommand(classDeleteCmd)
 	classCmd.AddCommand(studentCmd)
+	classCmd.AddCommand(applyCmd)
+	classCmd.AddCommand(requestCmd)
 }
+
