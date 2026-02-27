@@ -255,13 +255,13 @@ var planRollbackCmd = &cobra.Command{
 // ---- generate-template ----
 
 var (
-	genTplClassID      uint
-	genTplSyllabusID   uint
-	genTplStartMonth   string
-	genTplEndMonth     string
-	genTplPhaseRatios  string
-	genTplExamNodeMode string
-	genTplComment      string
+	genTplClassID     uint
+	genTplSyllabusID  uint
+	genTplStartMonth  string
+	genTplEndMonth    string
+	genTplPhaseRatios string
+	genTplExamNodes   []string // repeatable: "id:startMonth:endMonth"
+	genTplComment     string
 )
 
 var planGenerateTemplateCmd = &cobra.Command{
@@ -270,9 +270,6 @@ var planGenerateTemplateCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if genTplClassID == 0 || genTplSyllabusID == 0 {
 			return fmt.Errorf("--class-id and --syllabus-id are required")
-		}
-		if genTplStartMonth == "" || genTplEndMonth == "" {
-			return fmt.Errorf("--start-month and --end-month are required")
 		}
 
 		// Parse comma-separated phase ratios into []int.
@@ -289,16 +286,47 @@ var planGenerateTemplateCmd = &cobra.Command{
 			ratios[i] = v
 		}
 
-		c := client.NewClient()
 		body := map[string]interface{}{
-			"classId":      genTplClassID,
-			"syllabusId":   genTplSyllabusID,
-			"startMonth":   genTplStartMonth,
-			"endMonth":     genTplEndMonth,
-			"phaseRatios":  ratios,
-			"examNodeMode": genTplExamNodeMode,
-			"comment":      genTplComment,
+			"classId":     genTplClassID,
+			"syllabusId":  genTplSyllabusID,
+			"phaseRatios": ratios,
+			"comment":     genTplComment,
 		}
+
+		if len(genTplExamNodes) > 0 {
+			// Parse each "--exam-node id:startMonth:endMonth" entry.
+			type examNodeSchedule struct {
+				ExamNodeId uint   `json:"examNodeId"`
+				StartMonth string `json:"startMonth"`
+				EndMonth   string `json:"endMonth"`
+			}
+			schedules := make([]examNodeSchedule, 0, len(genTplExamNodes))
+			for _, entry := range genTplExamNodes {
+				segments := strings.Split(entry, ":")
+				if len(segments) != 3 {
+					return fmt.Errorf("invalid --exam-node format %q; expected id:YYYY-MM:YYYY-MM (e.g. 1:2026-01:2026-03)", entry)
+				}
+				id, err := strconv.ParseUint(strings.TrimSpace(segments[0]), 10, 64)
+				if err != nil {
+					return fmt.Errorf("invalid exam node id in %q: %v", entry, err)
+				}
+				schedules = append(schedules, examNodeSchedule{
+					ExamNodeId: uint(id),
+					StartMonth: strings.TrimSpace(segments[1]),
+					EndMonth:   strings.TrimSpace(segments[2]),
+				})
+			}
+			body["examNodes"] = schedules
+		} else {
+			// Fallback: global start/end month (auto-distribute evenly across all nodes).
+			if genTplStartMonth == "" || genTplEndMonth == "" {
+				return fmt.Errorf("either --exam-node or both --start-month and --end-month are required")
+			}
+			body["startMonth"] = genTplStartMonth
+			body["endMonth"] = genTplEndMonth
+		}
+
+		c := client.NewClient()
 		var result struct {
 			StudentCount int      `json:"studentCount"`
 			Count        int      `json:"count"`
@@ -345,10 +373,10 @@ func init() {
 
 	planGenerateTemplateCmd.Flags().UintVar(&genTplClassID, "class-id", 0, "Target teaching class ID (required)")
 	planGenerateTemplateCmd.Flags().UintVar(&genTplSyllabusID, "syllabus-id", 0, "Syllabus ID to base plans on (required)")
-	planGenerateTemplateCmd.Flags().StringVar(&genTplStartMonth, "start-month", "", "Start month in YYYY-MM format (required)")
-	planGenerateTemplateCmd.Flags().StringVar(&genTplEndMonth, "end-month", "", "End month in YYYY-MM format (required)")
+	planGenerateTemplateCmd.Flags().StringArrayVar(&genTplExamNodes, "exam-node", nil, "Per-exam-node schedule in id:YYYY-MM:YYYY-MM format (repeatable); e.g. --exam-node 1:2026-01:2026-03 --exam-node 2:2026-04:2026-06")
+	planGenerateTemplateCmd.Flags().StringVar(&genTplStartMonth, "start-month", "", "Global start month YYYY-MM (used when --exam-node is not provided)")
+	planGenerateTemplateCmd.Flags().StringVar(&genTplEndMonth, "end-month", "", "Global end month YYYY-MM (used when --exam-node is not provided)")
 	planGenerateTemplateCmd.Flags().StringVar(&genTplPhaseRatios, "phase-ratios", "30,20,20,10", "Comma-separated phase ratios summing to <=100, e.g. 30,20,20,10")
-	planGenerateTemplateCmd.Flags().StringVar(&genTplExamNodeMode, "exam-node-mode", "sequential", "How to arrange exam nodes: 'sequential' (one after another) or 'parallel' (simultaneously)")
 	planGenerateTemplateCmd.Flags().StringVar(&genTplComment, "comment", "", "Version comment for the initial plans")
 
 	learningPlanCmd.AddCommand(planListCmd)

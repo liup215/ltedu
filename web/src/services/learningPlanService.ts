@@ -84,10 +84,10 @@ class LearningPlanService {
   async generateTemplate(req: {
     classId: number;
     syllabusId: number;
-    startMonth: string;
-    endMonth: string;
+    startMonth?: string;
+    endMonth?: string;
     phaseRatios: number[];
-    examNodeMode?: string;
+    examNodes?: { examNodeId: number; startMonth: string; endMonth: string }[];
     comment?: string;
   }): Promise<ApiResponse<{ studentCount: number; count: number; errors?: string[] }>> {
     const client = await apiClient()

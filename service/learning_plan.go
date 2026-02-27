@@ -514,6 +514,165 @@ func buildLongPlanContent(ratios []int, startTime time.Time, totalMonths int, mo
 	return string(b), longInfos, nil
 }
 
+// buildLongPlanContentPerNode builds the long-term plan from per-node independent time ranges (Plan A).
+// Each ExamNodeSchedule specifies its own startMonth/endMonth; nodes are processed independently.
+// Nodes with overlapping time ranges run in parallel (by calendar), nodes with non-overlapping ranges
+// run sequentially — this is implicit in the schedule and requires no special mode flag.
+//
+// Each node's time span is divided among active phases using phaseRatios proportionally.
+// Chapters of each node are also divided among phases by the same ratios.
+// When PhaseRatios don't sum to 100, they are treated as relative weights.
+// Zero-ratio phases are skipped.
+func buildLongPlanContentPerNode(ratios []int, schedules []model.ExamNodeSchedule, nodeMap map[uint]*model.SyllabusExamNode) (string, []longPhaseInfo, error) {
+	type activePhase struct {
+		index int
+		ratio int
+	}
+	var activePhases []activePhase
+	for i, r := range ratios {
+		if r > 0 {
+			activePhases = append(activePhases, activePhase{index: i, ratio: r})
+		}
+	}
+
+	distributeMonths := func(nMonths int) []int {
+		sumRatio := 0
+		for _, p := range activePhases {
+			sumRatio += p.ratio
+		}
+		months := make([]int, len(activePhases))
+		alloc := 0
+		for i, p := range activePhases {
+			m := int(math.Round(float64(nMonths) * float64(p.ratio) / float64(sumRatio)))
+			if m < 1 {
+				m = 1
+			}
+			months[i] = m
+			alloc += m
+		}
+		for i := len(activePhases) - 1; i >= 0 && alloc > nMonths; i-- {
+			excess := alloc - nMonths
+			reduce := months[i] - 1
+			if reduce > excess {
+				reduce = excess
+			}
+			months[i] -= reduce
+			alloc -= reduce
+		}
+		return months
+	}
+
+	distributeChapters := func(chapters []*model.Chapter) []int {
+		n := len(chapters)
+		sumRatio := 0
+		for _, p := range activePhases {
+			sumRatio += p.ratio
+		}
+		ends := make([]int, len(activePhases))
+		idx := 0
+		for i, p := range activePhases {
+			count := int(math.Round(float64(n) * float64(p.ratio) / float64(sumRatio)))
+			end := idx + count
+			if end > n {
+				end = n
+			}
+			ends[i] = end
+			idx = end
+		}
+		if idx < n {
+			ends[len(ends)-1] = n
+		}
+		return ends
+	}
+
+	type nodePhaseJSON struct {
+		Name         string   `json:"name"`
+		StartMonth   string   `json:"startMonth"`
+		EndMonth     string   `json:"endMonth"`
+		Chapters     []string `json:"chapters"`
+		DrillEnabled bool     `json:"drillEnabled"`
+	}
+	type nodeJSON struct {
+		ID         uint            `json:"id"`
+		Name       string          `json:"name"`
+		StartMonth string          `json:"startMonth"`
+		EndMonth   string          `json:"endMonth"`
+		Phases     []nodePhaseJSON `json:"phases"`
+	}
+
+	var nodesJSON []nodeJSON
+	var longInfos []longPhaseInfo
+
+	for _, sched := range schedules {
+		node, ok := nodeMap[sched.ExamNodeId]
+		if !ok {
+			return "", nil, fmt.Errorf("考试节点 %d 不存在", sched.ExamNodeId)
+		}
+		nodeStart, err := parseYearMonth(sched.StartMonth)
+		if err != nil {
+			return "", nil, fmt.Errorf("考试节点 %d 的 startMonth 无效: %v", sched.ExamNodeId, err)
+		}
+		nodeEnd, err := parseYearMonth(sched.EndMonth)
+		if err != nil {
+			return "", nil, fmt.Errorf("考试节点 %d 的 endMonth 无效: %v", sched.ExamNodeId, err)
+		}
+		if nodeEnd.Before(nodeStart) {
+			return "", nil, fmt.Errorf("考试节点 %d 的 endMonth 不能早于 startMonth", sched.ExamNodeId)
+		}
+
+		nodeMonths := monthsBetween(nodeStart, nodeEnd)
+		phaseMonths := distributeMonths(nodeMonths)
+		chapEnds := distributeChapters(node.Chapters)
+
+		var phasesJSON []nodePhaseJSON
+		curMonth := nodeStart
+		chapStart := 0
+		for i, ap := range activePhases {
+			phaseStart := curMonth
+			phaseEnd := curMonth.AddDate(0, phaseMonths[i]-1, 0)
+
+			chapSlice := node.Chapters[chapStart:chapEnds[i]]
+			chapNames := make([]string, 0, len(chapSlice))
+			for _, ch := range chapSlice {
+				chapNames = append(chapNames, ch.Name)
+			}
+
+			phasesJSON = append(phasesJSON, nodePhaseJSON{
+				Name:         phaseNames[ap.index],
+				StartMonth:   phaseStart.Format("2006-01"),
+				EndMonth:     phaseEnd.Format("2006-01"),
+				Chapters:     chapNames,
+				DrillEnabled: phaseDrillEnabled[ap.index],
+			})
+			longInfos = append(longInfos, longPhaseInfo{
+				StartMonth: phaseStart,
+				EndMonth:   phaseEnd,
+				Chapters:   chapSlice,
+			})
+
+			chapStart = chapEnds[i]
+			curMonth = phaseEnd.AddDate(0, 1, 0)
+		}
+
+		nodesJSON = append(nodesJSON, nodeJSON{
+			ID:         node.ID,
+			Name:       node.Name,
+			StartMonth: nodeStart.Format("2006-01"),
+			EndMonth:   nodeEnd.Format("2006-01"),
+			Phases:     phasesJSON,
+		})
+	}
+
+	b, err := json.Marshal(struct {
+		Mode  string     `json:"mode"`
+		Nodes []nodeJSON `json:"examNodes"`
+	}{Mode: "per-node", Nodes: nodesJSON})
+	if err != nil {
+		return "", nil, err
+	}
+	return string(b), longInfos, nil
+}
+
 // buildMidPlanContent generates the JSON content for the mid-term plan (8-week schedule)
 // using chapters from the first 2 months of the long-term plan.
 func buildMidPlanContent(longPhases []longPhaseInfo, startTime time.Time, allChapters []*model.Chapter) (string, []midWeekInfo, error) {
@@ -673,20 +832,6 @@ func (svr *LearningPlanService) GenerateTemplatePlans(req model.GeneratePlansReq
 		return nil, errors.New("phaseRatios 之和不能超过 100")
 	}
 
-	startTime, err := parseYearMonth(req.StartMonth)
-	if err != nil {
-		return nil, fmt.Errorf("无效的 startMonth: %v", err)
-	}
-	endTime, err := parseYearMonth(req.EndMonth)
-	if err != nil {
-		return nil, fmt.Errorf("无效的 endMonth: %v", err)
-	}
-	if endTime.Before(startTime) {
-		return nil, errors.New("endMonth 不能早于 startMonth")
-	}
-
-	totalMonths := monthsBetween(startTime, endTime)
-
 	// Fetch exam nodes for the syllabus (ordered by sort_order ASC).
 	examNodes, err := repository.ExamNodeRepo.FindBySyllabusID(req.SyllabusId)
 	if err != nil {
@@ -702,17 +847,54 @@ func (svr *LearningPlanService) GenerateTemplatePlans(req model.GeneratePlansReq
 		return nil, fmt.Errorf("获取章节失败: %v", err)
 	}
 
-	// Default mode is sequential.
-	mode := req.ExamNodeMode
-	if mode != ExamNodeModeParallel {
-		mode = ExamNodeModeSequential
+	var longContent string
+	var longPhases []longPhaseInfo
+	var startTime time.Time
+
+	if len(req.ExamNodes) > 0 {
+		// Plan A: per-node independent time ranges.
+		// Build a map from examNodeId -> examNode for fast lookup.
+		nodeMap := make(map[uint]*model.SyllabusExamNode, len(examNodes))
+		for _, n := range examNodes {
+			nodeMap[n.ID] = n
+		}
+		longContent, longPhases, err = buildLongPlanContentPerNode(req.PhaseRatios, req.ExamNodes, nodeMap)
+		if err != nil {
+			return nil, fmt.Errorf("生成长期计划失败: %v", err)
+		}
+		// Use the earliest startMonth across all schedules as the anchor for mid/short plans.
+		for i, sched := range req.ExamNodes {
+			t, parseErr := parseYearMonth(sched.StartMonth)
+			if parseErr != nil {
+				return nil, fmt.Errorf("考试节点 %d 的 startMonth 无效: %v", sched.ExamNodeId, parseErr)
+			}
+			if i == 0 || t.Before(startTime) {
+				startTime = t
+			}
+		}
+	} else {
+		// Fallback: global startMonth/endMonth with sequential distribution.
+		if req.StartMonth == "" || req.EndMonth == "" {
+			return nil, errors.New("examNodes 为空时 startMonth 和 endMonth 不能为空")
+		}
+		startTime, err = parseYearMonth(req.StartMonth)
+		if err != nil {
+			return nil, fmt.Errorf("无效的 startMonth: %v", err)
+		}
+		endTime, err := parseYearMonth(req.EndMonth)
+		if err != nil {
+			return nil, fmt.Errorf("无效的 endMonth: %v", err)
+		}
+		if endTime.Before(startTime) {
+			return nil, errors.New("endMonth 不能早于 startMonth")
+		}
+		totalMonths := monthsBetween(startTime, endTime)
+		longContent, longPhases, err = buildLongPlanContent(req.PhaseRatios, startTime, totalMonths, ExamNodeModeSequential, examNodes)
+		if err != nil {
+			return nil, fmt.Errorf("生成长期计划失败: %v", err)
+		}
 	}
 
-	// Build the three plan contents.
-	longContent, longPhases, err := buildLongPlanContent(req.PhaseRatios, startTime, totalMonths, mode, examNodes)
-	if err != nil {
-		return nil, fmt.Errorf("生成长期计划失败: %v", err)
-	}
 	midContent, midWeeks, err := buildMidPlanContent(longPhases, startTime, allChapters)
 	if err != nil {
 		return nil, fmt.Errorf("生成中期计划失败: %v", err)

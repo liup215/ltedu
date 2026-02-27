@@ -67,15 +67,24 @@ type StudentLearningPlanRollbackRequest struct {
 	Comment string `json:"comment"`
 }
 
+// ExamNodeSchedule 单个考试节点的时间安排（方案A：每节点独立起止时间）
+type ExamNodeSchedule struct {
+	ExamNodeId uint   `json:"examNodeId"` // 考试节点 ID
+	StartMonth string `json:"startMonth"` // "YYYY-MM"
+	EndMonth   string `json:"endMonth"`   // "YYYY-MM"
+}
+
 // GeneratePlansRequest 批量生成模板学习计划请求
+// 使用 ExamNodes 为每个考试节点独立指定起止时间（推荐）。
+// 当 ExamNodes 为空时，退回到全局 StartMonth/EndMonth 均分模式。
 type GeneratePlansRequest struct {
-	ClassId      uint   `json:"classId" binding:"required"`
-	SyllabusId   uint   `json:"syllabusId" binding:"required"`
-	StartMonth   string `json:"startMonth" binding:"required"` // "YYYY-MM"
-	EndMonth     string `json:"endMonth" binding:"required"`   // "YYYY-MM"
-	PhaseRatios  []int  `json:"phaseRatios" binding:"required"` // e.g. [30,20,20,10]
-	ExamNodeMode string `json:"examNodeMode"` // "sequential" | "parallel" (default: "sequential")
-	Comment      string `json:"comment"`
+	ClassId     uint               `json:"classId" binding:"required"`
+	SyllabusId  uint               `json:"syllabusId" binding:"required"`
+	StartMonth  string             `json:"startMonth"` // 全局起始月（ExamNodes 为空时必填）
+	EndMonth    string             `json:"endMonth"`   // 全局终止月（ExamNodes 为空时必填）
+	PhaseRatios []int              `json:"phaseRatios" binding:"required"` // e.g. [30,20,20,10]
+	ExamNodes   []ExamNodeSchedule `json:"examNodes"` // 每节点独立时间安排（优先使用）
+	Comment     string             `json:"comment"`
 }
 
 // GeneratePlansResult 批量生成模板学习计划结果

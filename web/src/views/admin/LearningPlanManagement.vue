@@ -156,30 +156,27 @@
 
     <!-- Generate Template Plans Modal -->
     <div v-if="showGenerateModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-6">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
         <h2 class="text-lg font-semibold text-gray-900 mb-4">{{ t('learningPlan.generateTemplate') }}</h2>
         <p class="text-sm text-gray-600 mb-4">{{ t('learningPlan.generateTemplateDesc') }}</p>
         <div class="space-y-4">
+          <!-- Per-exam-node time range pickers -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('learningPlan.startMonth') }} (YYYY-MM)</label>
-            <input v-model="genForm.startMonth" type="month" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('learningPlan.endMonth') }} (YYYY-MM)</label>
-            <input v-model="genForm.endMonth" type="month" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('learningPlan.examNodeMode') }}</label>
-            <p class="text-xs text-gray-500 mb-2">{{ t('learningPlan.examNodeModeDesc') }}</p>
-            <div class="flex gap-3">
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="radio" v-model="genForm.examNodeMode" value="sequential" class="text-green-600 focus:ring-green-500" />
-                <span class="text-sm text-gray-700">{{ t('learningPlan.examNodeModeSequential') }}</span>
-              </label>
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="radio" v-model="genForm.examNodeMode" value="parallel" class="text-green-600 focus:ring-green-500" />
-                <span class="text-sm text-gray-700">{{ t('learningPlan.examNodeModeParallel') }}</span>
-              </label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('learningPlan.examNodeSchedules') }}</label>
+            <p class="text-xs text-gray-500 mb-2">{{ t('learningPlan.examNodeSchedulesDesc') }}</p>
+            <div v-if="genForm.examNodes.length === 0" class="text-sm text-gray-400 italic">{{ t('learningPlan.noExamNodesFound') }}</div>
+            <div v-for="(node, idx) in genForm.examNodes" :key="node.examNodeId" class="mb-3 p-3 border border-gray-200 rounded-md">
+              <p class="text-sm font-medium text-gray-700 mb-2">{{ node.name }}</p>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs text-gray-500 mb-1">{{ t('learningPlan.startMonth') }}</label>
+                  <input v-model="genForm.examNodes[idx].startMonth" type="month" class="w-full border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+                </div>
+                <div>
+                  <label class="block text-xs text-gray-500 mb-1">{{ t('learningPlan.endMonth') }}</label>
+                  <input v-model="genForm.examNodes[idx].endMonth" type="month" class="w-full border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+                </div>
+              </div>
             </div>
           </div>
           <div>
@@ -236,6 +233,7 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import learningPlanService from '../../services/learningPlanService'
 import classService from '../../services/classService'
+import examNodeService from '../../services/examNodeService'
 import type { StudentLearningPlan, StudentLearningPlanVersion } from '../../models/learningPlan.model'
 
 const { t } = useI18n()
@@ -368,17 +366,38 @@ async function doDelete() {
 const showGenerateModal = ref(false)
 const generating = ref(false)
 const generateResult = ref<any>(null)
+const syllabusExamNodes = ref<{ id: number; name: string }[]>([])
 const genForm = ref({
-  startMonth: '',
-  endMonth: '',
   phaseRatios: [30, 20, 20, 10],
-  examNodeMode: 'sequential',
+  examNodes: [] as { examNodeId: number; name: string; startMonth: string; endMonth: string }[],
   comment: ''
 })
 const phaseLabels = ['新课学习(%)', '一轮复习(%)', '专题综合(%)', '集中刷题(%)']
 
-function openGenerateModal() {
+async function openGenerateModal() {
   generateResult.value = null
+  // Load exam nodes for the bound syllabus.
+  syllabusExamNodes.value = []
+  if (classInfo.value?.syllabusId) {
+    try {
+      const res = await examNodeService.list(classInfo.value.syllabusId)
+      if (res.code === 0) {
+        const nodes: { id: number; name: string }[] = (res.data?.list ?? []).map(
+          (n: { id: number; name: string }) => ({ id: n.id, name: n.name })
+        )
+        syllabusExamNodes.value = nodes
+        // Pre-fill examNodes with empty time ranges.
+        genForm.value.examNodes = nodes.map(n => ({
+          examNodeId: n.id,
+          name: n.name,
+          startMonth: '',
+          endMonth: ''
+        }))
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
   showGenerateModal.value = true
 }
 
@@ -388,7 +407,12 @@ function closeGenerateModal() {
 }
 
 async function submitGenerate() {
-  if (!genForm.value.startMonth || !genForm.value.endMonth) return
+  const hasAllTimes = genForm.value.examNodes.length > 0 &&
+    genForm.value.examNodes.every(n => n.startMonth && n.endMonth)
+  if (!hasAllTimes) {
+    alert(t('learningPlan.examNodesTimeRequired'))
+    return
+  }
   if (!classInfo.value?.syllabusId) {
     alert(t('learningPlan.noSyllabus'))
     return
@@ -399,10 +423,12 @@ async function submitGenerate() {
     const res = await learningPlanService.generateTemplate({
       classId,
       syllabusId: classInfo.value.syllabusId,
-      startMonth: genForm.value.startMonth,
-      endMonth: genForm.value.endMonth,
       phaseRatios: genForm.value.phaseRatios,
-      examNodeMode: genForm.value.examNodeMode,
+      examNodes: genForm.value.examNodes.map(n => ({
+        examNodeId: n.examNodeId,
+        startMonth: n.startMonth,
+        endMonth: n.endMonth
+      })),
       comment: genForm.value.comment
     })
     if (res.code === 0) generateResult.value = res.data
