@@ -180,7 +180,7 @@ async function loadNodes() {
   loading.value = true
   try {
     const res = await examNodeService.list(syllabusId)
-    if (res.code === 0) nodes.value = res.data.list
+    if (res.code === 0) nodes.value = res.data.list ?? []
   } catch (e) {
     console.error(e)
   } finally {

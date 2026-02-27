@@ -183,7 +183,7 @@ async function loadPhasePlans() {
   loading.value = true
   try {
     const res = await learningPlanService.listPhasePlans(planId)
-    if (res.code === 0) phasePlans.value = res.data.list
+    if (res.code === 0) phasePlans.value = res.data.list ?? []
   } catch (e) {
     console.error(e)
   } finally {
@@ -211,7 +211,7 @@ async function loadParentPlan() {
 async function loadExamNodes(syllabusId: number) {
   try {
     const res = await examNodeService.list(syllabusId)
-    if (res.code === 0) examNodes.value = res.data.list
+    if (res.code === 0) examNodes.value = res.data.list ?? []
   } catch (e) {
     console.error(e)
   }
