@@ -47,13 +47,15 @@ const (
 
 type Class struct {
 	Model
-	Name        string  `json:"name"`
-	ClassType   int     `json:"classType" gorm:"default:1"` // 1: 教学班, 2: 行政班
-	InviteCode  string  `json:"inviteCode" gorm:"uniqueIndex;size:32"`
-	AdminUserId uint    `json:"adminUserId" gorm:"index"`
-	AdminUser   *User   `json:"adminUser,omitempty" gorm:"foreignKey:AdminUserId"`
-	Students    []*User `json:"students" gorm:"many2many:user_class_relation;"`
-	Teachers    []*User `json:"teachers,omitempty" gorm:"many2many:class_teacher_relation;"`
+ 	Name        string    `json:"name"`
+	ClassType   int       `json:"classType" gorm:"default:1"` // 1: 教学班, 2: 行政班
+	InviteCode  string    `json:"inviteCode" gorm:"uniqueIndex;size:32"`
+	AdminUserId uint      `json:"adminUserId" gorm:"index"`
+	AdminUser   *User     `json:"adminUser,omitempty" gorm:"foreignKey:AdminUserId"`
+	Students    []*User   `json:"students" gorm:"many2many:user_class_relation;"`
+	Teachers    []*User   `json:"teachers,omitempty" gorm:"many2many:class_teacher_relation;"`
+	SyllabusId  *uint     `json:"syllabusId,omitempty" gorm:"index"` // 教学班绑定的syllabus（仅教学班使用）
+	Syllabus    *Syllabus `json:"syllabus,omitempty" gorm:"foreignKey:SyllabusId"`
 }
 
 const (

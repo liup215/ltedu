@@ -39,6 +39,9 @@ func init() {
 	rootCmd.AddCommand(paperCmd)
 	rootCmd.AddCommand(userCmd)
 	rootCmd.AddCommand(classCmd)
+	rootCmd.AddCommand(learningPlanCmd)
+	rootCmd.AddCommand(examNodeCmd)
+	rootCmd.AddCommand(phasePlanCmd)
 	rootCmd.AddCommand(teacherCmd)
 }
 

@@ -44,6 +44,9 @@ var (
 	KnowledgePointRepo   IKnowledgePointRepository
 	ClassRepo                    IClassRepository
 	ClassJoinRequestRepo         IClassJoinRequestRepository
+	StudentLearningPlanRepo      IStudentLearningPlanRepository
+	ExamNodeRepo                 IExamNodeRepository
+	PhasePlanRepo                IPhasePlanRepository
 	ClassTeacherApplicationRepo  IClassTeacherApplicationRepository
 )
 
@@ -95,6 +98,9 @@ func InitRepositories(db *gorm.DB) {
 	KnowledgePointRepo = NewKnowledgePointRepository(db)
 	ClassRepo = NewClassRepository(db)
 	ClassJoinRequestRepo = NewClassJoinRequestRepository(db)
+	StudentLearningPlanRepo = NewStudentLearningPlanRepository(db)
+	ExamNodeRepo = NewExamNodeRepository(db)
+	PhasePlanRepo = NewPhasePlanRepository(db)
 	ClassTeacherApplicationRepo = NewClassTeacherApplicationRepository(db)
 	// ... 其他repository按需添加
 }

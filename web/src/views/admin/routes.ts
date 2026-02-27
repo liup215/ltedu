@@ -164,6 +164,26 @@ const adminRoutes: RouteRecordRaw[] = [
         path: 'mcp-tokens',
         name: 'AdminMCPTokenManagement',
         component: () => import('./MCPTokenManagement.vue')
+      },
+      {
+        path: 'classes',
+        name: 'AdminClassManagement',
+        component: () => import('./ClassManagement.vue')
+      },
+      {
+        path: 'syllabuses/:syllabusId/exam-nodes',
+        name: 'AdminExamNodeManagement',
+        component: () => import('./ExamNodeManagement.vue')
+      },
+      {
+        path: 'classes/:classId/learning-plans',
+        name: 'AdminLearningPlanManagement',
+        component: () => import('./LearningPlanManagement.vue')
+      },
+      {
+        path: 'learning-plans/:planId/phase-plans',
+        name: 'AdminPhasePlanManagement',
+        component: () => import('./PhasePlanManagement.vue')
       }
     ]
   }

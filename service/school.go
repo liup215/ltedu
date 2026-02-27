@@ -154,6 +154,41 @@ func (svr *SchoolService) EditClass(req model.ClassCreateEditRequest) error {
 	return repository.ClassRepo.Update(class)
 }
 
+// BindClassSyllabus 将syllabus绑定到教学班（教学班专属功能）
+func (svr *SchoolService) BindClassSyllabus(classId, syllabusId, operatorId uint) error {
+	class, err := repository.ClassRepo.FindByID(classId)
+	if err != nil || class == nil {
+		return errors.New("班级不存在")
+	}
+	if class.ClassType != model.ClassTypeTeaching {
+		return errors.New("只有教学班可以绑定syllabus")
+	}
+	if err := svr.checkClassAdminPermission(class, operatorId); err != nil {
+		return err
+	}
+	syllabus, err := repository.SyllabusRepo.FindByID(syllabusId)
+	if err != nil || syllabus == nil {
+		return errors.New("syllabus不存在")
+	}
+	updated := &model.Class{
+		Model:      model.Model{ID: classId},
+		SyllabusId: &syllabusId,
+	}
+	return repository.ClassRepo.Update(updated)
+}
+
+// UnbindClassSyllabus 解除教学班的syllabus绑定
+func (svr *SchoolService) UnbindClassSyllabus(classId, operatorId uint) error {
+	class, err := repository.ClassRepo.FindByID(classId)
+	if err != nil || class == nil {
+		return errors.New("班级不存在")
+	}
+	if err := svr.checkClassAdminPermission(class, operatorId); err != nil {
+		return err
+	}
+	return repository.DB.Model(&model.Class{}).Where("id = ?", classId).Update("syllabus_id", nil).Error
+}
+
 func (svr *SchoolService) DeleteClass(id uint) error {
 	if id == 0 {
 		return errors.New("无效的ID")

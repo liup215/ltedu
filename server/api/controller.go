@@ -289,6 +289,8 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/school/class/joinRequest/list", v1.SchoolCtrl.ListJoinRequests)
 	r.POST("/v1/school/class/joinRequest/approve", v1.SchoolCtrl.ApproveJoinRequest)
 	r.POST("/v1/school/class/joinRequest/reject", v1.SchoolCtrl.RejectJoinRequest)
+	r.POST("/v1/school/class/bindSyllabus", v1.SchoolCtrl.BindClassSyllabus)
+	r.POST("/v1/school/class/unbindSyllabus", v1.SchoolCtrl.UnbindClassSyllabus)
 	r.POST("/v1/school/class/teacherList", v1.SchoolCtrl.GetTeachersByClassId)
 	r.POST("/v1/school/class/assignTeacher", v1.SchoolCtrl.AssignTeacherToClass)
 	r.POST("/v1/school/class/removeTeacher", v1.SchoolCtrl.RemoveTeacherFromClass)
@@ -345,4 +347,34 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/question/auto-link-keypoints", v1.KnowledgePointCtrl.AutoLinkQuestion)
 	r.POST("/v1/question/auto-link-keypoints-intelligent", v1.KnowledgePointCtrl.AutoLinkQuestionIntelligent)
 	r.POST("/v1/syllabus/auto-migrate-keypoints", v1.KnowledgePointCtrl.AutoMigrateSyllabus)
+
+	// Learning Plan endpoints
+	r.POST("/v1/learning-plan/create", v1.LearningPlanCtrl.CreatePlan)
+	r.POST("/v1/learning-plan/edit", v1.LearningPlanCtrl.UpdatePlan)
+	r.POST("/v1/learning-plan/delete", v1.LearningPlanCtrl.DeletePlan)
+	r.POST("/v1/learning-plan/byId", v1.LearningPlanCtrl.GetPlanById)
+	r.POST("/v1/learning-plan/list", v1.LearningPlanCtrl.ListPlans)
+	r.POST("/v1/learning-plan/versions", v1.LearningPlanCtrl.ListPlanVersions)
+	r.POST("/v1/learning-plan/rollback", v1.LearningPlanCtrl.RollbackPlan)
+	r.POST("/v1/learning-plan/generateTemplate", v1.LearningPlanCtrl.GenerateTemplatePlans)
+
+	// Syllabus Exam Node endpoints
+	r.POST("/v1/syllabus/examNode/create", v1.ExamNodeCtrl.CreateExamNode)
+	r.POST("/v1/syllabus/examNode/edit", v1.ExamNodeCtrl.UpdateExamNode)
+	r.POST("/v1/syllabus/examNode/delete", v1.ExamNodeCtrl.DeleteExamNode)
+	r.POST("/v1/syllabus/examNode/byId", v1.ExamNodeCtrl.GetExamNodeById)
+	r.POST("/v1/syllabus/examNode/list", v1.ExamNodeCtrl.ListExamNodes)
+	r.POST("/v1/syllabus/examNode/chapter/add", v1.ExamNodeCtrl.AddChapter)
+	r.POST("/v1/syllabus/examNode/chapter/remove", v1.ExamNodeCtrl.RemoveChapter)
+	r.POST("/v1/syllabus/examNode/paperCode/add", v1.ExamNodeCtrl.AddPaperCode)
+	r.POST("/v1/syllabus/examNode/paperCode/remove", v1.ExamNodeCtrl.RemovePaperCode)
+
+	// Phase Plan endpoints
+	r.POST("/v1/learning-plan/phase/create", v1.PhasePlanCtrl.CreatePhasePlan)
+	r.POST("/v1/learning-plan/phase/edit", v1.PhasePlanCtrl.UpdatePhasePlan)
+	r.POST("/v1/learning-plan/phase/delete", v1.PhasePlanCtrl.DeletePhasePlan)
+	r.POST("/v1/learning-plan/phase/byId", v1.PhasePlanCtrl.GetPhasePlanById)
+	r.POST("/v1/learning-plan/phase/list", v1.PhasePlanCtrl.ListPhasePlans)
+	r.POST("/v1/learning-plan/phase/chapter/add", v1.PhasePlanCtrl.AddChapter)
+	r.POST("/v1/learning-plan/phase/chapter/remove", v1.PhasePlanCtrl.RemoveChapter)
 }
