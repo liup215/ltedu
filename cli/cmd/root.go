@@ -41,6 +41,7 @@ func init() {
 	rootCmd.AddCommand(classCmd)
 	rootCmd.AddCommand(learningPlanCmd)
 	rootCmd.AddCommand(examNodeCmd)
+	rootCmd.AddCommand(phasePlanCmd)
 }
 
 // prettyPrint prints any value as indented JSON.

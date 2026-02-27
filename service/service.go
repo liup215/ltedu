@@ -71,6 +71,9 @@ func setDB() {
 		// Syllabus Exam Node model
 		db.AutoMigrate(&model.SyllabusExamNode{})
 
+		// Phase Plan model
+		db.AutoMigrate(&model.LearningPhasePlan{})
+
 		// 初始化Repository层
 		repository.InitRepositories(db)
 

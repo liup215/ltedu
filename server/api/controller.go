@@ -360,4 +360,13 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/syllabus/examNode/chapter/remove", v1.ExamNodeCtrl.RemoveChapter)
 	r.POST("/v1/syllabus/examNode/paperCode/add", v1.ExamNodeCtrl.AddPaperCode)
 	r.POST("/v1/syllabus/examNode/paperCode/remove", v1.ExamNodeCtrl.RemovePaperCode)
+
+	// Phase Plan endpoints
+	r.POST("/v1/learning-plan/phase/create", v1.PhasePlanCtrl.CreatePhasePlan)
+	r.POST("/v1/learning-plan/phase/edit", v1.PhasePlanCtrl.UpdatePhasePlan)
+	r.POST("/v1/learning-plan/phase/delete", v1.PhasePlanCtrl.DeletePhasePlan)
+	r.POST("/v1/learning-plan/phase/byId", v1.PhasePlanCtrl.GetPhasePlanById)
+	r.POST("/v1/learning-plan/phase/list", v1.PhasePlanCtrl.ListPhasePlans)
+	r.POST("/v1/learning-plan/phase/chapter/add", v1.PhasePlanCtrl.AddChapter)
+	r.POST("/v1/learning-plan/phase/chapter/remove", v1.PhasePlanCtrl.RemoveChapter)
 }
