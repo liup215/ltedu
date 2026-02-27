@@ -289,6 +289,8 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/school/class/joinRequest/list", v1.SchoolCtrl.ListJoinRequests)
 	r.POST("/v1/school/class/joinRequest/approve", v1.SchoolCtrl.ApproveJoinRequest)
 	r.POST("/v1/school/class/joinRequest/reject", v1.SchoolCtrl.RejectJoinRequest)
+	r.POST("/v1/school/class/bindSyllabus", v1.SchoolCtrl.BindClassSyllabus)
+	r.POST("/v1/school/class/unbindSyllabus", v1.SchoolCtrl.UnbindClassSyllabus)
 
 	r.POST("/v1/pastPaper/series/create", v1.PaperCtrl.CreateSeries)
 	r.POST("/v1/pastPaper/series/edit", v1.PaperCtrl.EditSeries)
@@ -338,4 +340,13 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/question/auto-link-keypoints", v1.KnowledgePointCtrl.AutoLinkQuestion)
 	r.POST("/v1/question/auto-link-keypoints-intelligent", v1.KnowledgePointCtrl.AutoLinkQuestionIntelligent)
 	r.POST("/v1/syllabus/auto-migrate-keypoints", v1.KnowledgePointCtrl.AutoMigrateSyllabus)
+
+	// Learning Plan endpoints
+	r.POST("/v1/learning-plan/create", v1.LearningPlanCtrl.CreatePlan)
+	r.POST("/v1/learning-plan/edit", v1.LearningPlanCtrl.UpdatePlan)
+	r.POST("/v1/learning-plan/delete", v1.LearningPlanCtrl.DeletePlan)
+	r.POST("/v1/learning-plan/byId", v1.LearningPlanCtrl.GetPlanById)
+	r.POST("/v1/learning-plan/list", v1.LearningPlanCtrl.ListPlans)
+	r.POST("/v1/learning-plan/versions", v1.LearningPlanCtrl.ListPlanVersions)
+	r.POST("/v1/learning-plan/rollback", v1.LearningPlanCtrl.RollbackPlan)
 }

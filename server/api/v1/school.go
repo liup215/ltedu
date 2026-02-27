@@ -715,3 +715,64 @@ func (ctrl *SchoolController) RejectJoinRequest(c *gin.Context) {
 	}
 	http.SuccessData(c, "申请已拒绝", nil)
 }
+
+// @Summary      绑定Syllabus到教学班
+// @Description  将指定syllabus绑定到教学班（教学班管理员或系统管理员操作）
+// @Tags         学校管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "班级ID和SyllabusID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/school/class/bindSyllabus [post]
+func (ctrl *SchoolController) BindClassSyllabus(c *gin.Context) {
+	u, err := auth.GetCurrentUser(c)
+	if err != nil {
+		http.ErrorData(c, "无法获取当前用户信息", nil)
+		return
+	}
+	var req struct {
+		ClassId    uint `json:"classId" binding:"required"`
+		SyllabusId uint `json:"syllabusId" binding:"required"`
+	}
+	if err := c.BindJSON(&req); err != nil {
+		http.ErrorData(c, "参数解析失败", nil)
+		return
+	}
+	if err := ctrl.schoolSvr.BindClassSyllabus(req.ClassId, req.SyllabusId, u.ID); err != nil {
+		http.ErrorData(c, err.Error(), nil)
+		return
+	}
+	http.SuccessData(c, "Syllabus绑定成功!", nil)
+}
+
+// @Summary      解除教学班Syllabus绑定
+// @Description  解除教学班的syllabus绑定（教学班管理员或系统管理员操作）
+// @Tags         学校管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "班级ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/school/class/unbindSyllabus [post]
+func (ctrl *SchoolController) UnbindClassSyllabus(c *gin.Context) {
+	u, err := auth.GetCurrentUser(c)
+	if err != nil {
+		http.ErrorData(c, "无法获取当前用户信息", nil)
+		return
+	}
+	var req struct {
+		ClassId uint `json:"classId" binding:"required"`
+	}
+	if err := c.BindJSON(&req); err != nil {
+		http.ErrorData(c, "参数解析失败", nil)
+		return
+	}
+	if err := ctrl.schoolSvr.UnbindClassSyllabus(req.ClassId, u.ID); err != nil {
+		http.ErrorData(c, err.Error(), nil)
+		return
+	}
+	http.SuccessData(c, "Syllabus解绑成功!", nil)
+}

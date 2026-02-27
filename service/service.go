@@ -64,6 +64,10 @@ func setDB() {
 		db.AutoMigrate(&model.TaskLog{})
 		db.AutoMigrate(&model.KnowledgePoint{})
 
+		// Learning Plan models
+		db.AutoMigrate(&model.StudentLearningPlan{})
+		db.AutoMigrate(&model.StudentLearningPlanVersion{})
+
 		// 初始化Repository层
 		repository.InitRepositories(db)
 

@@ -251,6 +251,56 @@ var studentRemoveCmd = &cobra.Command{
 	},
 }
 
+// ---- bind-syllabus subcommand ----
+
+var (
+	bindSyllabusClassID    uint
+	bindSyllabusSyllabusID uint
+)
+
+var bindSyllabusCmd = &cobra.Command{
+	Use:   "bind-syllabus",
+	Short: "Bind a syllabus to a teaching class (为教学班绑定syllabus)",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if bindSyllabusClassID == 0 || bindSyllabusSyllabusID == 0 {
+			return fmt.Errorf("--class-id and --syllabus-id are required")
+		}
+		c := client.NewClient()
+		body := map[string]interface{}{
+			"classId":    bindSyllabusClassID,
+			"syllabusId": bindSyllabusSyllabusID,
+		}
+		if err := c.PostAndDecode("/v1/school/class/bindSyllabus", body, nil); err != nil {
+			return err
+		}
+		fmt.Printf("Syllabus %d bound to class %d successfully.\n", bindSyllabusSyllabusID, bindSyllabusClassID)
+		return nil
+	},
+}
+
+// ---- unbind-syllabus subcommand ----
+
+var unbindSyllabusClassID uint
+
+var unbindSyllabusCmd = &cobra.Command{
+	Use:   "unbind-syllabus",
+	Short: "Unbind the syllabus from a teaching class (解除教学班的syllabus绑定)",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if unbindSyllabusClassID == 0 {
+			return fmt.Errorf("--class-id is required")
+		}
+		c := client.NewClient()
+		body := map[string]interface{}{
+			"classId": unbindSyllabusClassID,
+		}
+		if err := c.PostAndDecode("/v1/school/class/unbindSyllabus", body, nil); err != nil {
+			return err
+		}
+		fmt.Printf("Syllabus unbound from class %d successfully.\n", unbindSyllabusClassID)
+		return nil
+	},
+}
+
 // ---- apply subcommand (学生申请加入班级) ----
 
 var (
@@ -399,6 +449,11 @@ func init() {
 	studentRemoveCmd.Flags().UintVar(&studentRemoveClassID, "class-id", 0, "Class ID (required)")
 	studentRemoveCmd.Flags().UintVar(&studentRemoveUserID, "user-id", 0, "User ID (required)")
 
+	bindSyllabusCmd.Flags().UintVar(&bindSyllabusClassID, "class-id", 0, "Class ID (required)")
+	bindSyllabusCmd.Flags().UintVar(&bindSyllabusSyllabusID, "syllabus-id", 0, "Syllabus ID (required)")
+
+	unbindSyllabusCmd.Flags().UintVar(&unbindSyllabusClassID, "class-id", 0, "Class ID (required)")
+
 	applyCmd.Flags().StringVar(&applyInviteCode, "invite-code", "", "Invite code (required)")
 	applyCmd.Flags().StringVar(&applyMessage, "message", "", "Optional message to the admin")
 
@@ -422,5 +477,7 @@ func init() {
 	classCmd.AddCommand(studentCmd)
 	classCmd.AddCommand(applyCmd)
 	classCmd.AddCommand(requestCmd)
+	classCmd.AddCommand(bindSyllabusCmd)
+	classCmd.AddCommand(unbindSyllabusCmd)
 }
 
