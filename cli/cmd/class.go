@@ -381,6 +381,33 @@ var requestRejectCmd = &cobra.Command{
 	},
 }
 
+// ---- assign-teacher subcommand ----
+
+var (
+	assignTeacherClassID   uint
+	assignTeacherTeacherID uint
+)
+
+var assignTeacherCmd = &cobra.Command{
+	Use:   "assign-teacher",
+	Short: "Assign a teacher to a class (班级指定教师)",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if assignTeacherClassID == 0 || assignTeacherTeacherID == 0 {
+			return fmt.Errorf("--class-id and --teacher-id are required")
+		}
+		c := client.NewClient()
+		body := map[string]interface{}{
+			"classId":   assignTeacherClassID,
+			"teacherId": assignTeacherTeacherID,
+		}
+		if err := c.PostAndDecode("/v1/school/class/assignTeacher", body, nil); err != nil {
+			return err
+		}
+		fmt.Printf("Teacher %d assigned to class %d successfully.\n", assignTeacherTeacherID, assignTeacherClassID)
+		return nil
+	},
+}
+
 func init() {
 	classListCmd.Flags().IntVar(&classListPage, "page", 1, "Page number")
 	classListCmd.Flags().IntVar(&classListPageSize, "page-size", 20, "Page size")
@@ -406,6 +433,9 @@ func init() {
 	requestListCmd.Flags().IntVar(&requestListPage, "page", 1, "Page number")
 	requestListCmd.Flags().IntVar(&requestListSize, "page-size", 20, "Page size")
 
+	assignTeacherCmd.Flags().UintVar(&assignTeacherClassID, "class-id", 0, "Class ID (required)")
+	assignTeacherCmd.Flags().UintVar(&assignTeacherTeacherID, "teacher-id", 0, "Teacher user ID (required)")
+
 	studentCmd.AddCommand(studentListCmd)
 	studentCmd.AddCommand(studentAddCmd)
 	studentCmd.AddCommand(studentRemoveCmd)
@@ -422,5 +452,6 @@ func init() {
 	classCmd.AddCommand(studentCmd)
 	classCmd.AddCommand(applyCmd)
 	classCmd.AddCommand(requestCmd)
+	classCmd.AddCommand(assignTeacherCmd)
 }
 

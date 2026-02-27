@@ -249,14 +249,19 @@ func (svr *SchoolService) checkAdministrativeClassConstraint(class *model.Class,
 	return nil
 }
 
-// checkClassAdminPermission verifies that the user is either the class admin or a system admin
+// checkClassAdminPermission verifies that the user is either the class admin, a class teacher, or a system admin
 func (svr *SchoolService) checkClassAdminPermission(class *model.Class, userId uint) error {
 	if class.AdminUserId == userId {
 		return nil
 	}
+	// Check if user is one of the class teachers
+	isTeacher, err := repository.ClassRepo.IsTeacherInClass(class.ID, userId)
+	if err == nil && isTeacher {
+		return nil
+	}
 	user, err := repository.UserRepo.FindByID(userId)
 	if err != nil || user == nil || !user.IsAdmin {
-		return errors.New("只有班级管理员或系统管理员可以审核申请")
+		return errors.New("只有班级管理员、班级教师或系统管理员可以审核申请")
 	}
 	return nil
 }
@@ -311,5 +316,144 @@ func (svr *SchoolService) RejectJoinRequest(requestId, adminUserId uint) error {
 	}
 	req.Status = model.ClassJoinStatusRejected
 	return repository.ClassJoinRequestRepo.Update(req)
+}
+
+// GetTeachersByClassId 获取班级的教师列表
+func (svr *SchoolService) GetTeachersByClassId(classId uint) ([]*model.User, error) {
+	return repository.ClassRepo.FindTeachers(classId)
+}
+
+// AssignTeacherToClass 为班级指定教师（管理员或班级教师可操作）
+func (svr *SchoolService) AssignTeacherToClass(classId, teacherId, requesterId uint) error {
+	class, err := repository.ClassRepo.FindByID(classId)
+	if err != nil || class == nil {
+		return errors.New("班级不存在")
+	}
+	if err := svr.checkClassAdminPermission(class, requesterId); err != nil {
+		return err
+	}
+	teacher, err := repository.UserRepo.FindByID(teacherId)
+	if err != nil || teacher == nil {
+		return errors.New("用户不存在")
+	}
+	if !teacher.IsTeacher {
+		return errors.New("该用户不是教师")
+	}
+	already, err := repository.ClassRepo.IsTeacherInClass(classId, teacherId)
+	if err != nil {
+		return err
+	}
+	if already {
+		return errors.New("该教师已经在班级中")
+	}
+	return repository.ClassRepo.AddTeacher(classId, teacherId)
+}
+
+// RemoveTeacherFromClass 从班级移除教师
+func (svr *SchoolService) RemoveTeacherFromClass(classId, teacherId, requesterId uint) error {
+	class, err := repository.ClassRepo.FindByID(classId)
+	if err != nil || class == nil {
+		return errors.New("班级不存在")
+	}
+	if err := svr.checkClassAdminPermission(class, requesterId); err != nil {
+		return err
+	}
+	return repository.ClassRepo.RemoveTeacher(classId, teacherId)
+}
+
+// ApplyAsTeacherToClass 教师申请加入班级
+func (svr *SchoolService) ApplyAsTeacherToClass(classId, userId uint, message string) (*model.ClassTeacherApplication, error) {
+	class, err := repository.ClassRepo.FindByID(classId)
+	if err != nil || class == nil {
+		return nil, errors.New("班级不存在")
+	}
+	user, err := repository.UserRepo.FindByID(userId)
+	if err != nil || user == nil {
+		return nil, errors.New("用户不存在")
+	}
+	if !user.IsTeacher {
+		return nil, errors.New("只有教师可以申请加入班级作为教师")
+	}
+	// Check if already a teacher in this class
+	already, err := repository.ClassRepo.IsTeacherInClass(classId, userId)
+	if err != nil {
+		return nil, err
+	}
+	if already {
+		return nil, errors.New("您已经是该班级的教师")
+	}
+	// Check for existing pending application
+	existing, err := repository.ClassTeacherApplicationRepo.FindByClassAndUser(classId, userId)
+	if err != nil {
+		return nil, err
+	}
+	if existing != nil && existing.Status == model.ClassTeacherAppStatusPending {
+		return nil, errors.New("您已经提交过申请，请等待审核")
+	}
+	req := &model.ClassTeacherApplication{
+		ClassId: classId,
+		UserId:  userId,
+		Status:  model.ClassTeacherAppStatusPending,
+		Message: message,
+	}
+	if err := repository.ClassTeacherApplicationRepo.Create(req); err != nil {
+		return nil, err
+	}
+	return req, nil
+}
+
+// ListTeacherApplications 列出教师加入班级的申请
+func (svr *SchoolService) ListTeacherApplications(q model.ClassTeacherApplicationQuery) ([]*model.ClassTeacherApplication, int64, error) {
+	page := q.Page.CheckPage()
+	return repository.ClassTeacherApplicationRepo.FindPage(&q, (page.PageIndex-1)*page.PageSize, page.PageSize)
+}
+
+// ApproveTeacherApplication 审核通过教师加入申请
+func (svr *SchoolService) ApproveTeacherApplication(requestId, adminUserId uint) error {
+	req, err := repository.ClassTeacherApplicationRepo.FindByID(requestId)
+	if err != nil {
+		return err
+	}
+	if req == nil {
+		return errors.New("申请不存在")
+	}
+	if req.Status != model.ClassTeacherAppStatusPending {
+		return errors.New("该申请已处理")
+	}
+	class, err := repository.ClassRepo.FindByID(req.ClassId)
+	if err != nil || class == nil {
+		return errors.New("班级不存在")
+	}
+	if err := svr.checkClassAdminPermission(class, adminUserId); err != nil {
+		return err
+	}
+	req.Status = model.ClassTeacherAppStatusApproved
+	if err := repository.ClassTeacherApplicationRepo.Update(req); err != nil {
+		return err
+	}
+	return repository.ClassRepo.AddTeacher(req.ClassId, req.UserId)
+}
+
+// RejectTeacherApplication 拒绝教师加入申请
+func (svr *SchoolService) RejectTeacherApplication(requestId, adminUserId uint) error {
+	req, err := repository.ClassTeacherApplicationRepo.FindByID(requestId)
+	if err != nil {
+		return err
+	}
+	if req == nil {
+		return errors.New("申请不存在")
+	}
+	if req.Status != model.ClassTeacherAppStatusPending {
+		return errors.New("该申请已处理")
+	}
+	class, err := repository.ClassRepo.FindByID(req.ClassId)
+	if err != nil || class == nil {
+		return errors.New("班级不存在")
+	}
+	if err := svr.checkClassAdminPermission(class, adminUserId); err != nil {
+		return err
+	}
+	req.Status = model.ClassTeacherAppStatusRejected
+	return repository.ClassTeacherApplicationRepo.Update(req)
 }
 

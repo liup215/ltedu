@@ -42,8 +42,9 @@ var (
 	AttemptRepo          IAttemptRepository
 	TaskLogRepo          ITaskLogRepository
 	KnowledgePointRepo   IKnowledgePointRepository
-	ClassRepo            IClassRepository
-	ClassJoinRequestRepo IClassJoinRequestRepository
+	ClassRepo                    IClassRepository
+	ClassJoinRequestRepo         IClassJoinRequestRepository
+	ClassTeacherApplicationRepo  IClassTeacherApplicationRepository
 )
 
 func GetTableName(db *gorm.DB, model interface{}) string {
@@ -94,5 +95,6 @@ func InitRepositories(db *gorm.DB) {
 	KnowledgePointRepo = NewKnowledgePointRepository(db)
 	ClassRepo = NewClassRepository(db)
 	ClassJoinRequestRepo = NewClassJoinRequestRepository(db)
+	ClassTeacherApplicationRepo = NewClassTeacherApplicationRepository(db)
 	// ... 其他repository按需添加
 }

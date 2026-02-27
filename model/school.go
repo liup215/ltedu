@@ -53,6 +53,7 @@ type Class struct {
 	AdminUserId uint    `json:"adminUserId" gorm:"index"`
 	AdminUser   *User   `json:"adminUser,omitempty" gorm:"foreignKey:AdminUserId"`
 	Students    []*User `json:"students" gorm:"many2many:user_class_relation;"`
+	Teachers    []*User `json:"teachers,omitempty" gorm:"many2many:class_teacher_relation;"`
 }
 
 const (
@@ -86,6 +87,29 @@ type ClassQuery struct {
 }
 
 type ClassJoinRequestQuery struct {
+	ClassId uint `json:"classId"`
+	UserId  uint `json:"userId"`
+	Status  *int `json:"status"`
+	Page
+}
+
+const (
+	ClassTeacherAppStatusPending  = 0
+	ClassTeacherAppStatusApproved = 1
+	ClassTeacherAppStatusRejected = 2
+)
+
+type ClassTeacherApplication struct {
+	Model
+	ClassId uint   `json:"classId" gorm:"index"`
+	Class   *Class `json:"class,omitempty" gorm:"foreignKey:ClassId"`
+	UserId  uint   `json:"userId" gorm:"index"`
+	User    *User  `json:"user,omitempty" gorm:"foreignKey:UserId"`
+	Status  int    `json:"status" gorm:"default:0"` // 0: pending, 1: approved, 2: rejected
+	Message string `json:"message" gorm:"size:500"`
+}
+
+type ClassTeacherApplicationQuery struct {
 	ClassId uint `json:"classId"`
 	UserId  uint `json:"userId"`
 	Status  *int `json:"status"`
