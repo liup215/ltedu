@@ -31,11 +31,11 @@ edu-cli 是 LTEdu 平台的命令行客户端，可通过后端 API 管理考纲
 | 变量 | 说明 |
 |---|---|
 | `EDU_BASE_URL` | 后端地址，例如 `https://api.example.com` |
-| `EDU_TOKEN` | 从 Web UI 获取的 JWT 认证 Token |
+| `EDU_TOKEN` | 从 Web UI CLI Tokens 页面获取的 MCP Token |
 
 ```bash
 export EDU_BASE_URL=https://api.example.com
-export EDU_TOKEN=your_jwt_token_here
+export EDU_TOKEN=your_mcp_token_here
 ```
 
 ### 快速配置命令
@@ -45,7 +45,7 @@ export EDU_TOKEN=your_jwt_token_here
 edu-cli config set-url https://api.example.com
 
 # 设置认证 Token
-edu-cli config set-token YOUR_JWT_TOKEN
+edu-cli config set-token YOUR_MCP_TOKEN
 
 # 查看当前配置
 edu-cli config show
@@ -67,10 +67,10 @@ edu-cli config set-url https://api.example.com
 
 ### `config set-token <token>`
 
-设置认证 Token（从 Web UI 获取的 JWT）。
+设置认证 Token（从 Web UI CLI Tokens 页面获取的 MCP Token）。
 
 ```bash
-edu-cli config set-token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+edu-cli config set-token YOUR_MCP_TOKEN
 ```
 
 ### `config show`

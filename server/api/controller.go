@@ -4,10 +4,13 @@ import (
 	"edu/conf"
 	_ "edu/docs" // swaggo generated docs
 	"edu/lib/net/http/middleware/auth"
+	"edu/service"
 	v1 "edu/server/api/v1"
 	"edu/server/mcp"
 	"fmt"
+	"net/http"
 	"os"
+	"strings"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
@@ -37,6 +40,46 @@ type Handler struct {
 func (h *Handler) Route(r *gin.RouterGroup) {
 	h.noAuthRout(r)
 	h.authRout(r)
+}
+
+// mcpOrJWTAuth returns a middleware that accepts both MCP tokens and JWT tokens.
+// If the Authorization header contains a non-JWT bearer token (i.e. an MCP token),
+// it validates it via the MCP token service and injects the JWT claims so that
+// downstream handlers (auth.GetCurrentUser, Authorizator) work correctly.
+// Tokens that look like JWTs (start with "ey") are forwarded to the standard JWT middleware.
+func (h *Handler) mcpOrJWTAuth() gin.HandlerFunc {
+	jwtHandler := h.authMiddleware.MiddlewareFunc()
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if strings.HasPrefix(authHeader, "Bearer ") {
+			token := strings.TrimPrefix(authHeader, "Bearer ")
+			// JWT tokens are base64url-encoded and always start with "ey" (eyJ...).
+			// MCP tokens are hex-encoded random strings (only 0-9 and a-f),
+			// so they can never start with "ey" (since 'y' is not a hex digit).
+			if !strings.HasPrefix(token, "ey") {
+				user, err := service.MCPTokenSvr.ValidateToken(token)
+				if err != nil {
+					c.JSON(http.StatusUnauthorized, gin.H{
+						"code":    http.StatusUnauthorized,
+						"message": "invalid or expired token",
+					})
+					c.Abort()
+					return
+				}
+				// Inject claims into the gin context so GetCurrentUser works correctly.
+				// Use float64 for id to match the JSON-unmarshaled type used by the JWT middleware.
+				claims := jwt.MapClaims{
+					"id":        float64(user.ID),
+					"tokenSalt": user.TokenSalt,
+				}
+				c.Set("JWT_PAYLOAD", claims)
+				c.Next()
+				return
+			}
+		}
+		// Fall back to the standard JWT middleware
+		jwtHandler(c)
+	}
 }
 
 func (h *Handler) noAuthRout(r *gin.RouterGroup) {
@@ -127,7 +170,7 @@ func (h *Handler) noAuthRout(r *gin.RouterGroup) {
 }
 
 func (h *Handler) authRout(r *gin.RouterGroup) {
-	r.Use(h.authMiddleware.MiddlewareFunc())
+	r.Use(h.mcpOrJWTAuth())
 	r.GET("/v1/user", v1.UserCtrl.User)
 
 	r.GET("/v1/addons", v1.AddonCtrl.Index)

@@ -1,6 +1,6 @@
 ## edu-cli config set-token
 
-Set the authentication token (JWT obtained from the web UI)
+Set the authentication token (MCP token obtained from the web UI)
 
 ```
 edu-cli config set-token <token> [flags]

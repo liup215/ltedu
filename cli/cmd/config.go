@@ -29,7 +29,7 @@ var configSetURLCmd = &cobra.Command{
 
 var configSetTokenCmd = &cobra.Command{
 	Use:   "set-token <token>",
-	Short: "Set the authentication token (JWT obtained from the web UI)",
+	Short: "Set the authentication token (MCP token obtained from the web UI)",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cfg := client.LoadConfig()
