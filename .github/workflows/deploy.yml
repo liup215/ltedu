@@ -67,6 +67,9 @@ jobs:
       contents: read
       actions: read
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
     - name: Download Docker image artifacts
       uses: actions/download-artifact@v4
       with:
@@ -79,7 +82,7 @@ jobs:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        source: "ltedu-api.tar.gz,ltedu-web.tar.gz"
+        source: "ltedu-api.tar.gz,ltedu-web.tar.gz,deploy/docker-compose.prod.yml"
         target: "~/ltedu-deploy/"
 
     # 5. Load and Deploy
@@ -95,15 +98,14 @@ jobs:
         script: |
           export DOCKER_USERNAME=$DOCKER_USERNAME
           cd ~/ltedu-deploy
-          ls
-          
+
           # Load images
           echo "Loading API image..."
           docker load < ltedu-api.tar.gz
           echo "Loading Web image..."
           docker load < ltedu-web.tar.gz
-          
-          # Create data directory
-          cd /home/www/app/ltedu
-          ./start.sh
-          
+
+          # Deploy using docker compose
+          echo "Deploying services..."
+          DOCKER_USERNAME=$DOCKER_USERNAME docker compose -f ~/ltedu-deploy/deploy/docker-compose.prod.yml up -d --remove-orphans
+
