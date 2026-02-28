@@ -103,7 +103,34 @@ jobs:
           echo "Loading Web image..."
           docker load < ltedu-web.tar.gz
           
-          # Create data directory
+          # Pre-clean stacks to avoid race condition: docker stack rm is async,
+          # so we must wait for all services to be fully removed before redeploying.
+          for stack in ltedu bioedu; do
+            if docker stack ls --format '{{.Name}}' | grep -q "^${stack}$"; then
+              echo "Removing stack: $stack"
+              docker stack rm "$stack"
+              echo "Waiting for $stack services to be fully removed..."
+              timeout=60
+              elapsed=0
+              while docker service ls --filter "label=com.docker.stack.namespace=${stack}" --format '{{.Name}}' | grep -q .; do
+                if [ "$elapsed" -ge "$timeout" ]; then
+                  echo "Timeout waiting for $stack services to be removed, continuing anyway"
+                  break
+                fi
+                sleep 2
+                elapsed=$((elapsed + 2))
+              done
+              echo "Stack $stack fully removed"
+            fi
+            # Remove any orphan services with the stack prefix (not tracked in any stack)
+            while read -r svc; do
+              echo "Removing orphan service: $svc"
+              docker service rm "$svc" || true
+              sleep 2
+            done < <(docker service ls --format '{{.Name}}' | grep "^${stack}_" || true)
+          done
+          
+          # Deploy
           cd /home/www/app/ltedu
           ./start.sh
           
