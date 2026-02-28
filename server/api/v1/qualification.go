@@ -603,7 +603,7 @@ func (ctrl *QualificationController) SelectChapterById(c *gin.Context) {
 }
 
 // @Summary      获取章节列表
-// @Description  分页查询章节列表，支持按syllabusId筛选
+// @Description  分页查询章节列表，支持按syllabusId筛选。不指定parentId时只返回根章节（parentId=0）
 // @Tags         考纲管理
 // @Accept       json
 // @Produce      json
@@ -616,6 +616,9 @@ func (ctrl *QualificationController) GetChapterList(c *gin.Context) {
 	if err := c.BindJSON(&q); err != nil {
 		http.ErrorData(c, "参数解析失败", nil)
 		return
+	}
+	if q.ParentId == 0 {
+		q.FilterRoot = true
 	}
 	list, total, err := ctrl.qualificationSvr.ChapterList(q)
 	if err != nil {
