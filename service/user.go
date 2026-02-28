@@ -117,7 +117,9 @@ func (svr *UserService) EditUser(o model.UserEditRequest) error {
 	user.Realname = o.Realname
 	user.Engname = o.Engname
 	user.Sex = o.Sex
-	user.Status = o.Status
+	if o.Status != 0 {
+		user.Status = o.Status
+	}
 
 	return repository.UserRepo.Update(user)
 }

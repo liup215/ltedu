@@ -219,6 +219,24 @@ func (ctrl *UserController) EditUser(c *gin.Context) {
 		return
 	}
 
+	// Restrict account status modification to super admin only
+	if o.Status != 0 {
+		u, err := auth.GetCurrentUser(c)
+		if err != nil {
+			http.ErrorData(c, "无法获取当前用户信息", nil)
+			return
+		}
+		currentUser, err := service.UserSvr.SelectUserById(u.ID)
+		if err != nil {
+			http.ErrorData(c, "无法验证管理员权限", nil)
+			return
+		}
+		if currentUser == nil || !currentUser.IsAdmin {
+			http.ErrorData(c, "只有超级管理员可以修改用户账户状态", nil)
+			return
+		}
+	}
+
 	err := ctrl.userSvr.EditUser(o)
 	if err != nil {
 		http.ErrorData(c, err.Error(), nil)
