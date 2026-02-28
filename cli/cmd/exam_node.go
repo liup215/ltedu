@@ -25,14 +25,17 @@ var examNodeListCmd = &cobra.Command{
 			return fmt.Errorf("--syllabus-id is required")
 		}
 		c := client.NewClient()
-		var result []map[string]interface{}
+		var result struct {
+			List  []map[string]interface{} `json:"list"`
+			Total int                      `json:"total"`
+		}
 		if err := c.PostAndDecode("/v1/syllabus/examNode/list", map[string]interface{}{"syllabusId": examNodeListSyllabusID}, &result); err != nil {
 			return err
 		}
-		fmt.Printf("Total: %d\n\n", len(result))
+		fmt.Printf("Total: %d\n\n", result.Total)
 		headers := []string{"ID", "Name", "SortOrder", "Chapters", "PaperCodes"}
-		rows := make([][]string, 0, len(result))
-		for _, item := range result {
+		rows := make([][]string, 0, len(result.List))
+		for _, item := range result.List {
 			chapCount := 0
 			if chs, ok := item["chapters"].([]interface{}); ok {
 				chapCount = len(chs)
