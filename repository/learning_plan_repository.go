@@ -70,6 +70,9 @@ func (r *studentLearningPlanRepository) FindPage(query *model.StudentLearningPla
 	if query.PlanType != "" {
 		q = q.Where("plan_type = ?", query.PlanType)
 	}
+	if query.IsPersonal != nil {
+		q = q.Where("is_personal = ?", *query.IsPersonal)
+	}
 
 	q.Count(&total)
 	err := q.Order("id DESC").Offset(offset).Limit(limit).Find(&plans).Error
@@ -92,6 +95,9 @@ func (r *studentLearningPlanRepository) FindAll(query *model.StudentLearningPlan
 	}
 	if query.PlanType != "" {
 		q = q.Where("plan_type = ?", query.PlanType)
+	}
+	if query.IsPersonal != nil {
+		q = q.Where("is_personal = ?", *query.IsPersonal)
 	}
 
 	err := q.Order("id DESC").Find(&plans).Error

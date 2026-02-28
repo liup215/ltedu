@@ -9,7 +9,7 @@ import type {
 import type { ApiResponse } from '../models/api.model'
 
 class LearningPlanService {
-  async create(req: { classId: number; userId: number; planType: string; content: string; comment?: string }): Promise<LearningPlanResponse> {
+  async create(req: { classId: number; userId: number; planType: string; content: string; comment?: string; isPersonal?: boolean }): Promise<LearningPlanResponse> {
     const client = await apiClient()
     const response = await client.post('/api/v1/learning-plan/create', req)
     return response.data
@@ -33,7 +33,7 @@ class LearningPlanService {
     return response.data
   }
 
-  async list(query: { classId?: number; userId?: number; planType?: string; pageSize?: number; pageIndex?: number }): Promise<LearningPlanListResponse> {
+  async list(query: { classId?: number; userId?: number; planType?: string; isPersonal?: boolean; pageSize?: number; pageIndex?: number }): Promise<LearningPlanListResponse> {
     const client = await apiClient()
     const response = await client.post('/api/v1/learning-plan/list', query)
     return response.data

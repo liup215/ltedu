@@ -8,6 +8,7 @@ export interface StudentLearningPlan {
   content: string
   version: number
   createdBy: number
+  isPersonal: boolean
   createdAt: string
   updatedAt: string
   class?: any
