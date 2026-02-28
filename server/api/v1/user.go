@@ -314,3 +314,34 @@ func (ac *UserController) User(c *gin.Context) {
 
 	http.SuccessData(c, "数据获取成功!", user)
 }
+
+// @Summary      更新当前用户账户信息
+// @Description  更新当前已登录用户的个人信息（不包含状态等管理员字段）
+// @Tags         用户管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.AccountUpdateRequest  true  "账户更新信息"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/account/update [post]
+func (ac *UserController) UpdateOwnAccount(c *gin.Context) {
+	u, err := auth.GetCurrentUser(c)
+	if err != nil {
+		http.ErrorData(c, "无法获取当前用户信息", err.Error())
+		return
+	}
+
+	var req model.AccountUpdateRequest
+	if err := c.BindJSON(&req); err != nil {
+		http.ErrorData(c, "参数解析失败", nil)
+		return
+	}
+
+	if err := ac.userSvr.UpdateOwnAccount(u.ID, req); err != nil {
+		http.ErrorData(c, err.Error(), nil)
+		return
+	}
+
+	http.SuccessData(c, "账户信息更新成功", nil)
+}

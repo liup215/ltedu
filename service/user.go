@@ -122,6 +122,34 @@ func (svr *UserService) EditUser(o model.UserEditRequest) error {
 	return repository.UserRepo.Update(user)
 }
 
+// UpdateOwnAccount updates only the personal fields of the current user.
+// It does not allow changing status (admin-only field).
+func (svr *UserService) UpdateOwnAccount(id uint, o model.AccountUpdateRequest) error {
+	if id == 0 {
+		return errors.New("无效的ID")
+	}
+
+	if o.Sex != 0 && o.Sex != 1 && o.Sex != 2 {
+		return errors.New("性别值无效，请使用 1（男）或 2（女）")
+	}
+
+	user, err := repository.UserRepo.FindByID(id)
+	if err != nil {
+		return err
+	}
+	if user == nil {
+		return errors.New("用户不存在")
+	}
+
+	user.Realname = o.Realname
+	user.Nickname = o.Nickname
+	user.Engname = o.Engname
+	user.Sex = o.Sex
+	user.Mobile = o.Mobile
+
+	return repository.UserRepo.Update(user)
+}
+
 func (svr *UserService) DeleteUser(id uint) error {
 	if id == 0 {
 		return errors.New("无效的ID")

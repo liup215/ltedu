@@ -82,3 +82,13 @@ type UserEditRequest struct {
 	Sex      uint   `json:"sex"`
 	Status   int    `json:"status"` // 1: Active, 2: Inactive, 3: Suspended, 4: Banned
 }
+
+// AccountUpdateRequest contains fields a user can update on their own account.
+// Unlike UserEditRequest, it does not include ID (derived from JWT) or Status (admin-only).
+type AccountUpdateRequest struct {
+	Realname string `json:"realname"`
+	Nickname string `json:"nickname"`
+	Engname  string `json:"engname"`
+	Sex      uint   `json:"sex"`
+	Mobile   string `json:"mobile"`
+}

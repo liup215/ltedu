@@ -129,6 +129,7 @@ func (h *Handler) noAuthRout(r *gin.RouterGroup) {
 func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.Use(h.authMiddleware.MiddlewareFunc())
 	r.GET("/v1/user", v1.UserCtrl.User)
+	r.POST("/v1/account/update", v1.UserCtrl.UpdateOwnAccount)
 
 	r.GET("/v1/addons", v1.AddonCtrl.Index)
 	r.GET("/v1/dashboard", v1.DashboardCtrl.Index)
