@@ -48,6 +48,7 @@
               <button v-if="!cls.syllabus" @click="openBindSyllabusModal(cls)" class="text-green-600 hover:text-green-900">{{ t('class.bindSyllabus') }}</button>
               <button v-if="cls.syllabus" @click="doUnbindSyllabus(cls)" class="text-yellow-600 hover:text-yellow-900">{{ t('class.unbindSyllabus') }}</button>
               <router-link :to="`/admin/classes/${cls.id}/learning-plans`" class="text-purple-600 hover:text-purple-900">{{ t('learningPlan.title') }}</router-link>
+              <button @click="openStudentsModal(cls)" class="text-teal-600 hover:text-teal-900">{{ t('class.students') }}</button>
               <button @click="confirmDelete(cls)" class="text-red-600 hover:text-red-900">{{ t('common.delete') }}</button>
             </td>
           </tr>
@@ -103,6 +104,52 @@
       </div>
     </div>
 
+    <!-- Students Modal -->
+    <div v-if="showStudentsModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-lg font-semibold text-gray-900">{{ t('class.students') }} — {{ studentsClass?.name }}</h2>
+          <button @click="showStudentsModal = false" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+        </div>
+        <div v-if="studentsLoading" class="text-center py-8 text-gray-500">{{ t('class.loading') }}</div>
+        <div v-else-if="!students.length" class="text-center py-8 text-gray-500">{{ t('class.noStudents') }}</div>
+        <table v-else class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{{ t('class.name') }}</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{{ t('class.studentStatus') }}</th>
+              <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">{{ t('common.actions') }}</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr v-for="stu in students" :key="stu.id">
+              <td class="px-4 py-2 text-sm text-gray-900">
+                {{ stu.realname || stu.nickname || stu.username }}
+              </td>
+              <td class="px-4 py-2 text-sm">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                  :class="studentStatusClass(stu.studentStatus)">
+                  {{ studentStatusLabel(stu.studentStatus) }}
+                </span>
+              </td>
+              <td class="px-4 py-2 text-right text-sm">
+                <select
+                  :value="stu.studentStatus"
+                  @change="onStatusChange(stu, ($event.target as HTMLSelectElement).value)"
+                  class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                >
+                  <option :value="1">{{ t('class.statusStudying') }}</option>
+                  <option :value="2">{{ t('class.statusGraduated') }}</option>
+                  <option :value="3">{{ t('class.statusTransferred') }}</option>
+                  <option :value="4">{{ t('class.statusDropped') }}</option>
+                </select>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- Delete Confirm Modal -->
     <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
       <div class="bg-white rounded-lg shadow-xl w-full max-w-sm p-6">
@@ -124,7 +171,13 @@ import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import classService from '../../services/classService'
 import syllabusService from '../../services/syllabusService'
-import type { Class } from '../../models/class.model'
+import type { Class, ClassStudent } from '../../models/class.model'
+import {
+  CLASS_STUDENT_STATUS_STUDYING,
+  CLASS_STUDENT_STATUS_GRADUATED,
+  CLASS_STUDENT_STATUS_TRANSFERRED,
+  CLASS_STUDENT_STATUS_DROPPED,
+} from '../../models/class.model'
 
 const { t } = useI18n()
 
@@ -256,6 +309,62 @@ async function doDelete() {
     console.error(e)
   } finally {
     saving.value = false
+  }
+}
+
+// --- Students management ---
+const showStudentsModal = ref(false)
+const studentsClass = ref<Class | null>(null)
+const students = ref<ClassStudent[]>([])
+const studentsLoading = ref(false)
+
+function studentStatusLabel(status: number): string {
+  switch (status) {
+    case CLASS_STUDENT_STATUS_STUDYING:    return t('class.statusStudying')
+    case CLASS_STUDENT_STATUS_GRADUATED:   return t('class.statusGraduated')
+    case CLASS_STUDENT_STATUS_TRANSFERRED: return t('class.statusTransferred')
+    case CLASS_STUDENT_STATUS_DROPPED:     return t('class.statusDropped')
+    default: return t('class.statusStudying')
+  }
+}
+
+function studentStatusClass(status: number): string {
+  switch (status) {
+    case CLASS_STUDENT_STATUS_STUDYING:    return 'bg-green-100 text-green-800'
+    case CLASS_STUDENT_STATUS_GRADUATED:   return 'bg-blue-100 text-blue-800'
+    case CLASS_STUDENT_STATUS_TRANSFERRED: return 'bg-yellow-100 text-yellow-800'
+    case CLASS_STUDENT_STATUS_DROPPED:     return 'bg-red-100 text-red-800'
+    default: return 'bg-gray-100 text-gray-800'
+  }
+}
+
+async function openStudentsModal(cls: Class) {
+  studentsClass.value = cls
+  showStudentsModal.value = true
+  studentsLoading.value = true
+  try {
+    const res = await classService.getStudents(cls.id)
+    if (res.code === 0) students.value = res.data.list
+  } catch (e) {
+    console.error(e)
+  } finally {
+    studentsLoading.value = false
+  }
+}
+
+async function onStatusChange(stu: ClassStudent, value: string) {
+  if (!studentsClass.value) return
+  const newStatus = Number(value)
+  try {
+    const res = await classService.updateStudentStatus(studentsClass.value.id, stu.id, newStatus)
+    if (res.code === 0) {
+      stu.studentStatus = newStatus
+    } else {
+      alert(t('class.updateStatusFailed'))
+    }
+  } catch (e) {
+    console.error(e)
+    alert(t('class.updateStatusFailed'))
   }
 }
 

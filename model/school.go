@@ -64,6 +64,38 @@ const (
 	ClassJoinStatusRejected = 2
 )
 
+// ClassStudentStatus constants for the student's enrollment status within a class.
+const (
+	ClassStudentStatusStudying    = 1 // 在读
+	ClassStudentStatusGraduated   = 2 // 结业
+	ClassStudentStatusTransferred = 3 // 转走
+	ClassStudentStatusDropped     = 4 // 弃科
+)
+
+// UserClassRelation is the explicit join-table model for the Class ↔ User many2many
+// association. It extends the default join table with a student status field.
+type UserClassRelation struct {
+	ClassId uint `gorm:"primaryKey" json:"classId"`
+	UserId  uint `gorm:"primaryKey" json:"userId"`
+	Status  int  `gorm:"default:1"  json:"status"` // 1:在读, 2:结业, 3:转走, 4:弃科
+}
+
+func (UserClassRelation) TableName() string {
+	return "user_class_relation"
+}
+
+// ClassStudentView combines a User with their status inside a specific class.
+type ClassStudentView struct {
+	User
+	StudentStatus int `json:"studentStatus" gorm:"column:student_status"`
+}
+
+type UpdateStudentStatusRequest struct {
+	ClassId uint `json:"classId" binding:"required"`
+	UserId  uint `json:"userId" binding:"required"`
+	Status  int  `json:"status" binding:"required"`
+}
+
 type ClassJoinRequest struct {
 	Model
 	ClassId uint   `json:"classId" gorm:"index"`

@@ -6,6 +6,7 @@ import (
 "edu/repository"
 "edu/model"
 "errors"
+"gorm.io/gorm"
 )
 
 var SchoolSvr = &SchoolService{baseService: newBaseService()}
@@ -196,8 +197,29 @@ func (svr *SchoolService) DeleteClass(id uint) error {
 	return repository.ClassRepo.Delete(id)
 }
 
-func (svr *SchoolService) GetStudentsByClassId(classId uint) ([]*model.User, error) {
-	return repository.ClassRepo.FindStudents(classId)
+func (svr *SchoolService) GetStudentsByClassId(classId uint) ([]*model.ClassStudentView, error) {
+	return repository.ClassRepo.FindStudentsWithStatus(classId)
+}
+
+func (svr *SchoolService) UpdateStudentStatus(classId, userId uint, status int) error {
+	if classId == 0 || userId == 0 {
+		return errors.New("班级ID和用户ID不能为空")
+	}
+	switch status {
+	case model.ClassStudentStatusStudying,
+		model.ClassStudentStatusGraduated,
+		model.ClassStudentStatusTransferred,
+		model.ClassStudentStatusDropped:
+	default:
+		return errors.New("无效的学生状态")
+	}
+	if err := repository.ClassRepo.UpdateStudentStatus(classId, userId, status); err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return errors.New("学生不在该班级中")
+		}
+		return err
+	}
+	return nil
 }
 
 func (svr *SchoolService) DeleteStudentFromClass(classId, userId uint) error {

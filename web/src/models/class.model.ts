@@ -1,5 +1,21 @@
 import type { ApiResponse } from './api.model'
 
+export const CLASS_STUDENT_STATUS_STUDYING    = 1 // 在读
+export const CLASS_STUDENT_STATUS_GRADUATED   = 2 // 结业
+export const CLASS_STUDENT_STATUS_TRANSFERRED = 3 // 转走
+export const CLASS_STUDENT_STATUS_DROPPED     = 4 // 弃科
+
+export interface ClassStudent {
+  id: number
+  username: string
+  nickname: string
+  realname: string
+  email: string
+  mobile: string
+  avatar: string
+  studentStatus: number // 1:在读, 2:结业, 3:转走, 4:弃科
+}
+
 export interface Class {
   id: number
   name: string
@@ -45,5 +61,11 @@ export interface PaginatedClasses {
   total: number
 }
 
+export interface PaginatedClassStudents {
+  list: ClassStudent[]
+  total: number
+}
+
 export type ClassListResponse = ApiResponse<PaginatedClasses>
 export type ClassResponse = ApiResponse<Class>
+export type ClassStudentListResponse = ApiResponse<PaginatedClassStudents>

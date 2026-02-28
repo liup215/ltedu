@@ -2,6 +2,7 @@ import apiClient from './apiClient'
 import type {
   ClassListResponse,
   ClassResponse,
+  ClassStudentListResponse,
   ClassQuery,
   ClassCreateRequest,
   ClassUpdateRequest,
@@ -66,6 +67,18 @@ class ClassService {
   async listStudents(classId: number): Promise<ApiResponse> {
     const client = await apiClient()
     const response = await client.post('/api/v1/school/class/studentList', { id: classId })
+    return response.data
+  }
+
+  async getStudents(classId: number): Promise<ClassStudentListResponse> {
+    const client = await apiClient()
+    const response = await client.post('/api/v1/school/class/studentList', { id: classId })
+    return response.data
+  }
+
+  async updateStudentStatus(classId: number, userId: number, status: number): Promise<ApiResponse> {
+    const client = await apiClient()
+    const response = await client.post('/api/v1/school/class/updateStudentStatus', { classId, userId, status })
     return response.data
   }
 }

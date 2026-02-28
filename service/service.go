@@ -32,6 +32,15 @@ func setDB() {
 		db.AutoMigrate(&model.Chapter{})
 		db.AutoMigrate(&model.VocabularyItem{})
 		db.AutoMigrate(&model.VocabularySet{})
+		// Register custom join table for Class.Students many2many so that the
+		// user_class_relation table includes the status column.
+		db.SetupJoinTable(&model.Class{}, "Students", &model.UserClassRelation{})
+		db.SetupJoinTable(&model.User{}, "Classes", &model.UserClassRelation{})
+		db.AutoMigrate(&model.UserClassRelation{})
+		// Back-fill status for existing rows that were created before the status column existed.
+		if result := db.Exec("UPDATE user_class_relation SET status = ? WHERE status IS NULL OR status = 0", model.ClassStudentStatusStudying); result.Error != nil {
+			_ = result.Error // non-fatal: backfill failure does not prevent startup
+		}
 		db.AutoMigrate(&model.Class{})
 		db.AutoMigrate(&model.ClassJoinRequest{})
 		db.AutoMigrate(&model.ClassTeacherApplication{})
