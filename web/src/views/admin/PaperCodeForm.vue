@@ -76,17 +76,19 @@
       </div>
 
       <div class="mb-6">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="level">
-          {{ $t('paperCode.level') }}
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="examNode">
+          {{ $t('paperCode.examNode') }}
         </label>
         <select
-          id="level"
-          v-model="form.level"
+          id="examNode"
+          v-model.number="form.examNodeId"
           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          :disabled="!availableExamNodes.length"
         >
-          <option value="">{{ $t('paperCode.levelNone') }}</option>
-          <option value="AS">AS</option>
-          <option value="A2">A2</option>
+          <option :value="0">{{ $t('paperCode.noExamNode') }}</option>
+          <option v-for="node in availableExamNodes" :key="node.id" :value="node.id">
+            {{ node.name }}
+          </option>
         </select>
       </div>
 
@@ -117,17 +119,19 @@ import paperService from '../../services/paperCodeService'
 import syllabusService from '../../services/syllabusService'
 import organisationService from '../../services/organisationService'
 import qualificationService from '../../services/qualificationService'
+import examNodeService from '../../services/examNodeService'
 import type { PaperCode } from '../../models/paperCode.model'
 import type { Syllabus } from '../../models/syllabus.model'
 import type { Organisation } from '../../models/organisation.model'
 import type { Qualification } from '../../models/qualification.model'
+import type { SyllabusExamNode } from '../../models/examNode.model'
 
 const route = useRoute()
 const router = useRouter()
 
 const form = ref<Partial<PaperCode>>({
   name: '',
-  level: '',
+  examNodeId: 0,
   syllabusId: 0,
 })
 const errors = ref<{ name?: string; syllabusId?: string }>({})
@@ -140,6 +144,7 @@ const paperCodeId = computed(() => Number(route.params.id) || null)
 const organisations = ref<Organisation[]>([])
 const allQualifications = ref<Qualification[]>([]) // Store all qualifications
 const allSyllabuses = ref<Syllabus[]>([]) // Store all syllabuses
+const allExamNodes = ref<SyllabusExamNode[]>([]) // Store all exam nodes
 
 const filterOrganisationId = ref<number>(0)
 const filterQualificationId = ref<number>(0)
@@ -172,6 +177,20 @@ const fetchAllSyllabuses = async () => {
   }
 }
 
+const fetchExamNodes = async (syllabusId: number) => {
+  if (!syllabusId) {
+    allExamNodes.value = []
+    return
+  }
+  try {
+    const response = await examNodeService.list(syllabusId)
+    allExamNodes.value = response.data.list
+  } catch (error) {
+    console.error('Failed to fetch exam nodes:', error)
+    allExamNodes.value = []
+  }
+}
+
 const fetchPaperCodeDetails = async (id: number) => {
   try {
     const response = await paperService.getPaperCodeById(id)
@@ -179,7 +198,7 @@ const fetchPaperCodeDetails = async (id: number) => {
     form.value = {
       id: seriesData.id,
       name: seriesData.name,
-      level: seriesData.level || '',
+      examNodeId: seriesData.examNodeId || 0,
       syllabusId: seriesData.syllabusId,
     }
     // Pre-fill filters if syllabus is set
@@ -188,6 +207,10 @@ const fetchPaperCodeDetails = async (id: number) => {
       // Wait for qualifications to be filtered by organisation before setting qualification filter
       await new Promise(resolve => setTimeout(resolve, 0)); // Allow computed prop to update
       filterQualificationId.value = seriesData.syllabus.qualificationId || 0
+    }
+    // Load exam nodes for the selected syllabus
+    if (seriesData.syllabusId) {
+      await fetchExamNodes(seriesData.syllabusId)
     }
   } catch (error) {
     console.error('Failed to fetch paper series details:', error)
@@ -214,12 +237,16 @@ const availableSyllabuses = computed(() => {
   return syllabusesToFilter
 })
 
+const availableExamNodes = computed(() => allExamNodes.value)
+
 // Watchers to reset dependent filters
 watch(filterOrganisationId, () => {
   filterQualificationId.value = 0
   // If the current form.syllabusId is not in the new availableSyllabuses, reset it
   if (form.value.syllabusId && !availableSyllabuses.value.find(s => s.id === form.value.syllabusId)) {
     form.value.syllabusId = 0
+    form.value.examNodeId = 0
+    allExamNodes.value = []
   }
 })
 
@@ -227,6 +254,17 @@ watch(filterQualificationId, () => {
  // If the current form.syllabusId is not in the new availableSyllabuses, reset it
   if (form.value.syllabusId && !availableSyllabuses.value.find(s => s.id === form.value.syllabusId)) {
     form.value.syllabusId = 0
+    form.value.examNodeId = 0
+    allExamNodes.value = []
+  }
+})
+
+watch(() => form.value.syllabusId, (newSyllabusId) => {
+  if (newSyllabusId) {
+    fetchExamNodes(newSyllabusId)
+  } else {
+    allExamNodes.value = []
+    form.value.examNodeId = 0
   }
 })
 
@@ -251,7 +289,7 @@ const handleSubmit = async () => {
   try {
     const payload = {
       name: form.value.name!,
-      level: form.value.level || '',
+      examNodeId: form.value.examNodeId || 0,
       syllabusId: form.value.syllabusId!,
     }
     if (isEditMode.value && paperCodeId.value) {

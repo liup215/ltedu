@@ -69,28 +69,7 @@ func (r *questionRepository) FindByID(id uint) (*model.Question, error) {
 	return &q, err
 }
 
-func (r *questionRepository) FindPage(query *model.QuestionQueryRequest, offset, limit int) ([]*model.Question, int64, error) {
-	var questions []*model.Question
-	var total int64
-
-	tableName := GetTableName(r.db, &model.Question{})
-	q := r.db.Model(&model.Question{}).
-		Preload("Syllabus").
-		Preload("Syllabus.Qualification").
-		Preload("Syllabus.Qualification.Organisation").
-		Preload("PastPaper").
-		Preload("PastPaper.Syllabus").
-		Preload("PastPaper.Syllabus.Qualification").
-		Preload("PastPaper.Syllabus.Qualification.Organisation").
-		Preload("PastPaper.PaperCode").
-		Preload("PastPaper.PaperCode.Syllabus").
-		Preload("PastPaper.PaperCode.Syllabus.Qualification").
-		Preload("PastPaper.PaperCode.Syllabus.Qualification.Organisation").
-		Preload("PastPaper.PaperSeries").
-		Preload("PastPaper.PaperSeries.Syllabus").
-		Preload("PastPaper.PaperSeries.Syllabus.Qualification").
-		Preload("PastPaper.PaperSeries.Syllabus.Qualification.Organisation")
-
+func (r *questionRepository) applyQuestionFilters(q *gorm.DB, query *model.QuestionQueryRequest, tableName string) *gorm.DB {
 	if query.ID != 0 {
 		q = q.Where(tableName+".id = ?", query.ID)
 	}
@@ -113,6 +92,37 @@ func (r *questionRepository) FindPage(query *model.QuestionQueryRequest, offset,
 		q = q.Joins("PastPaper").
 			Where("PastPaper.name LIKE ?", "%"+query.PaperName+"%")
 	}
+	if query.ExamNodeId != 0 {
+		q = q.Joins("JOIN past_papers ON past_papers.id = "+tableName+".past_paper_id").
+			Joins("JOIN paper_codes ON paper_codes.id = past_papers.paper_code_id").
+			Where("paper_codes.exam_node_id = ?", query.ExamNodeId)
+	}
+	return q
+}
+
+func (r *questionRepository) FindPage(query *model.QuestionQueryRequest, offset, limit int) ([]*model.Question, int64, error) {
+	var questions []*model.Question
+	var total int64
+
+	tableName := GetTableName(r.db, &model.Question{})
+	q := r.db.Model(&model.Question{}).
+		Preload("Syllabus").
+		Preload("Syllabus.Qualification").
+		Preload("Syllabus.Qualification.Organisation").
+		Preload("PastPaper").
+		Preload("PastPaper.Syllabus").
+		Preload("PastPaper.Syllabus.Qualification").
+		Preload("PastPaper.Syllabus.Qualification.Organisation").
+		Preload("PastPaper.PaperCode").
+		Preload("PastPaper.PaperCode.Syllabus").
+		Preload("PastPaper.PaperCode.Syllabus.Qualification").
+		Preload("PastPaper.PaperCode.Syllabus.Qualification.Organisation").
+		Preload("PastPaper.PaperSeries").
+		Preload("PastPaper.PaperSeries.Syllabus").
+		Preload("PastPaper.PaperSeries.Syllabus.Qualification").
+		Preload("PastPaper.PaperSeries.Syllabus.Qualification.Organisation")
+
+	q = r.applyQuestionFilters(q, query, tableName)
 
 	q.Count(&total)
 	err := q.Order(tableName + ".id DESC").Offset(offset).Limit(limit).Find(&questions).Error
@@ -142,28 +152,7 @@ func (r *questionRepository) FindAll(query *model.QuestionQueryRequest) ([]*mode
 		Preload("PastPaper.PaperSeries.Syllabus.Qualification").
 		Preload("PastPaper.PaperSeries.Syllabus.Qualification.Organisation")
 
-	if query.ID != 0 {
-		q = q.Where(tableName+".id = ?", query.ID)
-	}
-	if query.Stem != "" {
-		q = q.Where("stem LIKE ?", "%"+query.Stem+"%")
-	}
-	if query.SyllabusId != 0 {
-		q = q.Where(tableName+".syllabus_id = ?", query.SyllabusId)
-	}
-	if query.Difficult != 0 {
-		q = q.Where("difficult = ?", query.Difficult)
-	}
-	if query.Status != 0 {
-		q = q.Where("status = ?", query.Status)
-	}
-	if query.PastPaperId != 0 {
-		q = q.Where("past_paper_id = ?", query.PastPaperId)
-	}
-	if query.PaperName != "" {
-		q = q.Joins("PastPaper").
-			Where("PastPaper.name LIKE ?", "%"+query.PaperName+"%")
-	}
+	q = r.applyQuestionFilters(q, query, tableName)
 
 	err := q.Order(tableName + ".id DESC").Find(&questions).Error
 	for _, q := range questions {
@@ -177,28 +166,7 @@ func (r *questionRepository) Count(query *model.QuestionQueryRequest) (int64, er
 	tableName := GetTableName(r.db, &model.Question{})
 	q := r.db.Model(&model.Question{})
 
-	if query.ID != 0 {
-		q = q.Where(tableName+".id = ?", query.ID)
-	}
-	if query.Stem != "" {
-		q = q.Where("stem LIKE ?", "%"+query.Stem+"%")
-	}
-	if query.SyllabusId != 0 {
-		q = q.Where(tableName+".syllabus_id = ?", query.SyllabusId)
-	}
-	if query.Difficult != 0 {
-		q = q.Where("difficult = ?", query.Difficult)
-	}
-	if query.Status != 0 {
-		q = q.Where("status = ?", query.Status)
-	}
-	if query.PastPaperId != 0 {
-		q = q.Where("past_paper_id = ?", query.PastPaperId)
-	}
-	if query.PaperName != "" {
-		q = q.Joins("PastPaper").
-			Where("PastPaper.name LIKE ?", "%"+query.PaperName+"%")
-	}
+	q = r.applyQuestionFilters(q, query, tableName)
 
 	err := q.Count(&total).Error
 	return total, err
