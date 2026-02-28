@@ -509,7 +509,7 @@ func (ctrl *SchoolController) DeleteClass(c *gin.Context) {
 }
 
 // @Summary      获取班级学生列表
-// @Description  获取指定班级的所有学生
+// @Description  获取指定班级的所有学生（含状态）
 // @Tags         学校管理
 // @Accept       json
 // @Produce      json
@@ -533,6 +533,29 @@ func (ctrl *SchoolController) GetStudentsByClassId(c *gin.Context) {
 		"list":  list,
 		"total": len(list),
 	})
+}
+
+// @Summary      更新班级学生状态
+// @Description  更新指定班级中学生的状态（在读/结业/转走/弃科）
+// @Tags         学校管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.UpdateStudentStatusRequest  true  "班级ID、学生ID和状态"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/school/class/updateStudentStatus [post]
+func (ctrl *SchoolController) UpdateStudentStatus(c *gin.Context) {
+	o := model.UpdateStudentStatusRequest{}
+	if err := c.BindJSON(&o); err != nil {
+		http.ErrorData(c, "参数解析失败", nil)
+		return
+	}
+	if err := ctrl.schoolSvr.UpdateStudentStatus(o.ClassId, o.UserId, o.Status); err != nil {
+		http.ErrorData(c, err.Error(), nil)
+		return
+	}
+	http.SuccessData(c, "状态更新成功!", nil)
 }
 
 type AddStudentToClassRequest struct {

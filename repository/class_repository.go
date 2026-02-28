@@ -18,6 +18,8 @@ type IClassRepository interface {
 	AddStudent(classId, userId uint) error
 	RemoveStudent(classId, userId uint) error
 	FindStudents(classId uint) ([]*model.User, error)
+	FindStudentsWithStatus(classId uint) ([]*model.ClassStudentView, error)
+	UpdateStudentStatus(classId, userId uint, status int) error
 	// IsStudentInOtherAdministrativeClass checks whether a user is already in an administrative class
 	// other than the one identified by excludeClassId.
 	IsStudentInOtherAdministrativeClass(userId, excludeClassId uint) (bool, error)
@@ -135,6 +137,29 @@ func (r *classRepository) FindStudents(classId uint) ([]*model.User, error) {
 		return nil, nil
 	}
 	return class.Students, err
+}
+
+func (r *classRepository) FindStudentsWithStatus(classId uint) ([]*model.ClassStudentView, error) {
+	var results []*model.ClassStudentView
+	err := r.db.Table("users").
+		Select("users.*, COALESCE(user_class_relation.status, ?) AS student_status", model.ClassStudentStatusStudying).
+		Joins("JOIN user_class_relation ON user_class_relation.user_id = users.id AND user_class_relation.class_id = ?", classId).
+		Where("users.deleted_at IS NULL").
+		Scan(&results).Error
+	return results, err
+}
+
+func (r *classRepository) UpdateStudentStatus(classId, userId uint, status int) error {
+	result := r.db.Model(&model.UserClassRelation{}).
+		Where("class_id = ? AND user_id = ?", classId, userId).
+		Update("status", status)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }
 
 func (r *classRepository) IsStudentInOtherAdministrativeClass(userId, excludeClassId uint) (bool, error) {
