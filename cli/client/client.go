@@ -39,6 +39,9 @@ func (c *Client) post(path string, body interface{}) (*APIResponse, error) {
 	if c.cfg.BaseURL == "" {
 		return nil, fmt.Errorf("base URL is not configured; set %s or run 'edu-cli config set-url'", EnvBaseURL)
 	}
+	if c.cfg.Token == "" {
+		return nil, fmt.Errorf("authentication token not configured; run 'edu-cli config set-token <token>' or set %s", EnvToken)
+	}
 
 	payload, err := json.Marshal(body)
 	if err != nil {
@@ -50,9 +53,7 @@ func (c *Client) post(path string, body interface{}) (*APIResponse, error) {
 		return nil, fmt.Errorf("failed to build request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	if c.cfg.Token != "" {
-		req.Header.Set("Authorization", "Bearer "+c.cfg.Token)
-	}
+	req.Header.Set("Authorization", "Bearer "+c.cfg.Token)
 
 	resp, err := c.hc.Do(req)
 	if err != nil {
@@ -93,14 +94,15 @@ func (c *Client) get(path string) (*APIResponse, error) {
 	if c.cfg.BaseURL == "" {
 		return nil, fmt.Errorf("base URL is not configured; set %s or run 'edu-cli config set-url'", EnvBaseURL)
 	}
+	if c.cfg.Token == "" {
+		return nil, fmt.Errorf("authentication token not configured; run 'edu-cli config set-token <token>' or set %s", EnvToken)
+	}
 
 	req, err := http.NewRequest(http.MethodGet, c.cfg.BaseURL+"/api"+path, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build request: %w", err)
 	}
-	if c.cfg.Token != "" {
-		req.Header.Set("Authorization", "Bearer "+c.cfg.Token)
-	}
+	req.Header.Set("Authorization", "Bearer "+c.cfg.Token)
 
 	resp, err := c.hc.Do(req)
 	if err != nil {
