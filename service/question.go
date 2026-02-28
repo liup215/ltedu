@@ -215,6 +215,14 @@ func (svr *QuestionService) MigrateBase64Images() error {
 								qcsChanged = true
 							}
 						}
+						// Process ShortAnswer
+						if qcs[i].ShortAnswer.Answer != "" {
+							newAnswer, c := svr.processContent(qcs[i].ShortAnswer.Answer, store)
+							if c {
+								qcs[i].ShortAnswer.Answer = newAnswer
+								qcsChanged = true
+							}
+						}
 					}
 
 					if qcsChanged {
