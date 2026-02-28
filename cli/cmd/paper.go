@@ -117,13 +117,13 @@ var paperCodeListCmd = &cobra.Command{
 			return err
 		}
 		fmt.Printf("Total: %d\n\n", result.Total)
-		headers := []string{"ID", "Name", "Level", "SyllabusId"}
+		headers := []string{"ID", "Name", "ExamNodeId", "SyllabusId"}
 		rows := make([][]string, 0, len(result.List))
 		for _, item := range result.List {
 			rows = append(rows, []string{
 				fmtFloat(item["id"]),
 				fmtStr(item["name"]),
-				fmtStr(item["level"]),
+				fmtFloat(item["examNodeId"]),
 				fmtFloat(item["syllabusId"]),
 			})
 		}

@@ -69,6 +69,7 @@ export interface QuestionQuery {
   status?: number;
   stem?: string;
   paperName?: string;
+  examNodeId?: number;
 }
 
 export interface QuestionCreateRequest {

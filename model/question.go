@@ -111,5 +111,6 @@ type QuestionQueryRequest struct {
 	Status      int    `json:"Status"`
 	PastPaperId uint   `json:"pastPaperId"`
 	PaperName   string `json:"paperName"`
+	ExamNodeId  uint   `json:"examNodeId"`
 	Page
 }

@@ -134,9 +134,9 @@ func (r *paperCodeRepository) Create(code *model.PaperCode) error {
 // Update 更新试卷代码
 func (r *paperCodeRepository) Update(code *model.PaperCode) error {
 	updates := map[string]interface{}{
-		"name":        code.Name,
-		"syllabus_id": code.SyllabusId,
-		"level":       code.Level,
+		"name":         code.Name,
+		"syllabus_id":  code.SyllabusId,
+		"exam_node_id": code.ExamNodeId,
 	}
 	return r.db.Model(&model.PaperCode{}).
 		Where("id = ?", code.ID).
@@ -201,5 +201,6 @@ func (r *paperCodeRepository) buildCodeQuery(query model.PaperCodeQuery) *gorm.D
 		Preload("Syllabus").
 		Preload("Syllabus.Qualification").
 		Preload("Syllabus.Qualification.Organisation").
+		Preload("ExamNode").
 		Order("id DESC")
 }

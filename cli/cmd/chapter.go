@@ -44,7 +44,7 @@ var chapterListCmd = &cobra.Command{
 			return err
 		}
 		fmt.Printf("Total: %d\n\n", result.Total)
-		headers := []string{"ID", "Name", "SyllabusId", "ParentId", "Level", "IsLeaf"}
+		headers := []string{"ID", "Name", "SyllabusId", "ParentId", "IsLeaf"}
 		rows := make([][]string, 0, len(result.List))
 		for _, item := range result.List {
 			rows = append(rows, []string{
@@ -52,7 +52,6 @@ var chapterListCmd = &cobra.Command{
 				fmtStr(item["name"]),
 				fmtFloat(item["syllabusId"]),
 				fmtFloat(item["parentId"]),
-				fmtStr(item["level"]),
 				fmtFloat(item["isLeaf"]),
 			})
 		}
@@ -109,7 +108,6 @@ var (
 	chapterCreateName       string
 	chapterCreateSyllabusID uint
 	chapterCreateParentID   uint
-	chapterCreateLevel      string
 )
 
 var chapterCreateCmd = &cobra.Command{
@@ -127,7 +125,6 @@ var chapterCreateCmd = &cobra.Command{
 			"name":       chapterCreateName,
 			"syllabusId": chapterCreateSyllabusID,
 			"parentId":   chapterCreateParentID,
-			"level":      chapterCreateLevel,
 		}
 		var result interface{}
 		if err := c.PostAndDecode("/v1/chapter/create", body, &result); err != nil {
@@ -144,7 +141,6 @@ var chapterCreateCmd = &cobra.Command{
 var (
 	chapterEditID    uint
 	chapterEditName  string
-	chapterEditLevel string
 )
 
 var chapterEditCmd = &cobra.Command{
@@ -156,9 +152,8 @@ var chapterEditCmd = &cobra.Command{
 		}
 		c := client.NewClient()
 		body := map[string]interface{}{
-			"id":    chapterEditID,
-			"name":  chapterEditName,
-			"level": chapterEditLevel,
+			"id":   chapterEditID,
+			"name": chapterEditName,
 		}
 		if err := c.PostAndDecode("/v1/chapter/edit", body, nil); err != nil {
 			return err
@@ -199,11 +194,9 @@ func init() {
 	chapterCreateCmd.Flags().StringVar(&chapterCreateName, "name", "", "Chapter name (required)")
 	chapterCreateCmd.Flags().UintVar(&chapterCreateSyllabusID, "syllabus-id", 0, "Syllabus ID (required)")
 	chapterCreateCmd.Flags().UintVar(&chapterCreateParentID, "parent-id", 0, "Parent chapter ID (0 = root)")
-	chapterCreateCmd.Flags().StringVar(&chapterCreateLevel, "level", "", "Level (AS, A2, or empty)")
 
 	chapterEditCmd.Flags().UintVar(&chapterEditID, "id", 0, "Chapter ID (required)")
 	chapterEditCmd.Flags().StringVar(&chapterEditName, "name", "", "New name")
-	chapterEditCmd.Flags().StringVar(&chapterEditLevel, "level", "", "New level (AS, A2, or empty)")
 
 	chapterCmd.AddCommand(chapterListCmd)
 	chapterCmd.AddCommand(chapterTreeCmd)

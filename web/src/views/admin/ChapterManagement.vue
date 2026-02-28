@@ -97,18 +97,6 @@
                 required
               />
             </div>
-            <div>
-              <label for="chapterLevel" class="block text-sm font-medium text-gray-700">{{ $t('chapterManagement.level') }}</label>
-              <select
-                id="chapterLevel"
-                v-model="form.level"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3"
-              >
-                <option value="">{{ $t('chapterManagement.levelNone') }}</option>
-                <option value="AS">AS</option>
-                <option value="A2">A2</option>
-              </select>
-            </div>
             <div class="flex justify-between">
               <button
                 type="button"
@@ -167,18 +155,6 @@
                 </option>
               </select>
             </div>
-            <div>
-              <label for="newChapterLevel" class="block text-sm font-medium text-gray-700">{{ $t('chapterManagement.level') }}</label>
-              <select
-                id="newChapterLevel"
-                v-model="newChapterForm.level"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3"
-              >
-                <option value="">{{ $t('chapterManagement.levelNone') }}</option>
-                <option value="AS">AS</option>
-                <option value="A2">A2</option>
-              </select>
-            </div>
             <div class="mt-5 sm:mt-6 flex justify-end space-x-3">
               <button
                 type="button"
@@ -227,14 +203,12 @@ const expandedChapters = ref<number[]>([]);
 const form = ref<ChapterUpdateRequest>({
   id: 0,
   name: '',
-  level: ''
 });
 
 const newChapterForm = ref<ChapterCreateRequest>({
   name: '',
   syllabusId: syllabusId.value,
   parentId: 0,
-  level: ''
 });
 
 // Helper function to find chapter by ID in nested structure
@@ -323,7 +297,6 @@ const selectChapter = (id: number) => {
     form.value = {
       id: chapter.id,
       name: chapter.name,
-      level: chapter.level || ''
     };
     
     // Ensure all parent chapters are expanded
@@ -344,7 +317,6 @@ const showCreateModal = () => {
     name: '',
     syllabusId: syllabusId.value,
     parentId: 0,
-    level: ''
   };
   showModal.value = true;
 };
@@ -359,7 +331,6 @@ const createChapter = async () => {
       name: newChapterForm.value.name,
       syllabusId: syllabusId.value,
       parentId: newChapterForm.value.parentId ? Number(newChapterForm.value.parentId) : 0,
-      level: newChapterForm.value.level || '',
     });
     hideModal();
     loadChapters();
@@ -375,7 +346,6 @@ const saveChapter = async () => {
     await chapterService.updateChapter({
       id: selectedChapter.value.id,
       name: form.value.name,
-      level: form.value.level || '',
     });
     loadChapters();
   } catch (error) {
@@ -402,7 +372,6 @@ const cancelEdit = () => {
   form.value = {
     id: 0,
     name: '',
-    level: ''
   };
 };
 

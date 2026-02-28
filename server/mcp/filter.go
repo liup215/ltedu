@@ -120,9 +120,9 @@ const (
 	FieldDescOrganisation  = "Available fields: id, name"
 	FieldDescQualification = "Available fields: id, name, organisationId"
 	FieldDescSyllabus      = "Available fields: id, name, code, qualificationId"
-	FieldDescChapter       = "Available fields: id, name, parentId, syllabusId, level" // removed children as we don't return trees
+	FieldDescChapter       = "Available fields: id, name, parentId, syllabusId" // removed children as we don't return trees
 	FieldDescPaperSeries   = "Available fields: id, name, syllabusId"
-	FieldDescPaperCode     = "Available fields: id, name, syllabusId, level"
+	FieldDescPaperCode     = "Available fields: id, name, syllabusId, examNodeId"
 	FieldDescPastPaper     = "Available fields: id, name, year, syllabusId, paperCodeId, paperSeriesId, questionNumber"
 	FieldDescQuestion      = "Available fields: id, stem, difficult, status, syllabusId, pastPaperId, questionContents, chapters"
 )

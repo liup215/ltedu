@@ -326,8 +326,8 @@ export default {
     pageInfo: 'Showing {from} to {to} of {total} results',
     selectSyllabus: 'Select Syllabus',
     noSyllabusMatch: 'No matching syllabuses',
-    level: 'Syllabus Level',
-    levelNone: 'No Level (Non A-Level)'
+    examNode: 'Exam Node',
+    noExamNode: 'No Exam Node'
   },
   syllabusForm: {
     editTitle: 'Edit Syllabus',
@@ -464,9 +464,7 @@ export default {
     selectTitle: 'Select a Chapter',
     selectTip: 'Select a chapter from the tree to view or edit its details',
     deleteChapter: 'Delete Chapter',
-    saveChanges: 'Save Changes',
-    level: 'Syllabus Level (AS/A2)',
-    levelNone: 'No Level (Non A-Level)'
+    saveChanges: 'Save Changes'
   },
   adminDashboard: {
     title: 'Admin Dashboard',
