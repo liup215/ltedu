@@ -10,7 +10,7 @@ type SyllabusExamNode struct {
 	Description string       `json:"description" gorm:"type:text"`
 	SortOrder   int          `json:"sortOrder" gorm:"default:0"`
 	Chapters    []*Chapter   `json:"chapters,omitempty" gorm:"many2many:exam_node_chapters;"`
-	PaperCodes  []*PaperCode `json:"paperCodes,omitempty" gorm:"many2many:exam_node_paper_codes;"`
+	PaperCodes  []*PaperCode `json:"paperCodes,omitempty" gorm:"foreignKey:ExamNodeId"`
 }
 
 // SyllabusExamNodeQuery 考试节点查询条件
