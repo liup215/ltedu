@@ -31,6 +31,7 @@ func Execute() {
 
 func init() {
 	rootCmd.AddCommand(configCmd)
+	rootCmd.AddCommand(accountCmd)
 	rootCmd.AddCommand(organisationCmd)
 	rootCmd.AddCommand(qualificationCmd)
 	rootCmd.AddCommand(syllabusCmd)
