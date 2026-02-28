@@ -151,6 +151,33 @@ var paperCodeGetCmd = &cobra.Command{
 	},
 }
 
+var (
+	paperCodeEditID   uint
+	paperCodeEditName string
+)
+
+var paperCodeEditCmd = &cobra.Command{
+	Use:   "edit",
+	Short: "Edit a paper code (修改试卷代码名称)",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if paperCodeEditID == 0 {
+			return fmt.Errorf("--id is required")
+		}
+		c := client.NewClient()
+		body := map[string]interface{}{
+			"id":   paperCodeEditID,
+			"name": paperCodeEditName,
+		}
+		var result interface{}
+		if err := c.PostAndDecode("/v1/pastPaper/code/edit", body, &result); err != nil {
+			return err
+		}
+		fmt.Println("Paper code updated successfully.")
+		prettyPrint(result)
+		return nil
+	},
+}
+
 // ---- paper series subcommand ----
 
 var paperSeriesCmd = &cobra.Command{
@@ -196,6 +223,33 @@ var paperSeriesListCmd = &cobra.Command{
 	},
 }
 
+var (
+	paperSeriesEditID   uint
+	paperSeriesEditName string
+)
+
+var paperSeriesEditCmd = &cobra.Command{
+	Use:   "edit",
+	Short: "Edit a paper series (修改试卷系列名称)",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if paperSeriesEditID == 0 {
+			return fmt.Errorf("--id is required")
+		}
+		c := client.NewClient()
+		body := map[string]interface{}{
+			"id":   paperSeriesEditID,
+			"name": paperSeriesEditName,
+		}
+		var result interface{}
+		if err := c.PostAndDecode("/v1/pastPaper/series/edit", body, &result); err != nil {
+			return err
+		}
+		fmt.Println("Paper series updated successfully.")
+		prettyPrint(result)
+		return nil
+	},
+}
+
 func init() {
 	// Past paper flags
 	pastPaperListCmd.Flags().IntVar(&pastPaperListPage, "page", 1, "Page number")
@@ -213,15 +267,23 @@ func init() {
 	paperCodeListCmd.Flags().IntVar(&paperCodeListPageSize, "page-size", 20, "Page size")
 	paperCodeListCmd.Flags().UintVar(&paperCodeListSyllabusID, "syllabus-id", 0, "Filter by syllabus ID")
 
+	paperCodeEditCmd.Flags().UintVar(&paperCodeEditID, "id", 0, "Paper code ID (required)")
+	paperCodeEditCmd.Flags().StringVar(&paperCodeEditName, "name", "", "New name")
+
 	paperCodeCmd.AddCommand(paperCodeListCmd)
 	paperCodeCmd.AddCommand(paperCodeGetCmd)
+	paperCodeCmd.AddCommand(paperCodeEditCmd)
 
 	// Paper series flags
 	paperSeriesListCmd.Flags().IntVar(&paperSeriesListPage, "page", 1, "Page number")
 	paperSeriesListCmd.Flags().IntVar(&paperSeriesListPageSize, "page-size", 20, "Page size")
 	paperSeriesListCmd.Flags().UintVar(&paperSeriesListSyllabusID, "syllabus-id", 0, "Filter by syllabus ID")
 
+	paperSeriesEditCmd.Flags().UintVar(&paperSeriesEditID, "id", 0, "Paper series ID (required)")
+	paperSeriesEditCmd.Flags().StringVar(&paperSeriesEditName, "name", "", "New name")
+
 	paperSeriesCmd.AddCommand(paperSeriesListCmd)
+	paperSeriesCmd.AddCommand(paperSeriesEditCmd)
 
 	// Assemble paper command
 	paperCmd.AddCommand(pastPaperCmd)
