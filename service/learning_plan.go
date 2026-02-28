@@ -47,12 +47,13 @@ func (svr *LearningPlanService) CreatePlan(req model.StudentLearningPlanCreateRe
 	}
 
 	plan := &model.StudentLearningPlan{
-		ClassId:   req.ClassId,
-		UserId:    req.UserId,
-		PlanType:  req.PlanType,
-		Content:   req.Content,
-		Version:   1,
-		CreatedBy: creatorId,
+		ClassId:    req.ClassId,
+		UserId:     req.UserId,
+		PlanType:   req.PlanType,
+		Content:    req.Content,
+		Version:    1,
+		CreatedBy:  creatorId,
+		IsPersonal: req.IsPersonal,
 	}
 	if err := repository.StudentLearningPlanRepo.Create(plan); err != nil {
 		return nil, err
@@ -937,12 +938,13 @@ func (svr *LearningPlanService) GenerateTemplatePlans(req model.GeneratePlansReq
 			}
 
 			plan := &model.StudentLearningPlan{
-				ClassId:   req.ClassId,
-				UserId:    student.ID,
-				PlanType:  planType,
-				Content:   planContents[planType],
-				Version:   1,
-				CreatedBy: creatorId,
+				ClassId:    req.ClassId,
+				UserId:     student.ID,
+				PlanType:   planType,
+				Content:    planContents[planType],
+				Version:    1,
+				CreatedBy:  creatorId,
+				IsPersonal: false,
 			}
 			if err := repository.StudentLearningPlanRepo.Create(plan); err != nil {
 				result.Errors = append(result.Errors, fmt.Sprintf("user %d planType %s: 创建计划出错: %v", student.ID, planType, err))

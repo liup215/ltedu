@@ -9,14 +9,15 @@ const (
 // StudentLearningPlan 学生个性化学习计划（三层体系）
 type StudentLearningPlan struct {
 	Model
-	ClassId   uint    `json:"classId" gorm:"index"`
-	Class     *Class  `json:"class,omitempty" gorm:"foreignKey:ClassId"`
-	UserId    uint    `json:"userId" gorm:"index"`
-	User      *User   `json:"user,omitempty" gorm:"foreignKey:UserId"`
-	PlanType  string  `json:"planType" gorm:"size:10;index"` // "long", "mid", "short"
-	Content   string  `json:"content" gorm:"type:text"`      // JSON / markdown 内容
-	Version   int     `json:"version" gorm:"default:1"`
-	CreatedBy uint    `json:"createdBy" gorm:"index"` // 创建人（通常是教师）
+	ClassId    uint    `json:"classId" gorm:"index"`
+	Class      *Class  `json:"class,omitempty" gorm:"foreignKey:ClassId"`
+	UserId     uint    `json:"userId" gorm:"index"`
+	User       *User   `json:"user,omitempty" gorm:"foreignKey:UserId"`
+	PlanType   string  `json:"planType" gorm:"size:10;index"` // "long", "mid", "short"
+	Content    string  `json:"content" gorm:"type:text"`      // JSON / markdown 内容
+	Version    int     `json:"version" gorm:"default:1"`
+	CreatedBy  uint    `json:"createdBy" gorm:"index"` // 创建人（通常是教师）
+	IsPersonal bool    `json:"isPersonal" gorm:"default:false;index"` // true=个人计划, false=批量计划
 }
 
 // StudentLearningPlanVersion 学习计划历史版本
@@ -31,20 +32,22 @@ type StudentLearningPlanVersion struct {
 
 // StudentLearningPlanQuery 查询条件
 type StudentLearningPlanQuery struct {
-	ID       uint   `json:"id"`
-	ClassId  uint   `json:"classId"`
-	UserId   uint   `json:"userId"`
-	PlanType string `json:"planType"`
+	ID         uint   `json:"id"`
+	ClassId    uint   `json:"classId"`
+	UserId     uint   `json:"userId"`
+	PlanType   string `json:"planType"`
+	IsPersonal *bool  `json:"isPersonal"` // nil=不过滤, true=仅个人计划, false=仅批量计划
 	Page
 }
 
 // StudentLearningPlanCreateRequest 创建请求
 type StudentLearningPlanCreateRequest struct {
-	ClassId  uint   `json:"classId" binding:"required"`
-	UserId   uint   `json:"userId" binding:"required"`
-	PlanType string `json:"planType" binding:"required"`
-	Content  string `json:"content"`
-	Comment  string `json:"comment"` // 初始版本备注
+	ClassId    uint   `json:"classId" binding:"required"`
+	UserId     uint   `json:"userId" binding:"required"`
+	PlanType   string `json:"planType" binding:"required"`
+	Content    string `json:"content"`
+	Comment    string `json:"comment"`    // 初始版本备注
+	IsPersonal bool   `json:"isPersonal"` // true=个人计划, false=批量计划
 }
 
 // StudentLearningPlanUpdateRequest 更新请求

@@ -11,12 +11,14 @@
         </div>
         <div class="flex gap-2">
           <button
+            v-if="activeTab === 'plans'"
             @click="openGenerateModal"
             class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none"
           >
             {{ t('learningPlan.generateTemplate') }}
           </button>
           <button
+            v-if="activeTab === 'plans'"
             @click="openCreateModal"
             class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none"
           >
@@ -32,62 +34,127 @@
       </div>
     </header>
 
-    <!-- Filters -->
-    <div class="mb-4 flex gap-4 items-center">
-      <div>
-        <label class="text-sm font-medium text-gray-700 mr-2">{{ t('learningPlan.userId') }}</label>
-        <input v-model.number="filterUserId" type="number" placeholder="User ID" @change="loadPlans"
-          class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-32" />
-      </div>
-      <div class="flex gap-1">
-        <button v-for="type in ['', 'long', 'mid', 'short']" :key="type"
-          @click="filterPlanType = type; loadPlans()"
-          :class="['px-3 py-1 text-sm rounded-md font-medium border', filterPlanType === type ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50']">
-          {{ type === '' ? 'All' : t(`learningPlan.type${type.charAt(0).toUpperCase() + type.slice(1)}`) }}
+    <!-- Tabs -->
+    <div class="mb-4 border-b border-gray-200">
+      <nav class="-mb-px flex space-x-6">
+        <button
+          @click="activeTab = 'plans'"
+          :class="['pb-2 text-sm font-medium border-b-2 transition-colors', activeTab === 'plans' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300']"
+        >
+          {{ t('learningPlan.planList') }}
         </button>
+        <button
+          @click="activeTab = 'students'; loadStudents()"
+          :class="['pb-2 text-sm font-medium border-b-2 transition-colors', activeTab === 'students' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300']"
+        >
+          {{ t('learningPlan.studentList') }}
+        </button>
+      </nav>
+    </div>
+
+    <!-- Plans Tab -->
+    <div v-if="activeTab === 'plans'">
+      <!-- Filters -->
+      <div class="mb-4 flex gap-4 items-center flex-wrap">
+        <div>
+          <label class="text-sm font-medium text-gray-700 mr-2">{{ t('learningPlan.userId') }}</label>
+          <input v-model.number="filterUserId" type="number" placeholder="User ID" @change="loadPlans"
+            class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-32" />
+        </div>
+        <div class="flex gap-1">
+          <button v-for="type in ['', 'long', 'mid', 'short']" :key="type"
+            @click="filterPlanType = type; loadPlans()"
+            :class="['px-3 py-1 text-sm rounded-md font-medium border', filterPlanType === type ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50']">
+            {{ type === '' ? 'All' : t(`learningPlan.type${type.charAt(0).toUpperCase() + type.slice(1)}`) }}
+          </button>
+        </div>
+        <div class="flex gap-1">
+          <button v-for="src in [null, true, false]" :key="String(src)"
+            @click="filterIsPersonal = src; loadPlans()"
+            :class="['px-3 py-1 text-sm rounded-md font-medium border', filterIsPersonal === src ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50']">
+            {{ src === null ? 'All' : (src ? t('learningPlan.planSourcePersonal') : t('learningPlan.planSourceBatch')) }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div v-if="loading" class="text-center py-12 text-gray-500">{{ t('learningPlan.loading') }}</div>
+        <div v-else-if="!plans.length" class="text-center py-12 text-gray-500">{{ t('learningPlan.noPlans') }}</div>
+        <table v-else class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ t('learningPlan.userId') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ t('learningPlan.planType') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ t('learningPlan.planSource') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ t('learningPlan.version') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Updated</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr v-for="plan in plans" :key="plan.id">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ plan.id }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ plan.userId }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                  :class="{
+                    'bg-blue-100 text-blue-800': plan.planType === 'long',
+                    'bg-yellow-100 text-yellow-800': plan.planType === 'mid',
+                    'bg-green-100 text-green-800': plan.planType === 'short'
+                  }">
+                  {{ t(`learningPlan.type${plan.planType.charAt(0).toUpperCase() + plan.planType.slice(1)}`) }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                  :class="plan.isPersonal ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-700'">
+                  {{ plan.isPersonal ? t('learningPlan.planSourcePersonal') : t('learningPlan.planSourceBatch') }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">v{{ plan.version }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ plan.updatedAt?.slice(0, 10) }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                <button @click="openEditModal(plan)" class="text-indigo-600 hover:text-indigo-900">{{ t('learningPlan.editPlan') }}</button>
+                <button @click="openVersionsModal(plan)" class="text-gray-600 hover:text-gray-900">{{ t('learningPlan.viewVersions') }}</button>
+                <router-link :to="`/admin/learning-plans/${plan.id}/phase-plans`" class="text-purple-600 hover:text-purple-900">{{ t('learningPlan.phaseManage') }}</router-link>
+                <button @click="confirmDelete(plan)" class="text-red-600 hover:text-red-900">{{ t('common.delete') }}</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
-    <!-- Table -->
-    <div class="bg-white shadow rounded-lg overflow-hidden">
-      <div v-if="loading" class="text-center py-12 text-gray-500">{{ t('learningPlan.loading') }}</div>
-      <div v-else-if="!plans.length" class="text-center py-12 text-gray-500">{{ t('learningPlan.noPlans') }}</div>
-      <table v-else class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ t('learningPlan.userId') }}</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ t('learningPlan.planType') }}</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ t('learningPlan.version') }}</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Updated</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          <tr v-for="plan in plans" :key="plan.id">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ plan.id }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ plan.userId }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                :class="{
-                  'bg-blue-100 text-blue-800': plan.planType === 'long',
-                  'bg-yellow-100 text-yellow-800': plan.planType === 'mid',
-                  'bg-green-100 text-green-800': plan.planType === 'short'
-                }">
-                {{ t(`learningPlan.type${plan.planType.charAt(0).toUpperCase() + plan.planType.slice(1)}`) }}
-              </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">v{{ plan.version }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ plan.updatedAt?.slice(0, 10) }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-              <button @click="openEditModal(plan)" class="text-indigo-600 hover:text-indigo-900">{{ t('learningPlan.editPlan') }}</button>
-              <button @click="openVersionsModal(plan)" class="text-gray-600 hover:text-gray-900">{{ t('learningPlan.viewVersions') }}</button>
-              <router-link :to="`/admin/learning-plans/${plan.id}/phase-plans`" class="text-purple-600 hover:text-purple-900">{{ t('learningPlan.phaseManage') }}</router-link>
-              <button @click="confirmDelete(plan)" class="text-red-600 hover:text-red-900">{{ t('common.delete') }}</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Students Tab -->
+    <div v-if="activeTab === 'students'">
+      <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div v-if="loadingStudents" class="text-center py-12 text-gray-500">{{ t('learningPlan.loading') }}</div>
+        <div v-else-if="!students.length" class="text-center py-12 text-gray-500">{{ t('learningPlan.noStudents') }}</div>
+        <table v-else class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ t('learningPlan.studentUsername') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ t('learningPlan.studentName') }}</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr v-for="student in students" :key="student.id">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ student.id }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ student.username }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ student.nickName || student.name || '—' }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button @click="openCreateModalForStudent(student)" class="text-indigo-600 hover:text-indigo-900">
+                  {{ t('learningPlan.createPersonalPlan') }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <!-- Create / Edit Modal -->
@@ -108,6 +175,10 @@
               <option value="mid">{{ t('learningPlan.typeMid') }}</option>
               <option value="short">{{ t('learningPlan.typeShort') }}</option>
             </select>
+          </div>
+          <div v-if="!editingPlan" class="flex items-center gap-2">
+            <input id="isPersonalCheck" v-model="form.isPersonal" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded" />
+            <label for="isPersonalCheck" class="text-sm font-medium text-gray-700">{{ t('learningPlan.planSourcePersonal') }}</label>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('learningPlan.content') }}</label>
@@ -240,6 +311,8 @@ const { t } = useI18n()
 const route = useRoute()
 const classId = Number(route.params.classId)
 
+const activeTab = ref<'plans' | 'students'>('plans')
+
 const plans = ref<StudentLearningPlan[]>([])
 const classInfo = ref<any>(null)
 const versions = ref<StudentLearningPlanVersion[]>([])
@@ -249,6 +322,7 @@ const loadingVersions = ref(false)
 
 const filterUserId = ref<number | ''>('')
 const filterPlanType = ref('')
+const filterIsPersonal = ref<boolean | null>(null)
 
 const showModal = ref(false)
 const showVersionsModal = ref(false)
@@ -258,7 +332,30 @@ const editingPlan = ref<StudentLearningPlan | null>(null)
 const versionsPlan = ref<StudentLearningPlan | null>(null)
 const deletingPlan = ref<StudentLearningPlan | null>(null)
 
-const form = ref({ userId: 0, planType: 'long', content: '', comment: '' })
+const form = ref({ userId: 0, planType: 'long', content: '', comment: '', isPersonal: false })
+
+// Students tab
+const students = ref<any[]>([])
+const loadingStudents = ref(false)
+
+async function loadStudents() {
+  loadingStudents.value = true
+  try {
+    const res = await classService.listStudents(classId)
+    if (res.code === 0) students.value = res.data.list ?? []
+  } catch (e) {
+    console.error(e)
+  } finally {
+    loadingStudents.value = false
+  }
+}
+
+function openCreateModalForStudent(student: any) {
+  editingPlan.value = null
+  form.value = { userId: student.id, planType: 'long', content: '', comment: '', isPersonal: true }
+  showModal.value = true
+  activeTab.value = 'plans'
+}
 
 async function loadPlans() {
   loading.value = true
@@ -266,6 +363,7 @@ async function loadPlans() {
     const query: any = { classId, pageSize: 100, pageIndex: 1 }
     if (filterUserId.value) query.userId = filterUserId.value
     if (filterPlanType.value) query.planType = filterPlanType.value
+    if (filterIsPersonal.value !== null) query.isPersonal = filterIsPersonal.value
     const res = await learningPlanService.list(query)
     if (res.code === 0) plans.value = res.data.list ?? []
   } catch (e) {
@@ -286,13 +384,13 @@ async function loadClassInfo() {
 
 function openCreateModal() {
   editingPlan.value = null
-  form.value = { userId: 0, planType: 'long', content: '', comment: '' }
+  form.value = { userId: 0, planType: 'long', content: '', comment: '', isPersonal: false }
   showModal.value = true
 }
 
 function openEditModal(plan: StudentLearningPlan) {
   editingPlan.value = plan
-  form.value = { userId: plan.userId, planType: plan.planType, content: plan.content, comment: '' }
+  form.value = { userId: plan.userId, planType: plan.planType, content: plan.content, comment: '', isPersonal: plan.isPersonal }
   showModal.value = true
 }
 
@@ -307,7 +405,7 @@ async function submitForm() {
       const res = await learningPlanService.update({ id: editingPlan.value.id, content: form.value.content, comment: form.value.comment })
       if (res.code === 0) { await loadPlans(); closeModal() }
     } else {
-      const res = await learningPlanService.create({ classId, userId: form.value.userId, planType: form.value.planType, content: form.value.content, comment: form.value.comment })
+      const res = await learningPlanService.create({ classId, userId: form.value.userId, planType: form.value.planType, content: form.value.content, comment: form.value.comment, isPersonal: form.value.isPersonal })
       if (res.code === 0) { await loadPlans(); closeModal() }
     }
   } catch (e) {

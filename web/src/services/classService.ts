@@ -60,8 +60,12 @@ class ClassService {
   }
 
   async listMembers(classId: number): Promise<ApiResponse> {
+    return this.listStudents(classId)
+  }
+
+  async listStudents(classId: number): Promise<ApiResponse> {
     const client = await apiClient()
-    const response = await client.post('/api/v1/school/class/members', { classId })
+    const response = await client.post('/api/v1/school/class/studentList', { id: classId })
     return response.data
   }
 }
