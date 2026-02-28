@@ -122,13 +122,13 @@ func (r *examNodeRepository) RemoveChapter(examNodeId uint, chapterId uint) erro
 }
 
 func (r *examNodeRepository) AddPaperCode(examNodeId uint, paperCodeId uint) error {
-	return r.db.Model(&model.SyllabusExamNode{Model: model.Model{ID: examNodeId}}).
-		Association("PaperCodes").
-		Append(&model.PaperCode{Model: model.Model{ID: paperCodeId}})
+	return r.db.Model(&model.PaperCode{}).
+		Where("id = ?", paperCodeId).
+		Update("exam_node_id", examNodeId).Error
 }
 
 func (r *examNodeRepository) RemovePaperCode(examNodeId uint, paperCodeId uint) error {
-	return r.db.Model(&model.SyllabusExamNode{Model: model.Model{ID: examNodeId}}).
-		Association("PaperCodes").
-		Delete(&model.PaperCode{Model: model.Model{ID: paperCodeId}})
+	return r.db.Model(&model.PaperCode{}).
+		Where("id = ? AND exam_node_id = ?", paperCodeId, examNodeId).
+		Update("exam_node_id", 0).Error
 }
