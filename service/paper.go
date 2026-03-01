@@ -23,7 +23,20 @@ func (s *QuestionPaperService) EditSeries(se model.PaperSeries) error {
 	if se.ID == uint(0) {
 		return errors.New("无效的ID")
 	}
-	return repository.PaperSeriesRepo.Update(&se)
+	existing, err := repository.PaperSeriesRepo.FindByID(se.ID)
+	if err != nil {
+		return err
+	}
+	if existing == nil {
+		return errors.New("记录不存在")
+	}
+	if se.Name != "" {
+		existing.Name = se.Name
+	}
+	if se.SyllabusId != 0 {
+		existing.SyllabusId = se.SyllabusId
+	}
+	return repository.PaperSeriesRepo.Update(existing)
 }
 
 func (s *QuestionPaperService) DeleteSeries(id uint) error {
@@ -59,7 +72,23 @@ func (s *QuestionPaperService) EditCode(c model.PaperCode) error {
 	if c.ID == uint(0) {
 		return errors.New("无效的ID")
 	}
-	return repository.PaperCodeRepo.Update(&c)
+	existing, err := repository.PaperCodeRepo.FindByID(c.ID)
+	if err != nil {
+		return err
+	}
+	if existing == nil {
+		return errors.New("记录不存在")
+	}
+	if c.Name != "" {
+		existing.Name = c.Name
+	}
+	if c.SyllabusId != 0 {
+		existing.SyllabusId = c.SyllabusId
+	}
+	if c.ExamNodeId != 0 {
+		existing.ExamNodeId = c.ExamNodeId
+	}
+	return repository.PaperCodeRepo.Update(existing)
 }
 
 func (s *QuestionPaperService) SelectCodeById(id uint) (*model.PaperCode, error) {
