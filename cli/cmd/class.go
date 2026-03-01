@@ -4,6 +4,7 @@ import (
 	"edu/cli/client"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -186,7 +187,7 @@ var studentListCmd = &cobra.Command{
 			return err
 		}
 		fmt.Printf("Total: %d\n\n", result.Total)
-		headers := []string{"ID", "Username", "Realname", "Email"}
+		headers := []string{"ID", "Username", "Realname", "Email", "Status"}
 		rows := make([][]string, 0, len(result.List))
 		for _, item := range result.List {
 			rows = append(rows, []string{
@@ -194,11 +195,127 @@ var studentListCmd = &cobra.Command{
 				fmtStr(item["username"]),
 				fmtStr(item["realname"]),
 				fmtStr(item["email"]),
+				fmtStudentStatus(item["studentStatus"]),
 			})
 		}
 		printTable(headers, rows)
 		return nil
 	},
+}
+
+// ---- student get subcommand ----
+
+var (
+	studentGetClassID uint
+	studentGetUserID  uint
+)
+
+var studentGetCmd = &cobra.Command{
+	Use:   "get",
+	Short: "Get a student's info and enrollment status in a class",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if studentGetClassID == 0 || studentGetUserID == 0 {
+			return fmt.Errorf("--class-id and --user-id are required")
+		}
+		c := client.NewClient()
+		var result struct {
+			List  []map[string]interface{} `json:"list"`
+			Total int                      `json:"total"`
+		}
+		if err := c.PostAndDecode("/v1/school/class/studentList", map[string]interface{}{"id": studentGetClassID}, &result); err != nil {
+			return err
+		}
+		for _, item := range result.List {
+			if id, ok := item["id"].(float64); ok && uint(id) == studentGetUserID {
+				prettyPrint(item)
+				return nil
+			}
+		}
+		return fmt.Errorf("student with user-id %d not found in class %d", studentGetUserID, studentGetClassID)
+	},
+}
+
+// ---- student status subcommand ----
+
+var (
+	studentStatusClassID uint
+	studentStatusUserID  uint
+	studentStatusValue   string
+)
+
+var studentStatusCmd = &cobra.Command{
+	Use:   "status",
+	Short: "Update a student's enrollment status in a class (active/graduated/transferred/dropped or 1-4)",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if studentStatusClassID == 0 || studentStatusUserID == 0 || studentStatusValue == "" {
+			return fmt.Errorf("--class-id, --user-id and --status are required")
+		}
+		statusInt, err := resolveStudentStatus(studentStatusValue)
+		if err != nil {
+			return err
+		}
+		c := client.NewClient()
+		body := map[string]interface{}{
+			"classId": studentStatusClassID,
+			"userId":  studentStatusUserID,
+			"status":  statusInt,
+		}
+		if err := c.PostAndDecode("/v1/school/class/updateStudentStatus", body, nil); err != nil {
+			return err
+		}
+		fmt.Printf("Student %d status in class %d updated to '%s' successfully.\n",
+			studentStatusUserID, studentStatusClassID, fmtStudentStatus(float64(statusInt)))
+		return nil
+	},
+}
+
+// resolveStudentStatus resolves a named status string or numeric string to an int.
+// Valid names: active (1), graduated (2), transferred (3), dropped (4).
+func resolveStudentStatus(s string) (int, error) {
+	switch strings.ToLower(strings.TrimSpace(s)) {
+	case "active", "在读":
+		return 1, nil
+	case "graduated", "结业":
+		return 2, nil
+	case "transferred", "转走":
+		return 3, nil
+	case "dropped", "弃科":
+		return 4, nil
+	default:
+		n, err := strconv.Atoi(s)
+		if err != nil {
+			return 0, fmt.Errorf("invalid status %q: use active/graduated/transferred/dropped or 1-4", s)
+		}
+		if n < 1 || n > 4 {
+			return 0, fmt.Errorf("status must be 1-4 (active=1, graduated=2, transferred=3, dropped=4)")
+		}
+		return n, nil
+	}
+}
+
+// fmtStudentStatus converts a numeric student status to a human-readable string.
+func fmtStudentStatus(v interface{}) string {
+	var n int
+	switch val := v.(type) {
+	case float64:
+		n = int(val)
+	case int:
+		n = val
+	default:
+		return "unknown"
+	}
+	switch n {
+	case 1:
+		return "active(1)"
+	case 2:
+		return "graduated(2)"
+	case 3:
+		return "transferred(3)"
+	case 4:
+		return "dropped(4)"
+	default:
+		return "unknown"
+	}
 }
 
 var (
@@ -470,6 +587,13 @@ func init() {
 
 	studentListCmd.Flags().UintVar(&studentListClassID, "class-id", 0, "Class ID (required)")
 
+	studentGetCmd.Flags().UintVar(&studentGetClassID, "class-id", 0, "Class ID (required)")
+	studentGetCmd.Flags().UintVar(&studentGetUserID, "user-id", 0, "User ID (required)")
+
+	studentStatusCmd.Flags().UintVar(&studentStatusClassID, "class-id", 0, "Class ID (required)")
+	studentStatusCmd.Flags().UintVar(&studentStatusUserID, "user-id", 0, "User ID (required)")
+	studentStatusCmd.Flags().StringVar(&studentStatusValue, "status", "", "Enrollment status: active/graduated/transferred/dropped or 1-4 (required)")
+
 	studentAddCmd.Flags().UintVar(&studentAddClassID, "class-id", 0, "Class ID (required)")
 	studentAddCmd.Flags().UintVar(&studentAddUserID, "user-id", 0, "User ID (required)")
 
@@ -492,6 +616,8 @@ func init() {
 	assignTeacherCmd.Flags().UintVar(&assignTeacherTeacherID, "teacher-id", 0, "Teacher user ID (required)")
 
 	studentCmd.AddCommand(studentListCmd)
+	studentCmd.AddCommand(studentGetCmd)
+	studentCmd.AddCommand(studentStatusCmd)
 	studentCmd.AddCommand(studentAddCmd)
 	studentCmd.AddCommand(studentRemoveCmd)
 
