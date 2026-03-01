@@ -23,7 +23,12 @@ Configuration:
 }
 
 // Execute runs the root command and exits on error.
-func Execute() {
+// version is the build-time version string (set via -ldflags).
+func Execute(version string) {
+	if version != "" {
+		rootCmd.Version = version
+	}
+	rootCmd.SetVersionTemplate("edu-cli version {{.Version}}\n")
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}

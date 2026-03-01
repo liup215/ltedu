@@ -12,6 +12,9 @@ package main
 
 import "edu/cli/cmd"
 
+// version is set at build time via -ldflags="-X main.version=v0.0.1"
+var version = "dev"
+
 func main() {
-	cmd.Execute()
+	cmd.Execute(version)
 }
