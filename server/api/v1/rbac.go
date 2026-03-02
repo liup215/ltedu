@@ -21,28 +21,11 @@ type RBACController struct {
 	adminSvr *service.AdminService
 }
 
-// requireAdmin checks that the current user is a system admin.
-func requireAdmin(c *gin.Context) (uint, bool) {
-	u, err := auth.GetCurrentUser(c)
-	if err != nil {
-		http2.ErrorData(c, "无法获取当前用户信息", err.Error())
-		return 0, false
-	}
-	user, err := service.UserSvr.SelectUserById(u.ID)
-	if err != nil || user == nil || !user.IsAdmin {
-		http2.ErrorData(c, "需要管理员权限", nil)
-		return 0, false
-	}
-	return u.ID, true
-}
-
 // ============ Roles ============
 
 // ListRoles lists all roles with their permissions.
+// Access control is enforced by the RequireAdmin middleware on the route group.
 func (ctrl *RBACController) ListRoles(c *gin.Context) {
-	if _, ok := requireAdmin(c); !ok {
-		return
-	}
 	roles, err := ctrl.adminSvr.ListAdminRoles()
 	if err != nil {
 		http2.ErrorData(c, err.Error(), nil)
@@ -53,9 +36,6 @@ func (ctrl *RBACController) ListRoles(c *gin.Context) {
 
 // GetRole gets a role by ID.
 func (ctrl *RBACController) GetRole(c *gin.Context) {
-	if _, ok := requireAdmin(c); !ok {
-		return
-	}
 	var req struct {
 		ID uint `json:"id" binding:"required"`
 	}
@@ -73,9 +53,6 @@ func (ctrl *RBACController) GetRole(c *gin.Context) {
 
 // CreateRole creates a new role.
 func (ctrl *RBACController) CreateRole(c *gin.Context) {
-	if _, ok := requireAdmin(c); !ok {
-		return
-	}
 	var role model.AdminRole
 	if err := c.BindJSON(&role); err != nil {
 		http2.ErrorData(c, "参数解析失败", nil)
@@ -91,9 +68,6 @@ func (ctrl *RBACController) CreateRole(c *gin.Context) {
 
 // UpdateRole updates a role.
 func (ctrl *RBACController) UpdateRole(c *gin.Context) {
-	if _, ok := requireAdmin(c); !ok {
-		return
-	}
 	var role model.AdminRole
 	if err := c.BindJSON(&role); err != nil {
 		http2.ErrorData(c, "参数解析失败", nil)
@@ -109,9 +83,6 @@ func (ctrl *RBACController) UpdateRole(c *gin.Context) {
 
 // DeleteRole deletes a role by ID.
 func (ctrl *RBACController) DeleteRole(c *gin.Context) {
-	if _, ok := requireAdmin(c); !ok {
-		return
-	}
 	var req struct {
 		ID uint `json:"id" binding:"required"`
 	}
@@ -130,9 +101,6 @@ func (ctrl *RBACController) DeleteRole(c *gin.Context) {
 
 // ListPermissions lists all permissions.
 func (ctrl *RBACController) ListPermissions(c *gin.Context) {
-	if _, ok := requireAdmin(c); !ok {
-		return
-	}
 	perms, err := ctrl.adminSvr.ListPermissions()
 	if err != nil {
 		http2.ErrorData(c, err.Error(), nil)
@@ -143,9 +111,6 @@ func (ctrl *RBACController) ListPermissions(c *gin.Context) {
 
 // CreatePermission creates a new permission.
 func (ctrl *RBACController) CreatePermission(c *gin.Context) {
-	if _, ok := requireAdmin(c); !ok {
-		return
-	}
 	var perm model.AdminPermission
 	if err := c.BindJSON(&perm); err != nil {
 		http2.ErrorData(c, "参数解析失败", nil)
@@ -161,9 +126,6 @@ func (ctrl *RBACController) CreatePermission(c *gin.Context) {
 
 // UpdatePermission updates a permission.
 func (ctrl *RBACController) UpdatePermission(c *gin.Context) {
-	if _, ok := requireAdmin(c); !ok {
-		return
-	}
 	var perm model.AdminPermission
 	if err := c.BindJSON(&perm); err != nil {
 		http2.ErrorData(c, "参数解析失败", nil)
@@ -179,9 +141,6 @@ func (ctrl *RBACController) UpdatePermission(c *gin.Context) {
 
 // DeletePermission deletes a permission by ID.
 func (ctrl *RBACController) DeletePermission(c *gin.Context) {
-	if _, ok := requireAdmin(c); !ok {
-		return
-	}
 	var req struct {
 		ID uint `json:"id" binding:"required"`
 	}
@@ -200,9 +159,6 @@ func (ctrl *RBACController) DeletePermission(c *gin.Context) {
 
 // AssignPermissionToRole assigns a permission to a role.
 func (ctrl *RBACController) AssignPermissionToRole(c *gin.Context) {
-	if _, ok := requireAdmin(c); !ok {
-		return
-	}
 	var req struct {
 		RoleID       uint `json:"roleId" binding:"required"`
 		PermissionID uint `json:"permissionId" binding:"required"`
@@ -220,9 +176,6 @@ func (ctrl *RBACController) AssignPermissionToRole(c *gin.Context) {
 
 // RemovePermissionFromRole removes a permission from a role.
 func (ctrl *RBACController) RemovePermissionFromRole(c *gin.Context) {
-	if _, ok := requireAdmin(c); !ok {
-		return
-	}
 	var req struct {
 		RoleID       uint `json:"roleId" binding:"required"`
 		PermissionID uint `json:"permissionId" binding:"required"`
@@ -242,9 +195,6 @@ func (ctrl *RBACController) RemovePermissionFromRole(c *gin.Context) {
 
 // GetUserRoles gets the roles assigned to a user.
 func (ctrl *RBACController) GetUserRoles(c *gin.Context) {
-	if _, ok := requireAdmin(c); !ok {
-		return
-	}
 	var req struct {
 		UserID uint `json:"userId" binding:"required"`
 	}
@@ -262,9 +212,6 @@ func (ctrl *RBACController) GetUserRoles(c *gin.Context) {
 
 // AssignRoleToUser assigns a role to a user.
 func (ctrl *RBACController) AssignRoleToUser(c *gin.Context) {
-	if _, ok := requireAdmin(c); !ok {
-		return
-	}
 	var req struct {
 		UserID uint `json:"userId" binding:"required"`
 		RoleID uint `json:"roleId" binding:"required"`
@@ -282,9 +229,6 @@ func (ctrl *RBACController) AssignRoleToUser(c *gin.Context) {
 
 // RemoveRoleFromUser removes a role from a user.
 func (ctrl *RBACController) RemoveRoleFromUser(c *gin.Context) {
-	if _, ok := requireAdmin(c); !ok {
-		return
-	}
 	var req struct {
 		UserID uint `json:"userId" binding:"required"`
 		RoleID uint `json:"roleId" binding:"required"`
