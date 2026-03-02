@@ -843,6 +843,8 @@ export default {
     managePermissions: 'Manage Permissions',
     managePermissionsFor: 'Manage Permissions for',
     managePermissionsDescription: 'Check or uncheck permissions to assign or remove them from this role.',
+    confirmDeleteRole: 'Are you sure you want to delete this role?',
+    confirmDeletePermission: 'Are you sure you want to delete this permission?',
   },
 }
 

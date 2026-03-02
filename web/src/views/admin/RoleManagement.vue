@@ -122,8 +122,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import rbacService from '../../services/rbacService'
 import type { Role, Permission } from '../../services/rbacService'
+
+const { t } = useI18n()
 
 const roles = ref<Role[]>([])
 const allPermissions = ref<Permission[]>([])
@@ -202,7 +205,7 @@ const saveRole = async () => {
 }
 
 const confirmDeleteRole = async (id: number) => {
-  if (confirm('Are you sure you want to delete this role?')) {
+  if (confirm(t('rbac.confirmDeleteRole'))) {
     try {
       await rbacService.deleteRole(id)
       await fetchRoles()

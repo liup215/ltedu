@@ -39,6 +39,9 @@ var AdminSvr *AdminService = &AdminService{
 	baseService: newBaseService(),
 }
 
+// SuperuserUsername is the reserved username that always has full system permissions.
+const SuperuserUsername = "admin"
+
 type AdminService struct {
 	baseService
 }
@@ -132,7 +135,7 @@ func (svr *AdminService) GetUserPermissions(userID uint) ([]*model.AdminPermissi
 	}
 
 	// Superuser (e.g., username "admin") gets all permissions
-	if user.Username == "admin" {
+	if user.Username == SuperuserUsername {
 		permissions, err := repository.AdminPermRepo.FindAll()
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to get all permissions for superuser")
@@ -291,6 +294,15 @@ var DefaultPermissions = []model.AdminPermission{
 	{Slug: "permission:delete", DisplayName: "Delete Permissions", GroupName: "permission"},
 }
 
+// allDefaultPermissionSlugs returns all slugs from DefaultPermissions.
+func allDefaultPermissionSlugs() []string {
+	slugs := make([]string, len(DefaultPermissions))
+	for i, p := range DefaultPermissions {
+		slugs[i] = p.Slug
+	}
+	return slugs
+}
+
 // DefaultRoles defines the standard roles and their permission slugs.
 var DefaultRoles = []struct {
 	Slug        string
@@ -302,13 +314,7 @@ var DefaultRoles = []struct {
 		Slug:        "super_admin",
 		DisplayName: "Super Admin",
 		Description: "Full access to all resources",
-		Permissions: func() []string {
-			slugs := make([]string, len(DefaultPermissions))
-			for i, p := range DefaultPermissions {
-				slugs[i] = p.Slug
-			}
-			return slugs
-		}(),
+		Permissions: allDefaultPermissionSlugs(),
 	},
 	{
 		Slug:        "admin",

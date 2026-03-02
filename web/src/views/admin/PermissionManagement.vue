@@ -100,8 +100,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import rbacService from '../../services/rbacService'
 import type { Permission } from '../../services/rbacService'
+
+const { t } = useI18n()
 
 const permissions = ref<Permission[]>([])
 const loading = ref(true)
@@ -170,7 +173,7 @@ const save = async () => {
 }
 
 const confirmDelete = async (id: number) => {
-  if (confirm('Are you sure you want to delete this permission?')) {
+  if (confirm(t('rbac.confirmDeletePermission'))) {
     try {
       await rbacService.deletePermission(id)
       await fetchPermissions()

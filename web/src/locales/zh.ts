@@ -843,5 +843,7 @@ export default {
     managePermissions: '管理权限',
     managePermissionsFor: '管理角色权限',
     managePermissionsDescription: '勾选或取消勾选权限以分配或移除该角色的权限。',
+    confirmDeleteRole: '确定要删除此角色吗？',
+    confirmDeletePermission: '确定要删除此权限吗？',
   },
 }
