@@ -48,21 +48,22 @@ func EnsureSuperUserExists() error {
 	}
 
 	// Create admin user
-	adminStatusOk := model.ADMIN_STATUS_OK
 	user := &model.User{
-		Username:    adminUsername,
-		Password:    adminPassword, // Will be hashed by service layer
-		Email:       adminEmail,
-		Mobile:      adminMobile,
-		IsAdmin:     true,
-		Status:      model.UserStatusNormal,
-		AdminRoleID: &superAdminRole.ID,
-		AdminStatus: &adminStatusOk,
+		Username: adminUsername,
+		Password: adminPassword, // Will be hashed by service layer
+		Email:    adminEmail,
+		Mobile:   adminMobile,
+		Status:   model.UserStatusNormal,
 	}
 
-	_, err = service.UserSvr.CreateUser(*user)
+	createdUser, err := service.UserSvr.CreateUser(*user)
 	if err != nil {
 		return errors.Wrap(err, "failed to create admin user")
+	}
+
+	// Assign super_admin role to the user via RBAC
+	if err := service.AdminSvr.AssignRoleToUser(createdUser.ID, superAdminRole.ID); err != nil {
+		return errors.Wrap(err, "failed to assign super_admin role to admin user")
 	}
 
 	return nil

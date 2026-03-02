@@ -35,16 +35,11 @@ type User struct {
 	Classes             []*Class   `json:"classes" gorm:"many2many:user_class_relation;"`
 	FinalPerformMark    int        `json:"finalPerformMark"`
 	FinalActivityMark   int        `json:"finalActivityMark"`
-	// Admin-related fields (moved from old Admin model or new)
-	IsAdmin       bool         `json:"isAdmin" gorm:"default:false"`
-	AdminRoleID   *uint        `json:"adminRoleId,omitempty" gorm:"index"`                // Pointer to allow null
-	AdminRole     *AdminRole   `json:"adminRole,omitempty" gorm:"foreignKey:AdminRoleID"` // Pointer to allow null
-	AdminStatus   *int         `json:"adminStatus,omitempty"`                             // Pointer to allow null, uses ADMIN_STATUS_OK etc. from model/admin.go
-	LastLoginIp   string       `json:"lastLoginIp,omitempty" gorm:"size:50"`
-	LastLoginDate *time.Time   `json:"lastLoginDate,omitempty"`
-	LoginTimes    uint         `json:"loginTimes,omitempty" gorm:"default:0"`
 	// RBAC: user can have multiple roles (many2many via user_roles)
 	Roles []*AdminRole `json:"roles,omitempty" gorm:"many2many:user_roles;"`
+	// IsAdmin is a virtual field computed from Roles (not stored in DB).
+	// It is true when the user has the "admin" or "super_admin" role.
+	IsAdmin bool `json:"isAdmin" gorm:"-"`
 	// Teacher-related fields
 	IsTeacher            bool  `json:"isTeacher" gorm:"default:false"`
 	TeacherApplyStatus   int   `json:"teacherApplyStatus" gorm:"default:0"`         // 0: Not Applied, 1: Pending, 2: Approved, 3: Rejected
@@ -52,6 +47,28 @@ type User struct {
 
 	// VIP expire field
 	VipExpireAt *time.Time `json:"vipExpireAt"`
+}
+
+// HasAdminRole returns true if the user has the "admin" or "super_admin" role.
+// Requires that Roles has been preloaded.
+func (u *User) HasAdminRole() bool {
+	for _, r := range u.Roles {
+		if r.Slug == "admin" || r.Slug == "super_admin" {
+			return true
+		}
+	}
+	return false
+}
+
+// HasTeacherRole returns true if the user has the "teacher" role.
+// Requires that Roles has been preloaded.
+func (u *User) HasTeacherRole() bool {
+	for _, r := range u.Roles {
+		if r.Slug == "teacher" {
+			return true
+		}
+	}
+	return false
 }
 
 type UserQuery struct {

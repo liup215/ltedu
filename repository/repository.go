@@ -59,6 +59,11 @@ func GetTableName(db *gorm.DB, model interface{}) string {
 	return stmt.Schema.Table
 }
 
+// GetDB returns the global database connection.
+func GetDB() *gorm.DB {
+	return DB
+}
+
 // InitRepositories 初始化所有仓储
 func InitRepositories(db *gorm.DB) {
 	DB = db

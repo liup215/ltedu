@@ -56,7 +56,16 @@
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ user.id ?? 'N/A' }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ user.username ?? 'N/A' }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.email ?? 'N/A' }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.adminRole?.displayName ?? user.adminRoleId ?? 'N/A' }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <div class="flex flex-wrap gap-1">
+                <span
+                  v-for="role in (user.roles || [])"
+                  :key="role.id"
+                  class="px-2 py-0.5 text-xs rounded-full bg-indigo-100 text-indigo-700"
+                >{{ role.displayName }}</span>
+                <span v-if="!user.roles || user.roles.length === 0" class="text-gray-400">—</span>
+              </div>
+            </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <span :class="[
                 getUserStatusInfo(user.status).class,

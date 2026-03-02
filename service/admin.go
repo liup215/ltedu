@@ -120,7 +120,7 @@ func (svr *AdminService) GetAdminRolePermissions(roleID uint) ([]*model.AdminPer
 	return repository.AdminRoleRepo.GetPermissions(roleID)
 }
 
-// GetUserPermissions retrieves all permissions for a given userID.
+// GetUserPermissions retrieves all permissions for a given userID via RBAC roles.
 func (svr *AdminService) GetUserPermissions(userID uint) ([]*model.AdminPermission, error) {
 	user, err := UserSvr.SelectUserById(userID)
 	if err != nil {
@@ -130,11 +130,7 @@ func (svr *AdminService) GetUserPermissions(userID uint) ([]*model.AdminPermissi
 		return nil, stdErrors.New("user not found for permissions check")
 	}
 
-	if !user.IsAdmin {
-		return []*model.AdminPermission{}, nil // Not an admin, no admin permissions
-	}
-
-	// Superuser (e.g., username "admin") gets all permissions
+	// Superuser gets all permissions
 	if user.Username == SuperuserUsername {
 		permissions, err := repository.AdminPermRepo.FindAll()
 		if err != nil {
@@ -153,16 +149,6 @@ func (svr *AdminService) GetUserPermissions(userID uint) ([]*model.AdminPermissi
 	for _, role := range roles {
 		for _, perm := range role.Permissions {
 			permMap[perm.ID] = perm
-		}
-	}
-
-	// Also check the legacy single AdminRoleID field for backward compatibility
-	if user.AdminRoleID != nil && *user.AdminRoleID != 0 {
-		legacyPerms, err := svr.GetAdminRolePermissions(*user.AdminRoleID)
-		if err == nil {
-			for _, perm := range legacyPerms {
-				permMap[perm.ID] = perm
-			}
 		}
 	}
 

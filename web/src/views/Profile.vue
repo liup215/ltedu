@@ -26,7 +26,7 @@
             <div class="sm:col-span-1">
               <dt class="text-sm font-medium text-gray-500">Role</dt>
               <dd class="mt-1 text-sm text-gray-900">
-                {{ userStore.user.isAdmin ? 'Administrator' : (userStore.user.adminRole?.displayName || 'User') }}
+                {{ userStore.user.isAdmin ? 'Administrator' : (userStore.user.roles?.[0]?.displayName || 'User') }}
               </dd>
             </div>
             <!-- Add more fields like Full Name, Bio, etc. if available in userStore.user -->

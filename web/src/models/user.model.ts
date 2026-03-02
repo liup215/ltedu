@@ -5,14 +5,17 @@ export interface PermissionData {
   slug: string;
 }
 
-// Represents role data, e.g., model.AdminRole
-export interface AdminRoleData {
+// Represents role data (was AdminRoleData)
+export interface RoleData {
   id: number;
   displayName: string;
   slug: string;
   description?: string;
   permissions?: PermissionData[];
 }
+
+// Keep AdminRoleData as alias for backward compat (used by old Profile components)
+export type AdminRoleData = RoleData;
 
 // Represents the data part of ApiResponse for a user profile
 export interface UserProfileData {
@@ -21,8 +24,7 @@ export interface UserProfileData {
   email?: string | null;
   mobile?: string | null;
   isAdmin: boolean;
-  adminRoleId?: number | null;
-  adminRole?: AdminRoleData | null;
+  roles?: RoleData[];
 }
 
 // Main User interface used in the application (e.g., in userStore)
@@ -33,8 +35,7 @@ export interface User {
   email?: string | null;
   isAdmin: boolean;
   isTeacher: boolean;
-  adminRoleId?: number | null;
-  adminRole?: AdminRoleData | null;
+  roles?: RoleData[];
   nickname?: string;
   realname?: string;
   engname?: string;
@@ -93,6 +94,5 @@ export interface UserUpdatePayload {
   avatar?: string;
   status?: number;
   isActive?: number;
-  roleId?: number; // Corresponds to User.adminRoleId
   password?: string; // For password changes (often handled separately)
 }
