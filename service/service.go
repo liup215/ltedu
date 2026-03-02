@@ -18,6 +18,12 @@ func setDB() {
 
 		db.AutoMigrate(&model.AdminPermission{})
 		db.AutoMigrate(&model.AdminRole{})
+		// admin_role_permissions many2many join table (Role <-> Permission)
+		db.SetupJoinTable(&model.AdminRole{}, "Permissions", &model.AdminRolePermission{})
+		db.AutoMigrate(&model.AdminRolePermission{})
+		// user_roles many2many join table (User <-> Role)
+		db.SetupJoinTable(&model.User{}, "Roles", &model.UserRole{})
+		db.AutoMigrate(&model.UserRole{})
 		db.AutoMigrate(&model.AdminLog{})
 		db.AutoMigrate(&model.User{})
 		db.AutoMigrate(&model.Order{})
@@ -89,6 +95,13 @@ func setDB() {
 
 		// baseSvr.badgerDB = badger.New(conf.Conf.Badger)
 	})
+}
+
+// SeedRBACDefaults seeds default RBAC roles and permissions. Called after full service init.
+func SeedRBACDefaults() {
+	if err := AdminSvr.SeedDefaultRolesAndPermissions(); err != nil {
+		fmt.Println("Warning: failed to seed default roles/permissions:", err)
+	}
 }
 
 var baseSvr = baseService{}

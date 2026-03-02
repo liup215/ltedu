@@ -422,4 +422,22 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/learning-plan/phase/list", v1.PhasePlanCtrl.ListPhasePlans)
 	r.POST("/v1/learning-plan/phase/chapter/add", v1.PhasePlanCtrl.AddChapter)
 	r.POST("/v1/learning-plan/phase/chapter/remove", v1.PhasePlanCtrl.RemoveChapter)
+
+	// RBAC management endpoints
+	r.POST("/v1/rbac/roles/list", v1.RBACCtrl.ListRoles)
+	r.POST("/v1/rbac/roles/byId", v1.RBACCtrl.GetRole)
+	r.POST("/v1/rbac/roles/create", v1.RBACCtrl.CreateRole)
+	r.POST("/v1/rbac/roles/edit", v1.RBACCtrl.UpdateRole)
+	r.POST("/v1/rbac/roles/delete", v1.RBACCtrl.DeleteRole)
+	r.POST("/v1/rbac/permissions/list", v1.RBACCtrl.ListPermissions)
+	r.POST("/v1/rbac/permissions/create", v1.RBACCtrl.CreatePermission)
+	r.POST("/v1/rbac/permissions/edit", v1.RBACCtrl.UpdatePermission)
+	r.POST("/v1/rbac/permissions/delete", v1.RBACCtrl.DeletePermission)
+	r.POST("/v1/rbac/roles/permission/assign", v1.RBACCtrl.AssignPermissionToRole)
+	r.POST("/v1/rbac/roles/permission/remove", v1.RBACCtrl.RemovePermissionFromRole)
+	r.POST("/v1/rbac/user/roles/list", v1.RBACCtrl.GetUserRoles)
+	r.POST("/v1/rbac/user/roles/assign", v1.RBACCtrl.AssignRoleToUser)
+	r.POST("/v1/rbac/user/roles/remove", v1.RBACCtrl.RemoveRoleFromUser)
+	r.POST("/v1/rbac/me/permissions", v1.RBACCtrl.GetMyPermissions)
+	r.POST("/v1/rbac/me/check-permission", v1.RBACCtrl.CheckPermission)
 }

@@ -15,6 +15,7 @@ var (
 	PaperCodeRepo        IPaperCodeRepository
 	AdminRoleRepo        IAdminRoleRepository
 	AdminPermRepo        IAdminPermissionRepository
+	UserRoleRepo         IUserRoleRepository
 	AttachmentRepo       IAttachmentRepository
 	AppConfigRepo        IAppConfigRepository
 	DocumentRepo         IDocumentRepository
@@ -69,6 +70,7 @@ func InitRepositories(db *gorm.DB) {
 	PaperCodeRepo = NewPaperCodeRepository(db)
 	AdminRoleRepo = NewAdminRoleRepository(db)
 	AdminPermRepo = NewAdminPermissionRepository(db)
+	UserRoleRepo = NewUserRoleRepository(db)
 	AttachmentRepo = NewAttachmentRepository(db)
 	AppConfigRepo = NewAppConfigRepository(db)
 	DocumentRepo = NewDocumentRepository(db)

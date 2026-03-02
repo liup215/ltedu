@@ -571,7 +571,9 @@ export default {
     pastPapers: '真题管理',
     examPapers: '试卷管理',
     questions: '题目管理',
-    systemSettings: '系统设置'
+    systemSettings: '系统设置',
+    roles: '角色管理',
+    permissions: '权限管理'
   },
   chapterTree: {
     noChapters: '暂无章节'
@@ -825,4 +827,21 @@ export default {
     phaseTitle: '标题',
   },
   // 可根据需要添加更多模块
+  rbac: {
+    rolesTitle: '角色管理',
+    rolesDescription: '管理系统角色及其分配的权限。',
+    permissionsTitle: '权限管理',
+    permissionsDescription: '管理系统权限（resource:action 格式）。',
+    createRole: '创建角色',
+    editRole: '编辑角色',
+    createPermission: '创建权限',
+    editPermission: '编辑权限',
+    displayName: '显示名称',
+    description: '描述',
+    group: '分组',
+    permissions: '权限',
+    managePermissions: '管理权限',
+    managePermissionsFor: '管理角色权限',
+    managePermissionsDescription: '勾选或取消勾选权限以分配或移除该角色的权限。',
+  },
 }
