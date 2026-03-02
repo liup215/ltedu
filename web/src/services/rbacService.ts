@@ -33,90 +33,90 @@ const rbacService = {
 
   async listRoles(): Promise<any> {
     const client = await apiClient()
-    return client.post('/v1/rbac/roles/list', {})
+    return client.post('/api/v1/rbac/roles/list', {})
   },
 
   async getRoleById(id: number): Promise<any> {
     const client = await apiClient()
-    return client.post('/v1/rbac/roles/byId', { id })
+    return client.post('/api/v1/rbac/roles/byId', { id })
   },
 
   async createRole(role: Partial<Role>): Promise<any> {
     const client = await apiClient()
-    return client.post('/v1/rbac/roles/create', role)
+    return client.post('/api/v1/rbac/roles/create', role)
   },
 
   async updateRole(role: Partial<Role>): Promise<any> {
     const client = await apiClient()
-    return client.post('/v1/rbac/roles/edit', role)
+    return client.post('/api/v1/rbac/roles/edit', role)
   },
 
   async deleteRole(id: number): Promise<any> {
     const client = await apiClient()
-    return client.post('/v1/rbac/roles/delete', { id })
+    return client.post('/api/v1/rbac/roles/delete', { id })
   },
 
   // ============ Permissions ============
 
   async listPermissions(): Promise<any> {
     const client = await apiClient()
-    return client.post('/v1/rbac/permissions/list', {})
+    return client.post('/api/v1/rbac/permissions/list', {})
   },
 
   async createPermission(perm: Partial<Permission>): Promise<any> {
     const client = await apiClient()
-    return client.post('/v1/rbac/permissions/create', perm)
+    return client.post('/api/v1/rbac/permissions/create', perm)
   },
 
   async updatePermission(perm: Partial<Permission>): Promise<any> {
     const client = await apiClient()
-    return client.post('/v1/rbac/permissions/edit', perm)
+    return client.post('/api/v1/rbac/permissions/edit', perm)
   },
 
   async deletePermission(id: number): Promise<any> {
     const client = await apiClient()
-    return client.post('/v1/rbac/permissions/delete', { id })
+    return client.post('/api/v1/rbac/permissions/delete', { id })
   },
 
   // ============ Role-Permission Assignment ============
 
   async assignPermissionToRole(roleId: number, permissionId: number): Promise<any> {
     const client = await apiClient()
-    return client.post('/v1/rbac/roles/permission/assign', { roleId, permissionId })
+    return client.post('/api/v1/rbac/roles/permission/assign', { roleId, permissionId })
   },
 
   async removePermissionFromRole(roleId: number, permissionId: number): Promise<any> {
     const client = await apiClient()
-    return client.post('/v1/rbac/roles/permission/remove', { roleId, permissionId })
+    return client.post('/api/v1/rbac/roles/permission/remove', { roleId, permissionId })
   },
 
   // ============ User-Role Assignment ============
 
   async getUserRoles(userId: number): Promise<any> {
     const client = await apiClient()
-    return client.post('/v1/rbac/user/roles/list', { userId })
+    return client.post('/api/v1/rbac/user/roles/list', { userId })
   },
 
   async assignRoleToUser(userId: number, roleId: number): Promise<any> {
     const client = await apiClient()
-    return client.post('/v1/rbac/user/roles/assign', { userId, roleId })
+    return client.post('/api/v1/rbac/user/roles/assign', { userId, roleId })
   },
 
   async removeRoleFromUser(userId: number, roleId: number): Promise<any> {
     const client = await apiClient()
-    return client.post('/v1/rbac/user/roles/remove', { userId, roleId })
+    return client.post('/api/v1/rbac/user/roles/remove', { userId, roleId })
   },
 
   // ============ Current User ============
 
   async getMyPermissions(): Promise<any> {
     const client = await apiClient()
-    return client.post('/v1/rbac/me/permissions', {})
+    return client.post('/api/v1/rbac/me/permissions', {})
   },
 
   async checkPermission(permission: string): Promise<any> {
     const client = await apiClient()
-    return client.post('/v1/rbac/me/check-permission', { permission })
+    return client.post('/api/v1/rbac/me/check-permission', { permission })
   }
 }
 
