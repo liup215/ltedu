@@ -25,7 +25,7 @@
             <div class="sm:col-span-1">
               <dt class="text-sm font-medium text-gray-500">{{ $t('accountProfile.role') }}</dt>
               <dd class="mt-1 text-sm text-gray-900">
-                {{ userStore.user.isAdmin ? $t('accountProfile.admin') : (userStore.user.adminRole?.displayName || $t('accountProfile.user')) }}
+                {{ userStore.user.isAdmin ? $t('accountProfile.admin') : (userStore.user.roles?.[0]?.displayName || $t('accountProfile.user')) }}
               </dd>
             </div>
           </dl>

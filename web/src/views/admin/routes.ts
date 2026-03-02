@@ -184,6 +184,16 @@ const adminRoutes: RouteRecordRaw[] = [
         path: 'learning-plans/:planId/phase-plans',
         name: 'AdminPhasePlanManagement',
         component: () => import('./PhasePlanManagement.vue')
+      },
+      {
+        path: 'roles',
+        name: 'AdminRoleManagement',
+        component: () => import('./RoleManagement.vue')
+      },
+      {
+        path: 'permissions',
+        name: 'AdminPermissionManagement',
+        component: () => import('./PermissionManagement.vue')
       }
     ]
   }

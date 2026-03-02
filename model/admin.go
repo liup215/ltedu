@@ -66,6 +66,18 @@ type AdminLog struct {
 	Ip      string `json:"ip"`
 }
 
+// AdminRolePermission is the explicit join table for AdminRole <-> AdminPermission many2many.
+type AdminRolePermission struct {
+	AdminRoleID       uint `gorm:"primaryKey"`
+	AdminPermissionID uint `gorm:"primaryKey"`
+}
+
+// UserRole is the explicit join table for User <-> AdminRole many2many.
+type UserRole struct {
+	UserID      uint `gorm:"primaryKey"`
+	AdminRoleID uint `gorm:"primaryKey"`
+}
+
 type AdminPermission struct {
 	// 'display_name', 'slug', 'description',
 	//     'method', 'url', 'route', 'group_name',
@@ -81,7 +93,8 @@ type AdminPermission struct {
 
 type AdminRole struct {
 	Model
-	DisplayName string `json:"displayName"`
-	Slug        string `json:"slug"`
-	Description string `json:"description"`
+	DisplayName string             `json:"displayName"`
+	Slug        string             `json:"slug"`
+	Description string             `json:"description"`
+	Permissions []*AdminPermission `json:"permissions,omitempty" gorm:"many2many:admin_role_permissions;"`
 }

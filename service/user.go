@@ -20,15 +20,20 @@ type UserService struct {
 	baseService
 }
 
-// SetAdmin: 设置用户为管理员（分配默认角色和状态）
+// SetAdmin: 设置用户为管理员（通过RBAC角色分配）
 func (svr *UserService) SetAdmin(userID uint) error {
 	if userID == 0 {
 		return errors.New("无效的ID")
 	}
-	// 默认角色ID和状态，可根据实际调整
-	const defaultAdminRoleID = 1
-	const defaultAdminStatus = model.ADMIN_STATUS_OK
-	return svr.AssignUserAdminRole(userID, defaultAdminRoleID, defaultAdminStatus)
+	// Find the "admin" role
+	adminRole, err := repository.AdminRoleRepo.FindBySlug("admin")
+	if err != nil {
+		return errors.New("查找admin角色失败: " + err.Error())
+	}
+	if adminRole == nil {
+		return errors.New("admin角色不存在，请先初始化权限数据")
+	}
+	return repository.UserRoleRepo.AssignRole(userID, adminRole.ID)
 }
 
 func (svr *UserService) SelectUserList(q model.UserQuery) ([]*model.User, int64, error) {
@@ -167,68 +172,30 @@ func (svr *UserService) UpdateUserLoginStats(userID uint, ip string) error {
 	return repository.UserRepo.UpdateLoginStats(userID, ip)
 }
 
-// SetUserAdminStatus updates the admin-specific status of a user.
-// It does not change IsAdmin or AdminRoleID.
-func (svr *UserService) SetUserAdminStatus(userID uint, adminStatus int) error {
-	if userID == 0 {
-		return errors.New("invalid user ID")
-	}
-
-	user, err := repository.UserRepo.FindByID(userID)
-	if err != nil || user == nil {
-		return errors.New("user not found")
-	}
-
-	user.AdminStatus = &adminStatus
-	return repository.UserRepo.Update(user)
-}
-
-// AssignUserAdminRole makes a user an admin, assigns a role, and sets their admin status.
-func (svr *UserService) AssignUserAdminRole(userID uint, adminRoleID uint, adminStatus int) error {
-	if userID == 0 {
-		return errors.New("invalid user ID")
-	}
-	if adminRoleID == 0 {
-		return errors.New("invalid admin role ID for assignment")
-	}
-
-	// Check if user exists
-	user, err := repository.UserRepo.FindByID(userID)
-	if err != nil || user == nil {
-		return errors.New("user not found for admin assignment")
-	}
-
-	// Check if admin role exists
-	// TODO: 需要实现 AdminSvr.SelectAdminRoleById 或者 AdminRepository
-	// _, err = AdminSvr.SelectAdminRoleById(adminRoleID)
-	// if err != nil {
-	// 	return errors.New("admin role not found for assignment")
-	// }
-
-	// Update user admin info
-	user.IsAdmin = true
-	user.AdminRoleID = &adminRoleID
-	user.AdminStatus = &adminStatus
-
-	return repository.UserRepo.Update(user)
-}
-
-// RevokeUserAdminRole removes admin privileges from a user.
+// RevokeUserAdminRole removes admin role from a user (RBAC-based).
 func (svr *UserService) RevokeUserAdminRole(userID uint) error {
 	if userID == 0 {
 		return errors.New("invalid user ID")
 	}
-
-	user, err := repository.UserRepo.FindByID(userID)
-	if err != nil || user == nil {
-		return errors.New("user not found")
+	var errs []error
+	// Remove "admin" role
+	adminRole, err := repository.AdminRoleRepo.FindBySlug("admin")
+	if err == nil && adminRole != nil {
+		if removeErr := repository.UserRoleRepo.RemoveRole(userID, adminRole.ID); removeErr != nil {
+			errs = append(errs, removeErr)
+		}
 	}
-
-	user.IsAdmin = false
-	user.AdminRoleID = nil
-	user.AdminStatus = nil
-
-	return repository.UserRepo.Update(user)
+	// Also remove "super_admin" role
+	superRole, err := repository.AdminRoleRepo.FindBySlug("super_admin")
+	if err == nil && superRole != nil {
+		if removeErr := repository.UserRoleRepo.RemoveRole(userID, superRole.ID); removeErr != nil {
+			errs = append(errs, removeErr)
+		}
+	}
+	if len(errs) > 0 {
+		return errs[0]
+	}
+	return nil
 }
 
 // Grant one month VIP to user

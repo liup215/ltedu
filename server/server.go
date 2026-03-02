@@ -5,6 +5,7 @@ import (
 	"edu/lib/net/http/middleware/cors"
 	api "edu/server/api" // Keep for now, will refactor handlers
 	v1 "edu/server/api/v1"
+	"edu/service"
 	"log"
 
 	// "edu/server/pc" // To be removed or merged
@@ -25,6 +26,9 @@ func init() {
 		log.Printf("Failed to initialize super user: %v", err)
 		// Don't panic, just log the error
 	}
+
+	// Seed default RBAC roles and permissions
+	service.SeedRBACDefaults()
 
 	router(R, conf.Conf)
 }

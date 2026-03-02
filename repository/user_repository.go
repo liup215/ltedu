@@ -30,8 +30,8 @@ type IUserRepository interface {
 	BatchCreate(users []*model.User) error
 	BatchDelete(ids []uint) error
 
-	// 业务相关查询
-	FindByAdminStatus(status int) ([]*model.User, error)
+	// FindUsersWithAdminRole 查询拥有管理员角色的用户
+	FindUsersWithAdminRole() ([]*model.User, error)
 	FindVipUsers() ([]*model.User, error)
 	UpdateLoginStats(userID uint, ip string) error
 	GrantVipMonth(userID uint) error
@@ -67,55 +67,71 @@ func (r *userRepository) FindByID(id uint) (*model.User, error) {
 	var user model.User
 	err := r.db.Where("id = ?", id).
 		Preload("Classes").
-		Preload("AdminRole").
+		Preload("Roles").
 		First(&user).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
-	return &user, err
+	if err != nil {
+		return nil, err
+	}
+	user.IsAdmin = user.HasAdminRole()
+	return &user, nil
 }
 
 // FindByUsername 根据用户名查询
 func (r *userRepository) FindByUsername(username string) (*model.User, error) {
-var user model.User
-err := r.db.Where("username = ?", username).
-Preload("Classes").
-Preload("AdminRole").
-First(&user).Error
+	var user model.User
+	err := r.db.Where("username = ?", username).
+		Preload("Classes").
+		Preload("Roles").
+		First(&user).Error
 
-if errors.Is(err, gorm.ErrRecordNotFound) {
-return nil, nil
-}
-return &user, err
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	user.IsAdmin = user.HasAdminRole()
+	return &user, nil
 }
 
 // FindByEmail 根据邮箱查询
 func (r *userRepository) FindByEmail(email string) (*model.User, error) {
-var user model.User
-err := r.db.Where("email = ?", email).
-Preload("Classes").
-Preload("AdminRole").
-First(&user).Error
+	var user model.User
+	err := r.db.Where("email = ?", email).
+		Preload("Classes").
+		Preload("Roles").
+		First(&user).Error
 
-if errors.Is(err, gorm.ErrRecordNotFound) {
-return nil, nil
-}
-return &user, err
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	user.IsAdmin = user.HasAdminRole()
+	return &user, nil
 }
 
 // FindByMobile 根据手机号查询
 func (r *userRepository) FindByMobile(mobile string) (*model.User, error) {
-var user model.User
-err := r.db.Where("mobile = ?", mobile).
-Preload("Classes").
-Preload("AdminRole").
-First(&user).Error
+	var user model.User
+	err := r.db.Where("mobile = ?", mobile).
+		Preload("Classes").
+		Preload("Roles").
+		First(&user).Error
 
-if errors.Is(err, gorm.ErrRecordNotFound) {
-return nil, nil
-}
-return &user, err
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	user.IsAdmin = user.HasAdminRole()
+	return &user, nil
 }
 
 // FindList 分页查询
@@ -136,9 +152,12 @@ func (r *userRepository) FindList(query model.UserQuery) ([]*model.User, int64, 
 		Offset((page.PageIndex - 1) * page.PageSize).
 		Limit(page.PageSize).
 		Preload("Classes").
-		Preload("AdminRole").
+		Preload("Roles").
 		Find(&users).Error
 
+	for _, u := range users {
+		u.IsAdmin = u.HasAdminRole()
+	}
 	return users, total, err
 }
 
@@ -148,9 +167,12 @@ func (r *userRepository) FindAll(query model.UserQuery) ([]*model.User, error) {
 	err := r.buildQuery(query).
 		Order("id DESC").
 		Preload("Classes").
-		Preload("AdminRole").
+		Preload("Roles").
 		Find(&users).Error
 
+	for _, u := range users {
+		u.IsAdmin = u.HasAdminRole()
+	}
 	return users, err
 }
 
@@ -177,24 +199,32 @@ func (r *userRepository) BatchDelete(ids []uint) error {
 	return r.db.Delete(&model.User{}, ids).Error
 }
 
-// FindByAdminStatus 根据管理员状态查询
-func (r *userRepository) FindByAdminStatus(status int) ([]*model.User, error) {
+// FindUsersWithAdminRole 查询拥有管理员角色的用户（via user_roles join table）
+func (r *userRepository) FindUsersWithAdminRole() ([]*model.User, error) {
 	var users []*model.User
-	err := r.db.Where("is_admin = ? AND admin_status = ?", true, status).
-		Preload("AdminRole").
+	err := r.db.
+		Joins("JOIN user_roles ur ON ur.user_id = users.id").
+		Joins("JOIN admin_roles ar ON ar.id = ur.admin_role_id AND (ar.slug = 'admin' OR ar.slug = 'super_admin')").
+		Preload("Roles").
 		Find(&users).Error
+	for _, u := range users {
+		u.IsAdmin = u.HasAdminRole()
+	}
 	return users, err
 }
 
 // FindVipUsers 查询VIP用户
 func (r *userRepository) FindVipUsers() ([]*model.User, error) {
-now := time.Now()
-var users []*model.User
-err := r.db.Where("vip_expire_at > ?", now).
-Preload("Classes").
-Preload("AdminRole").
-Find(&users).Error
-return users, err
+	now := time.Now()
+	var users []*model.User
+	err := r.db.Where("vip_expire_at > ?", now).
+		Preload("Classes").
+		Preload("Roles").
+		Find(&users).Error
+	for _, u := range users {
+		u.IsAdmin = u.HasAdminRole()
+	}
+	return users, err
 }
 
 // UpdateLoginStats 更新登录统计

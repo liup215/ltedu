@@ -23,7 +23,6 @@ type AdminUserInfoResponse struct {
 	Username    string                   `json:"username"`
 	Email       string                   `json:"email"`
 	IsAdmin     bool                     `json:"isAdmin"`
-	AdminRoleID *uint                    `json:"adminRoleId,omitempty"`
-	AdminRole   *model.AdminRole         `json:"adminRole,omitempty"` // Include AdminRole details
+	Roles       []*model.AdminRole       `json:"roles,omitempty"`
 	Permissions []*model.AdminPermission `json:"permissions,omitempty"`
 }

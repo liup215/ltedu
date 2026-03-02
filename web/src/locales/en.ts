@@ -571,7 +571,9 @@ export default {
     pastPapers: 'Past Papers',
     examPapers: 'Exam Papers',
     questions: 'Questions',
-    systemSettings: 'System Settings'
+    systemSettings: 'System Settings',
+    roles: 'Roles',
+    permissions: 'Permissions'
   },
   chapterTree: {
     noChapters: 'No chapters'
@@ -825,5 +827,24 @@ export default {
     phaseTitle: 'Title',
   },
   // Add more modules as needed
+  rbac: {
+    rolesTitle: 'Role Management',
+    rolesDescription: 'Manage roles and their assigned permissions.',
+    permissionsTitle: 'Permission Management',
+    permissionsDescription: 'Manage system permissions (resource:action format).',
+    createRole: 'Create Role',
+    editRole: 'Edit Role',
+    createPermission: 'Create Permission',
+    editPermission: 'Edit Permission',
+    displayName: 'Display Name',
+    description: 'Description',
+    group: 'Group',
+    permissions: 'Permissions',
+    managePermissions: 'Manage Permissions',
+    managePermissionsFor: 'Manage Permissions for',
+    managePermissionsDescription: 'Check or uncheck permissions to assign or remove them from this role.',
+    confirmDeleteRole: 'Are you sure you want to delete this role?',
+    confirmDeletePermission: 'Are you sure you want to delete this permission?',
+  },
 }
 

@@ -18,6 +18,12 @@ func setDB() {
 
 		db.AutoMigrate(&model.AdminPermission{})
 		db.AutoMigrate(&model.AdminRole{})
+		// admin_role_permissions many2many join table (Role <-> Permission)
+		db.SetupJoinTable(&model.AdminRole{}, "Permissions", &model.AdminRolePermission{})
+		db.AutoMigrate(&model.AdminRolePermission{})
+		// user_roles many2many join table (User <-> Role)
+		db.SetupJoinTable(&model.User{}, "Roles", &model.UserRole{})
+		db.AutoMigrate(&model.UserRole{})
 		db.AutoMigrate(&model.AdminLog{})
 		db.AutoMigrate(&model.User{})
 		db.AutoMigrate(&model.Order{})
@@ -89,6 +95,48 @@ func setDB() {
 
 		// baseSvr.badgerDB = badger.New(conf.Conf.Badger)
 	})
+}
+
+// SeedRBACDefaults seeds default RBAC roles and permissions. Called after full service init.
+func SeedRBACDefaults() {
+	if err := AdminSvr.SeedDefaultRolesAndPermissions(); err != nil {
+		fmt.Println("Warning: failed to seed default roles/permissions:", err)
+	}
+	// Migrate legacy is_admin=true users to the RBAC "admin" role (one-time idempotent migration)
+	migrateAdminFlagToRBAC()
+}
+
+// migrateAdminFlagToRBAC finds users with the old is_admin=true DB column and assigns
+// them the "admin" RBAC role if they don't already have it. Idempotent.
+func migrateAdminFlagToRBAC() {
+	adminRole, err := repository.AdminRoleRepo.FindBySlug("admin")
+	if err != nil || adminRole == nil {
+		fmt.Println("Warning: could not find 'admin' role for migration")
+		return
+	}
+	db := repository.GetDB()
+	if db == nil {
+		return
+	}
+	// Check if the legacy is_admin column still exists before querying it
+	if !db.Migrator().HasColumn(&struct{ IsAdmin bool `gorm:"column:is_admin"` }{}, "is_admin") {
+		return // Column already removed, migration not needed
+	}
+	// Query users that still have is_admin = true in the DB column
+	var legacyAdminIDs []uint
+	if err := db.Raw("SELECT id FROM users WHERE is_admin = true").Scan(&legacyAdminIDs).Error; err != nil {
+		fmt.Println("Warning: failed to query legacy admin users:", err)
+		return
+	}
+	for _, userID := range legacyAdminIDs {
+		has, err := repository.UserRoleRepo.HasRole(userID, adminRole.ID)
+		if err != nil || has {
+			continue
+		}
+		if err := repository.UserRoleRepo.AssignRole(userID, adminRole.ID); err != nil {
+			fmt.Printf("Warning: failed to migrate user %d to admin role: %v\n", userID, err)
+		}
+	}
 }
 
 var baseSvr = baseService{}

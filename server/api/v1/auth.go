@@ -89,12 +89,10 @@ type RegistrationRequest struct {
 // UserResponse defines the user data returned upon successful registration or profile fetch
 // This should align with what the frontend UserProfileData expects
 type UserResponse struct {
-	ID          uint             `json:"id"`
-	Username    string           `json:"username"`
-	Email       string           `json:"email"`
-	IsAdmin     bool             `json:"isAdmin"`
-	AdminRoleID *uint            `json:"adminRoleId,omitempty"`
-	AdminRole   *model.AdminRole `json:"adminRole,omitempty"` // Assuming AdminRole has appropriate JSON tags in model
+	ID       uint   `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	IsAdmin  bool   `json:"isAdmin"`
 }
 
 func (lc *AuthController) Authenticator(c *gin.Context) (interface{}, error) {
@@ -109,29 +107,9 @@ func (lc *AuthController) Authenticator(c *gin.Context) (interface{}, error) {
 	if err != nil {
 		return nil, err // UserAuthenticator already returns appropriate error messages
 	}
-	// authUser is now *model.User, which includes IsAdmin, AdminRoleID, AdminStatus, etc.
+	// authUser is now *model.User, which includes IsAdmin (computed from roles), etc.
 
-	// Step 2: Check if this authenticated user is a valid Admin
-	if authUser.IsAdmin {
-		// return nil, errors.New("非管理员账户")
-
-		if authUser.AdminStatus == nil || *authUser.AdminStatus != model.ADMIN_STATUS_OK {
-			// Check if AdminStatus is nil before dereferencing
-			return nil, errors.New("管理员账户已被禁用或状态异常")
-		}
-		// authUser.AdminRoleID can also be checked if a role is mandatory for admin login
-
-		// Step 4: Create AdminLog
-		// AdminId in AdminLog now refers to User.ID
-		// TODO: 需要实现 AdminLogRepository
-		// err = repository.AdminLogRepo.Create(&model.AdminLog{AdminId: authUser.ID, Module: model.ADMINLOG_MODULE_ADMIN_LOGIN, Opt: model.ADMINLOG_OPT_LOGIN, Ip: c.ClientIP()})
-		// if err != nil {
-		// 	// Log this error but don't necessarily fail the login
-		// 	// log.Printf("Failed to create admin log for UserID %d: %v", authUser.ID, err)
-		// }
-
-	}
-	// Step 3: Update User login stats (which now includes admin login stats)
+	// Update User login stats
 	err = service.UserSvr.UpdateUserLoginStats(authUser.ID, c.ClientIP())
 	if err != nil {
 		// Log this error but don't necessarily fail the login, as authentication was successful
