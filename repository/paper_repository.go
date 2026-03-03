@@ -134,9 +134,11 @@ func (r *paperCodeRepository) Create(code *model.PaperCode) error {
 // Update 更新试卷代码
 func (r *paperCodeRepository) Update(code *model.PaperCode) error {
 	updates := map[string]interface{}{
-		"name":         code.Name,
-		"syllabus_id":  code.SyllabusId,
-		"exam_node_id": code.ExamNodeId,
+		"name":        code.Name,
+		"syllabus_id": code.SyllabusId,
+	}
+	if code.ExamNodeId != 0 {
+		updates["exam_node_id"] = code.ExamNodeId
 	}
 	return r.db.Model(&model.PaperCode{}).
 		Where("id = ?", code.ID).
