@@ -1,0 +1,60 @@
+name: Build ltedu-api and ltedu-web
+
+on:
+  push:
+    branches-ignore: []   # trigger on every branch
+  pull_request:
+    branches: [ "master", "main" ]
+  workflow_dispatch:
+
+env:
+  GO_VERSION: "1.24"
+  NODE_VERSION: "20"
+
+permissions:
+  contents: read
+
+jobs:
+  build-api:
+    name: Build API (Go)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: Build ltedu-api
+        env:
+          CGO_ENABLED: "0"
+          GOOS: linux
+          GOARCH: amd64
+        run: go build -o ltedu-api ./cmd/main.go
+
+  build-web:
+    name: Build Web (Node)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install dependencies
+        working-directory: web
+        run: npm ci
+
+      - name: Build ltedu-web
+        working-directory: web
+        run: npm run build
