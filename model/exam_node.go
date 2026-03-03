@@ -9,7 +9,7 @@ type SyllabusExamNode struct {
 	Name        string       `json:"name"`
 	Description string       `json:"description" gorm:"type:text"`
 	SortOrder   int          `json:"sortOrder" gorm:"default:0"`
-	Chapters    []*Chapter   `json:"chapters,omitempty" gorm:"many2many:exam_node_chapters;"`
+	Chapters    []*Chapter   `json:"chapters,omitempty" gorm:"foreignKey:ExamNodeId"`
 	PaperCodes  []*PaperCode `json:"paperCodes,omitempty" gorm:"foreignKey:ExamNodeId"`
 }
 

@@ -6,6 +6,7 @@ type Chapter struct {
 	SyllabusId uint        `json:"syllabusId"`
 	Syllabus   Syllabus    `json:"syllabus"`
 	ParentId   uint        `json:"parentId" gorm:"index"`
+	ExamNodeId uint        `json:"examNodeId" gorm:"index;default:0"`
 	Children   []*Chapter  `gorm:"-" json:"children,omitempty"`
 	IsLeaf     int         `gorm:"-" json:"isLeaf"`
 }
