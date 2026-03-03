@@ -86,6 +86,23 @@ func setDB() {
 
 		// Syllabus Exam Node model
 		db.AutoMigrate(&model.SyllabusExamNode{})
+		// Migrate chapter-exam_node relationship from many2many join table to FK on Chapter.
+		// This is idempotent: if exam_node_chapters doesn't exist, the Exec is a no-op error.
+		if result := db.Exec(`
+			UPDATE chapters c
+			JOIN (
+				SELECT chapter_id, MIN(syllabus_exam_node_id) AS exam_node_id
+				FROM exam_node_chapters
+				GROUP BY chapter_id
+			) t ON c.id = t.chapter_id
+			SET c.exam_node_id = t.exam_node_id
+			WHERE c.exam_node_id = 0 OR c.exam_node_id IS NULL
+		`); result.Error != nil {
+			_ = result.Error // non-fatal: table may not exist (fresh install) or already migrated
+		}
+		if result := db.Exec("DROP TABLE IF EXISTS exam_node_chapters"); result.Error != nil {
+			_ = result.Error // non-fatal: backfill failure does not prevent startup
+		}
 
 		// Phase Plan model
 		db.AutoMigrate(&model.LearningPhasePlan{})

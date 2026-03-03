@@ -92,33 +92,15 @@ func (r *examNodeRepository) AddChapters(examNodeId uint, chapterIds []uint) err
 	if len(chapterIds) == 0 {
 		return nil
 	}
-	// Load existing associations to avoid duplicate entries in the join table
-	var node model.SyllabusExamNode
-	if err := r.db.Where("id = ?", examNodeId).Preload("Chapters").First(&node).Error; err != nil {
-		return err
-	}
-	existing := make(map[uint]struct{}, len(node.Chapters))
-	for _, ch := range node.Chapters {
-		existing[ch.ID] = struct{}{}
-	}
-	var toAdd []*model.Chapter
-	for _, id := range chapterIds {
-		if _, ok := existing[id]; !ok {
-			toAdd = append(toAdd, &model.Chapter{Model: model.Model{ID: id}})
-		}
-	}
-	if len(toAdd) == 0 {
-		return nil
-	}
-	return r.db.Model(&model.SyllabusExamNode{Model: model.Model{ID: examNodeId}}).
-		Association("Chapters").
-		Append(toAdd)
+	return r.db.Model(&model.Chapter{}).
+		Where("id IN ?", chapterIds).
+		Update("exam_node_id", examNodeId).Error
 }
 
 func (r *examNodeRepository) RemoveChapter(examNodeId uint, chapterId uint) error {
-	return r.db.Model(&model.SyllabusExamNode{Model: model.Model{ID: examNodeId}}).
-		Association("Chapters").
-		Delete(&model.Chapter{Model: model.Model{ID: chapterId}})
+	return r.db.Model(&model.Chapter{}).
+		Where("id = ? AND exam_node_id = ?", chapterId, examNodeId).
+		Update("exam_node_id", 0).Error
 }
 
 func (r *examNodeRepository) AddPaperCode(examNodeId uint, paperCodeId uint) error {
