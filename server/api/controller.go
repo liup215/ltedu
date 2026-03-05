@@ -167,6 +167,11 @@ func (h *Handler) noAuthRout(r *gin.RouterGroup) {
 	r.POST("/v1/practice/quick", v1.PracticeCtrl.QuickPractice)
 	r.POST("/v1/practice/paper", v1.PracticeCtrl.PaperPractice)
 
+	// Blog public endpoints (no auth required)
+	r.POST("/v1/blog/list", v1.BlogCtrl.ListPosts)
+	r.POST("/v1/blog/byId", v1.BlogCtrl.GetPost)
+	r.POST("/v1/blog/bySlug", v1.BlogCtrl.GetPostBySlug)
+
 }
 
 func (h *Handler) authRout(r *gin.RouterGroup) {
@@ -422,6 +427,28 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/learning-plan/phase/list", v1.PhasePlanCtrl.ListPhasePlans)
 	r.POST("/v1/learning-plan/phase/chapter/add", v1.PhasePlanCtrl.AddChapter)
 	r.POST("/v1/learning-plan/phase/chapter/remove", v1.PhasePlanCtrl.RemoveChapter)
+
+	// AI Conversation endpoints (authenticated)
+	r.POST("/v1/ai/conversation/start", v1.ConversationCtrl.StartSession)
+	r.POST("/v1/ai/conversation/message", v1.ConversationCtrl.SendMessage)
+	r.POST("/v1/ai/conversation/history", v1.ConversationCtrl.GetHistory)
+	r.POST("/v1/ai/conversation/sessions", v1.ConversationCtrl.ListSessions)
+	r.POST("/v1/ai/conversation/reset", v1.ConversationCtrl.ResetSession)
+	r.POST("/v1/ai/conversation/close", v1.ConversationCtrl.CloseSession)
+
+	// Blog authenticated endpoints (create/edit/delete)
+	r.POST("/v1/blog/create", v1.BlogCtrl.CreatePost)
+	r.POST("/v1/blog/edit", v1.BlogCtrl.UpdatePost)
+	r.POST("/v1/blog/delete", v1.BlogCtrl.DeletePost)
+
+	// Blog admin endpoints
+	blogAdmin := r.Group("/v1/blog/admin", RequireAdmin())
+	{
+		blogAdmin.POST("/list", v1.BlogCtrl.AdminListPosts)
+		blogAdmin.POST("/byId", v1.BlogCtrl.AdminGetPost)
+		blogAdmin.POST("/edit", v1.BlogCtrl.AdminUpdatePost)
+		blogAdmin.POST("/delete", v1.BlogCtrl.AdminDeletePost)
+	}
 
 	// RBAC management endpoints — admin-only (enforced by RequireAdmin middleware)
 	rbacAdmin := r.Group("/v1/rbac", RequireAdmin())

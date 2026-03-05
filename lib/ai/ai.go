@@ -22,8 +22,15 @@ func NewModel(c *Config, logger *zap.Logger) Model {
 	}
 }
 
+// ChatMessage represents a single message in a conversation history.
+type ChatMessage struct {
+	Role    string // "user", "assistant", or "system"
+	Content string
+}
+
 type Model interface {
 	CreateCompletion(string) (string, error)
+	CreateChatCompletion(messages []ChatMessage) (string, error)
 }
 
 type BaseAIClient struct {
@@ -44,6 +51,39 @@ func (b *BaseAIClient) CreateCompletion(prompt string) (string, error) {
 
 	if err != nil {
 		b.logger.Error("Failed to create completion", zap.Error(err))
+		return "", err
+	}
+
+	if len(chatCompletion.Choices) == 0 {
+		return "", fmt.Errorf("no choices in response")
+	}
+
+	return chatCompletion.Choices[0].Message.Content, nil
+}
+
+// CreateChatCompletion sends a multi-turn conversation to the AI model.
+func (b *BaseAIClient) CreateChatCompletion(messages []ChatMessage) (string, error) {
+	params := make([]openai.ChatCompletionMessageParamUnion, 0, len(messages))
+	for _, m := range messages {
+		switch m.Role {
+		case "system":
+			params = append(params, openai.SystemMessage(m.Content))
+		case "assistant":
+			params = append(params, openai.AssistantMessage(m.Content))
+		default:
+			params = append(params, openai.UserMessage(m.Content))
+		}
+	}
+
+	chatCompletion, err := b.client.Chat.Completions.New(
+		context.TODO(), openai.ChatCompletionNewParams{
+			Messages: params,
+			Model:    b.model,
+		},
+	)
+
+	if err != nil {
+		b.logger.Error("Failed to create chat completion", zap.Error(err))
 		return "", err
 	}
 

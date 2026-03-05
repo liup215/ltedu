@@ -107,6 +107,13 @@ func setDB() {
 		// Phase Plan model
 		db.AutoMigrate(&model.LearningPhasePlan{})
 
+		// AI Conversation models
+		db.AutoMigrate(&model.ConversationSession{})
+		db.AutoMigrate(&model.ConversationMessage{})
+
+		// Blog model
+		db.AutoMigrate(&model.BlogPost{})
+
 		// 初始化Repository层
 		repository.InitRepositories(db)
 

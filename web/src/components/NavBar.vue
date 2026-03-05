@@ -48,6 +48,20 @@
         <button :href="href" @click="navigate" type="button">{{ $t('navbar.systemManagement') }}</button>
       </router-link>
 
+      <!-- Blog Link -->
+      <router-link to="/blog"
+        class="text-gray-700 px-4 py-2 rounded font-normal transition hover:bg-gray-200 hover:text-gray-900" custom
+        v-slot="{ navigate, href }">
+        <button :href="href" @click="navigate" type="button">{{ $t('navbar.blog') }}</button>
+      </router-link>
+
+      <!-- AI Chat Link - visible to authenticated users -->
+      <router-link v-if="userStore.isAuthenticated" to="/ai-chat"
+        class="text-gray-700 px-4 py-2 rounded font-normal transition hover:bg-indigo-100 hover:text-indigo-900" custom
+        v-slot="{ navigate, href }">
+        <button :href="href" @click="navigate" type="button">{{ $t('navbar.aiChat') }}</button>
+      </router-link>
+
       <button
         class="px-4 py-2 rounded font-normal shadow transition bg-yellow-400 text-white hover:bg-yellow-500 hover:scale-105 border-2 border-yellow-500"
         type="button"

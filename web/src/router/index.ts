@@ -15,6 +15,9 @@ const TeacherExamPaperManagement = () => import('../views/paper/TeacherExamPaper
 const ExamPaperPreview = () => import('../views/paper/ExamPaperPreview.vue')
 const QuickPractice = () => import('../views/QuickPractice.vue')
 const PaperPractice = () => import('../views/PaperPractice.vue')
+const AiChat = () => import('../views/AiChat.vue')
+const Blog = () => import('../views/Blog.vue')
+const BlogPost = () => import('../views/BlogPost.vue')
 
 const routes: RouteRecordRaw[] = [
   {
@@ -81,6 +84,24 @@ const routes: RouteRecordRaw[] = [
         path: '/donate',
         name: 'Donation',
         component: () => import('../views/Donation.vue')
+      },
+      // AI Chat
+      {
+        path: '/ai-chat',
+        name: 'AiChat',
+        component: AiChat,
+        meta: { requiresAuth: true }
+      },
+      // Blog
+      {
+        path: '/blog',
+        name: 'Blog',
+        component: Blog
+      },
+      {
+        path: '/blog/:id',
+        name: 'BlogPost',
+        component: BlogPost
       }
     ]
   },
@@ -114,7 +135,7 @@ router.beforeEach(async (to, _, next) => {
   //   return next({ name: 'Home' });
   // }
 
-  const publicRouteNames = ['Login', 'Register', 'Setup', 'Home', 'QuickPractice', 'PaperPractice', 'Donation', 'ExamPaperBuilder'];
+  const publicRouteNames = ['Login', 'Register', 'Setup', 'Home', 'QuickPractice', 'PaperPractice', 'Donation', 'ExamPaperBuilder', 'Blog', 'BlogPost'];
   const requiresAuth = !publicRouteNames.includes(to.name as string);
 
   if (requiresAuth && !isAuthenticated) {
