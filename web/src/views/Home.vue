@@ -3,8 +3,8 @@
     <!-- Hero Section -->
     <section class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
       <div class="container mx-auto px-6 text-center">
-        <h1 class="text-5xl font-normal mb-6">{{ $t('home.heroTitle') }}</h1>
-        <p class="text-xl mb-8">
+        <h1 class="text-3xl md:text-5xl font-normal mb-6">{{ $t('home.heroTitle') }}</h1>
+        <p class="text-lg md:text-xl mb-8">
           {{ $t('home.heroSubtitle') }}
         </p>
         <div class="flex flex-col md:flex-row gap-6 justify-center mb-10">
