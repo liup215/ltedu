@@ -13,6 +13,42 @@ var KnowledgePointCtrl = &KnowledgePointController{}
 
 type KnowledgePointController struct{}
 
+// Generate AI生成知识点（标准接口）
+// @Summary      AI生成知识点
+// @Description  为指定章节自动生成知识点（含置信度分数）
+// @Tags         知识点
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "章节ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/knowledge-points/generate [post]
+func (ctrl *KnowledgePointController) Generate(c *gin.Context) {
+	u, _ := auth.GetCurrentUser(c)
+	_ = u
+
+	var req struct {
+		ChapterId uint `json:"chapterId" binding:"required"`
+	}
+
+	if err := c.BindJSON(&req); err != nil {
+		http.ErrorData(c, "Parameter parsing failed", nil)
+		return
+	}
+
+	keypoints, err := service.KnowledgePointSvr.AutoGenerateFromChapter(req.ChapterId)
+	if err != nil {
+		http.ErrorData(c, err.Error(), nil)
+		return
+	}
+
+	http.SuccessData(c, "Knowledge points generated successfully!", gin.H{
+		"keypoints": keypoints,
+		"count":     len(keypoints),
+	})
+}
+
 // GenerateKeypoints 为章节生成知识点
 // @Summary      生成章节知识点
 // @Description  为指定章节自动生成知识点
