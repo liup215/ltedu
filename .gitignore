@@ -19,6 +19,8 @@ web/*.local
 web/logs/
 web/*-debug.log*
 web/*-error.log*
+# TypeScript compilation artifacts (tsc output in source tree)
+web/src/**/*.js
 
 # API (Backend)
 cmd/*
