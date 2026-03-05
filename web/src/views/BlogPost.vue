@@ -112,10 +112,17 @@ function sanitizeHtml(html: string): string {
   dangerousTags.forEach((tag) => {
     div.querySelectorAll(tag).forEach((el) => el.remove())
   })
-  // Remove event handler attributes (on*)
+
+  // URL schemes that can execute scripts
+  const dangerousSchemes = /^(javascript|vbscript|data):/i
+
+  // Remove event handler attributes (on*) and dangerous URL attributes
+  const urlAttributes = new Set(['href', 'src', 'action', 'formaction', 'xlink:href'])
   div.querySelectorAll('*').forEach((el) => {
     Array.from(el.attributes).forEach((attr) => {
-      if (attr.name.startsWith('on') || attr.name === 'href' && (attr.value.startsWith('javascript:') || attr.value.startsWith('data:'))) {
+      if (attr.name.startsWith('on')) {
+        el.removeAttribute(attr.name)
+      } else if (urlAttributes.has(attr.name.toLowerCase()) && dangerousSchemes.test(attr.value.trim())) {
         el.removeAttribute(attr.name)
       }
     })
