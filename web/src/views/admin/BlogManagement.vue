@@ -301,7 +301,7 @@ async function submitForm() {
       closeModal()
       loadPosts()
     } else {
-      alert(res.msg || t('blog.management.saveFailed'))
+      alert(res.message || t('blog.management.saveFailed'))
     }
   } finally {
     saving.value = false
@@ -322,7 +322,7 @@ async function doDelete() {
       showDeleteModal.value = false
       loadPosts()
     } else {
-      alert(res.msg || t('blog.management.deleteFailed'))
+      alert(res.message || t('blog.management.deleteFailed'))
     }
   } finally {
     deleting.value = false
