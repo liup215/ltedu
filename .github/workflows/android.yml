@@ -2,7 +2,6 @@ name: Build Android App
 
 on:
   push:
-    branches-ignore: []   # trigger on every branch
   pull_request:
     branches: [ "master", "main" ]
   workflow_dispatch:

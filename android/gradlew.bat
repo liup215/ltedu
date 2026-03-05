@@ -1,5 +1,3 @@
-# Gradle wrapper batch script for Windows
-
 @if "%DEBUG%"=="" @echo off
 @rem ##########################################################################
 @rem
