@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col min-h-screen bg-white">
     <NavBar />
-    <main class="flex-1 flex flex-col pt-20"> <!-- Added pt-20 for NavBar height, changed div to main for semantics -->
+    <main class="flex-1 flex flex-col pt-16"> <!-- Added pt-16 for NavBar height, changed div to main for semantics -->
       <router-view />
     </main>
     <Footer />
