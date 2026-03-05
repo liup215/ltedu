@@ -81,6 +81,13 @@ const routes: RouteRecordRaw[] = [
         path: '/donate',
         name: 'Donation',
         component: () => import('../views/Donation.vue')
+      },
+      // AI Chat page
+      {
+        path: '/ai/chat',
+        name: 'AIChat',
+        component: () => import('../views/AIChat.vue'),
+        meta: { requiresAuth: true }
       }
     ]
   },
