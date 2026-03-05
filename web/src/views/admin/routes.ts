@@ -194,6 +194,11 @@ const adminRoutes: RouteRecordRaw[] = [
         path: 'permissions',
         name: 'AdminPermissionManagement',
         component: () => import('./PermissionManagement.vue')
+      },
+      {
+        path: 'feedback',
+        name: 'AdminFeedbackManagement',
+        component: () => import('./FeedbackManagement.vue')
       }
     ]
   }

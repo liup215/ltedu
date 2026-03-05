@@ -107,6 +107,9 @@ func setDB() {
 		// Phase Plan model
 		db.AutoMigrate(&model.LearningPhasePlan{})
 
+		// Feedback model
+		db.AutoMigrate(&model.UserFeedback{})
+
 		// 初始化Repository层
 		repository.InitRepositories(db)
 
