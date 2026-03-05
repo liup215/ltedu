@@ -1,0 +1,12 @@
+LTEdu is a comprehensive smart education platform designed to help students achieve their academic goals through personalized learning plans, real-time progress tracking, and data-driven insights.
+
+Key Features:
+• Personalized Learning Plans – AI-generated long-term, mid-term, and short-term study plans tailored to each student's target exam and current level.
+• Progress Tracking – Visualize learning progress with detailed analytics, heatmaps, and performance trends.
+• Question Bank – Access thousands of curated questions organized by syllabus, knowledge node, and difficulty level.
+• Practice & Assessment – Complete practice sets and mock exams with automatic grading and answer explanations.
+• Early Warning System – Receive intelligent alerts when learning goals are at risk, enabling timely intervention.
+• Teacher & Class Management – Educators can manage classes, assign plans, and monitor all students from a single dashboard.
+• Multi-Role Support – Supports students, teachers, and administrators with role-based access and tailored experiences.
+
+LTEdu bridges the gap between education goals and daily study habits, giving every student a clear, structured path to success.
