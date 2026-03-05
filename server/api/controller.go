@@ -378,6 +378,15 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/attempt/stats", v1.AttemptCtrl.GetAttemptStats)
 	r.POST("/v1/attempt/list", v1.AttemptCtrl.ListAttempts)
 
+	// Analytics & Recommendation endpoints
+	r.POST("/v1/analytics/class/summary", v1.AnalyticsCtrl.GetClassSummary)
+	r.POST("/v1/analytics/class/students", v1.AnalyticsCtrl.GetStudentPerformanceList)
+	r.POST("/v1/analytics/class/heatmap", v1.AnalyticsCtrl.GetClassHeatmap)
+	r.POST("/v1/analytics/class/trends", v1.AnalyticsCtrl.GetAttemptTrends)
+	r.POST("/v1/analytics/class/earlyWarning", v1.AnalyticsCtrl.GetEarlyWarnings)
+	r.POST("/v1/analytics/student/summary", v1.AnalyticsCtrl.GetStudentAnalytics)
+	r.POST("/v1/analytics/recommend", v1.AnalyticsCtrl.GetRecommendations)
+
 	// Knowledge Point endpoints
 	r.POST("/v1/knowledge-point/create", v1.KnowledgePointCtrl.Create)
 	r.POST("/v1/knowledge-point/edit", v1.KnowledgePointCtrl.Update)
