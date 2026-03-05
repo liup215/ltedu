@@ -71,7 +71,8 @@ func (r *blogPostRepository) FindByPage(query *model.BlogPostQueryRequest, offse
 		q = q.Where("status = ?", query.Status)
 	}
 	if query.Keyword != "" {
-		like := "%" + strings.TrimSpace(query.Keyword) + "%"
+		escaped := strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`).Replace(strings.TrimSpace(query.Keyword))
+		like := "%" + escaped + "%"
 		q = q.Where("title LIKE ? OR summary LIKE ? OR tags LIKE ?", like, like, like)
 	}
 

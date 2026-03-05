@@ -129,10 +129,16 @@ watch([selectedCategory, searchKeyword], () => {
 })
 
 function prevPage() {
-  if (pageIndex.value > 1) { pageIndex.value--; loadPosts() }
+  if (pageIndex.value > 1) {
+    pageIndex.value--
+    loadPosts()
+  }
 }
 function nextPage() {
-  if (pageIndex.value * pageSize < total.value) { pageIndex.value++; loadPosts() }
+  if (pageIndex.value * pageSize < total.value) {
+    pageIndex.value++
+    loadPosts()
+  }
 }
 
 function goToPost(slug: string) {

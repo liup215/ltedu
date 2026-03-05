@@ -160,7 +160,8 @@ func isValidCategory(cat string) bool {
 func generateSlug(title string) string {
 	// Lowercase
 	s := strings.ToLower(title)
-	// Replace non-ASCII with empty (Chinese chars become empty after lower)
+	// Keep ASCII letters/digits as-is; replace spaces and dashes with "-";
+	// strip everything else (including non-ASCII such as Chinese characters).
 	var b strings.Builder
 	for _, r := range s {
 		if unicode.IsLetter(r) || unicode.IsDigit(r) {

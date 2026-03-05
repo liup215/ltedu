@@ -187,7 +187,7 @@ import blogService from '../../services/blogService'
 import { BLOG_CATEGORIES } from '../../models/blog.model'
 import type { BlogPost } from '../../models/blog.model'
 
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 
 const posts = ref<BlogPost[]>([])
 const loading = ref(false)
@@ -285,7 +285,7 @@ function closeModal() {
 
 async function submitForm() {
   if (!form.value.title || !form.value.category || !form.value.content) {
-    alert('Please fill in required fields: title, category, content')
+    alert(t('blog.management.requiredFields'))
     return
   }
   saving.value = true
@@ -301,7 +301,7 @@ async function submitForm() {
       closeModal()
       loadPosts()
     } else {
-      alert(res.msg || 'Save failed')
+      alert(res.msg || t('blog.management.saveFailed'))
     }
   } finally {
     saving.value = false
@@ -322,7 +322,7 @@ async function doDelete() {
       showDeleteModal.value = false
       loadPosts()
     } else {
-      alert(res.msg || 'Delete failed')
+      alert(res.msg || t('blog.management.deleteFailed'))
     }
   } finally {
     deleting.value = false
