@@ -118,6 +118,7 @@ import analyticsService, {
   type StudentPerformanceSummary,
   type RecommendationResponse
 } from '../../services/analyticsService'
+import goalService from '../../services/goalService'
 
 const { t } = useI18n()
 
@@ -129,9 +130,7 @@ const recommendations = ref<RecommendationResponse | null>(null)
 
 onMounted(async () => {
   try {
-    // Dynamically import to avoid circular deps
-    const { default: goalServiceModule } = await import('../../services/goalService')
-    const res = await goalServiceModule.getActiveGoals()
+    const res = await goalService.getActiveGoals()
     if (res.code === 0 && res.data) {
       goals.value = (Array.isArray(res.data) ? res.data : [res.data]).map((g: any) => ({
         id: g.id,

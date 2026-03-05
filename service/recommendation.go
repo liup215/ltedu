@@ -20,6 +20,8 @@ const (
 	masteryThreshold = 0.7
 	// maxRecommendations is the maximum number of recommended questions to return.
 	maxRecommendations = 10
+	// consecutiveWrongThreshold is the number of consecutive wrong answers that triggers a high-priority recommendation.
+	consecutiveWrongThreshold = 3
 )
 
 // GetRecommendations returns a personalized list of question recommendations for a student's goal.
@@ -73,7 +75,7 @@ func (svr *RecommendationService) GetRecommendations(userID, goalID uint) (*mode
 		}
 
 		// 2. Consecutive wrong answers
-		if ks.ConsecutiveWrong >= 3 {
+		if ks.ConsecutiveWrong >= consecutiveWrongThreshold {
 			candidates = append(candidates, candidate{
 				chapterID:   ks.ChapterId,
 				chapterName: ks.Chapter.Name,
