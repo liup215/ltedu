@@ -1,0 +1,26 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var vue_1 = require("vue");
+var pinia_1 = require("pinia");
+require("./style.css");
+var App_vue_1 = require("./App.vue");
+var router_1 = require("./router");
+var userStore_1 = require("./stores/userStore");
+var appStore_1 = require("./stores/appStore");
+var notivue_1 = require("notivue");
+require("notivue/notification.css");
+require("notivue/animations.css");
+var i18n_1 = require("./i18n");
+var app = (0, vue_1.createApp)(App_vue_1.default);
+var pinia = (0, pinia_1.createPinia)();
+var notivue = (0, notivue_1.createNotivue)();
+app.use(pinia);
+app.use(i18n_1.default);
+app.use(router_1.default);
+app.use(notivue);
+// Initialize stores by loading data from localStorage
+var userStore = (0, userStore_1.useUserStore)();
+userStore.loadUserFromStorage();
+var appStore = (0, appStore_1.useAppStore)();
+appStore.loadThemeFromStorage();
+app.mount('#app');
