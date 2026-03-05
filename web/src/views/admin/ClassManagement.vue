@@ -19,8 +19,8 @@
     <div class="bg-white shadow rounded-lg overflow-hidden">
       <div v-if="loading" class="text-center py-12 text-gray-500">{{ t('class.loading') }}</div>
       <div v-else-if="!classes.length" class="text-center py-12 text-gray-500">{{ t('class.noClasses') }}</div>
-      <div class="overflow-x-auto">
-        <table v-else class="min-w-full divide-y divide-gray-200">
+      <div v-else class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ t('class.name') }}</th>
@@ -115,8 +115,8 @@
         </div>
         <div v-if="studentsLoading" class="text-center py-8 text-gray-500">{{ t('class.loading') }}</div>
         <div v-else-if="!students.length" class="text-center py-8 text-gray-500">{{ t('class.noStudents') }}</div>
-        <div class="overflow-x-auto">
-          <table v-else class="min-w-full divide-y divide-gray-200">
+        <div v-else class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
               <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{{ t('class.name') }}</th>
