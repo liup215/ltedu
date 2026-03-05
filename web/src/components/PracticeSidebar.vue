@@ -1,5 +1,5 @@
 <template>
-  <div v-if="visible" class="w-72 bg-white shadow-lg rounded-lg p-4 fixed right-0 bottom-0 h-1/2 z-50 flex flex-col">
+  <div v-if="visible" class="w-full sm:w-72 bg-white shadow-lg rounded-lg p-4 fixed right-0 bottom-0 h-1/2 z-50 flex flex-col">
     <div class="flex justify-between items-center mb-2">
       <h2 class="text-lg font-bold">{{ $t('practiceSidebar.questions') }}</h2>
       <button @click="onClose" class="text-gray-500 hover:text-gray-700 text-xl font-bold px-2 py-1 rounded">&times;</button>

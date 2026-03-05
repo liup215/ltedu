@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
 img {
-  width: 600px;
+  max-width: 100%;
+  height: auto;
 }
 
 /* Base font size for body, not affecting Quill toolbar and other UI elements */
