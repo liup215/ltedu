@@ -48,6 +48,13 @@
         <button :href="href" @click="navigate" type="button">{{ $t('navbar.systemManagement') }}</button>
       </router-link>
 
+      <!-- Help Link -->
+      <router-link to="/help"
+        class="text-gray-700 px-4 py-2 rounded font-normal transition hover:bg-gray-200 hover:text-gray-900" custom
+        v-slot="{ navigate, href }">
+        <button :href="href" @click="navigate" type="button">{{ $t('navbar.help') }}</button>
+      </router-link>
+
       <button
         class="px-4 py-2 rounded font-normal shadow transition bg-yellow-400 text-white hover:bg-yellow-500 hover:scale-105 border-2 border-yellow-500"
         type="button"
