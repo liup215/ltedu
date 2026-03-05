@@ -9,6 +9,12 @@ import (
 	"go.uber.org/zap"
 )
 
+// Message represents a single chat message with a role and content.
+type Message struct {
+	Role    string // "system", "user", or "assistant"
+	Content string
+}
+
 func NewModel(c *Config, logger *zap.Logger) Model {
 	client := openai.NewClient(
 		option.WithAPIKey(c.ApiKey),
@@ -22,8 +28,13 @@ func NewModel(c *Config, logger *zap.Logger) Model {
 	}
 }
 
+// Model is the interface for AI language model clients.
 type Model interface {
+	// CreateCompletion sends a single user prompt and returns the model response.
 	CreateCompletion(string) (string, error)
+	// CreateCompletionWithMessages sends a multi-turn message list (supporting system
+	// prompts and conversation history) and returns the model response.
+	CreateCompletionWithMessages(messages []Message) (string, error)
 }
 
 type BaseAIClient struct {
@@ -33,12 +44,26 @@ type BaseAIClient struct {
 }
 
 func (b *BaseAIClient) CreateCompletion(prompt string) (string, error) {
+	return b.CreateCompletionWithMessages([]Message{{Role: "user", Content: prompt}})
+}
+
+func (b *BaseAIClient) CreateCompletionWithMessages(messages []Message) (string, error) {
+	params := make([]openai.ChatCompletionMessageParamUnion, 0, len(messages))
+	for _, m := range messages {
+		switch m.Role {
+		case "system":
+			params = append(params, openai.SystemMessage(m.Content))
+		case "assistant":
+			params = append(params, openai.AssistantMessage(m.Content))
+		default:
+			params = append(params, openai.UserMessage(m.Content))
+		}
+	}
+
 	chatCompletion, err := b.client.Chat.Completions.New(
 		context.TODO(), openai.ChatCompletionNewParams{
-			Messages: []openai.ChatCompletionMessageParamUnion{
-				openai.UserMessage(prompt),
-			},
-			Model: b.model,
+			Messages: params,
+			Model:    b.model,
 		},
 	)
 

@@ -49,6 +49,9 @@ var (
 	ExamNodeRepo                 IExamNodeRepository
 	PhasePlanRepo                IPhasePlanRepository
 	ClassTeacherApplicationRepo  IClassTeacherApplicationRepository
+	ConversationSessionRepo      IConversationSessionRepository
+	ConversationMessageRepo      IConversationMessageRepository
+	NLUFeedbackRepo              INLUFeedbackRepository
 )
 
 func GetTableName(db *gorm.DB, model interface{}) string {
@@ -109,5 +112,8 @@ func InitRepositories(db *gorm.DB) {
 	ExamNodeRepo = NewExamNodeRepository(db)
 	PhasePlanRepo = NewPhasePlanRepository(db)
 	ClassTeacherApplicationRepo = NewClassTeacherApplicationRepository(db)
+	ConversationSessionRepo = NewConversationSessionRepository(db)
+	ConversationMessageRepo = NewConversationMessageRepository(db)
+	NLUFeedbackRepo = NewNLUFeedbackRepository(db)
 	// ... 其他repository按需添加
 }
