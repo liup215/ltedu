@@ -56,6 +56,13 @@
         {{ $t('navbar.donate') }}
       </button>
 
+      <router-link
+        to="/blog"
+        class="px-4 py-2 rounded font-normal text-gray-700 hover:text-indigo-600 hover:bg-gray-100 transition text-sm"
+      >
+        {{ $t('navbar.blog') }}
+      </router-link>
+
       <!-- Language Switcher Dropdown -->
       <div class="relative">
         <span

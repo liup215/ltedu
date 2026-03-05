@@ -167,6 +167,10 @@ func (h *Handler) noAuthRout(r *gin.RouterGroup) {
 	r.POST("/v1/practice/quick", v1.PracticeCtrl.QuickPractice)
 	r.POST("/v1/practice/paper", v1.PracticeCtrl.PaperPractice)
 
+	// Blog public endpoints (no auth required)
+	r.POST("/v1/blog/public/list", v1.BlogCtrl.PublicListBlogPosts)
+	r.POST("/v1/blog/public/bySlug", v1.BlogCtrl.PublicGetBlogPostBySlug)
+
 }
 
 func (h *Handler) authRout(r *gin.RouterGroup) {
@@ -444,4 +448,14 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	// RBAC "me" endpoints — authenticated users only (no admin required)
 	r.POST("/v1/rbac/me/permissions", v1.RBACCtrl.GetMyPermissions)
 	r.POST("/v1/rbac/me/check-permission", v1.RBACCtrl.CheckPermission)
+
+	// Blog admin endpoints (require admin)
+	blogAdmin := r.Group("/v1/blog", RequireAdmin())
+	{
+		blogAdmin.POST("/create", v1.BlogCtrl.CreateBlogPost)
+		blogAdmin.POST("/edit", v1.BlogCtrl.EditBlogPost)
+		blogAdmin.POST("/delete", v1.BlogCtrl.DeleteBlogPost)
+		blogAdmin.POST("/byId", v1.BlogCtrl.GetBlogPostById)
+		blogAdmin.POST("/list", v1.BlogCtrl.ListBlogPosts)
+	}
 }
