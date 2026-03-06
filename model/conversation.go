@@ -74,6 +74,8 @@ type SendMessageResponse struct {
 	AssistantMessage ConversationMessage `json:"assistantMessage"`
 	SessionKey       string              `json:"sessionKey"`
 	MessageCount     int                 `json:"messageCount"`
+}
+
 // ConversationRole constants for message roles.
 const (
 	ConvRoleUser      = "user"
