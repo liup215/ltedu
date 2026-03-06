@@ -272,7 +272,7 @@ import { APP_TITLE } from '../const/config';
 import { useI18n } from 'vue-i18n'
 
 const { locale } = useI18n()
-const appTitle = ref<string>('LTEDU-Edu'); // Default title, will be updated on mount
+const appTitle = ref<string>('Nerdlet'); // Default title, will be updated on mount
 const userStore = useUserStore();
 const router = useRouter();
 

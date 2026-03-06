@@ -1,6 +1,6 @@
-// LTEdu Service Worker - Provides offline capability and caching for educational data
-const CACHE_NAME = 'ltedu-v1'
-const API_CACHE_NAME = 'ltedu-api-v1'
+// Nerdlet Service Worker - Provides offline capability and caching for educational data
+const CACHE_NAME = 'nerdlet-v1'
+const API_CACHE_NAME = 'nerdlet-api-v1'
 
 // Static assets to pre-cache on install
 const PRECACHE_URLS = [
@@ -21,8 +21,8 @@ const CACHEABLE_API_PATTERNS = [
 const API_CACHE_TTL_SECONDS = 300 // 5 minutes
 
 // Install: cache essential static assets
-// LTEdu Service Worker - Provides offline capability for practice questions
-const CACHE_NAME = 'ltedu-v1'
+// Nerdlet Service Worker - Provides offline capability for practice questions
+const CACHE_NAME = 'nerdlet-v1'
 
 // Static assets to pre-cache
 const PRECACHE_URLS = [

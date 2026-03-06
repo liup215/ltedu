@@ -76,7 +76,7 @@ export default {
     signOut: '退出登录'
   },
   home: {
-    heroTitle: 'A-Level ToolKit：赋能教师，激励学生。',
+    heroTitle: 'Nerdlet：赋能教师，激励学生。',
     heroSubtitle: '为学生和教师打造的一站式平台，支持主流国际考试大纲。',
     studentPractice: '学生练习：开始快速练习',
     teacherBuildExam: '教师：创建试卷',
@@ -637,7 +637,7 @@ export default {
     description4: '您可以通过微信支付捐赠，或加入 QQ 群获取社区支持。感谢您助力 {appTitle} 的成长！',
     wechatPay: '微信支付',
     joinQQGroup: '加入QQ群',
-    popupDescription1: 'LTEDU 是一个非营利、社区驱动的教育平台。您的捐赠将帮助我们保持平台免费并持续优化服务。',
+    popupDescription1: 'Nerdlet 是一个非营利、社区驱动的教育平台。您的捐赠将帮助我们保持平台免费并持续优化服务。',
     popupDescription2: '请扫描下方二维码通过微信支付捐赠。感谢您的支持！',
     qqGroup: 'QQ群',
     moreOptions: '更多捐赠方式'
@@ -990,14 +990,14 @@ export default {
     },
     api: {
       title: 'API 与开发者文档',
-      subtitle: '通过 REST API、CLI 工具或 MCP 集成与 LTEdu 平台对接。',
+      subtitle: '通过 REST API、CLI 工具或 MCP 集成与 Nerdlet 平台对接。',
       restTitle: 'REST API',
       restDesc: '后端在 /api/v1/ 下提供完整 REST API，所有接口返回 JSON，使用 Bearer Token 鉴权。',
       mcpTitle: 'MCP 集成',
       mcpDesc: '使用 MCP Token 将 Claude 等 AI 助手接入平台，构建智能辅导工作流。',
       getMcpToken: '获取 MCP Token',
       cliTitle: 'CLI 工具',
-      cliDesc: 'ltedu CLI 工具支持在终端管理题目、大纲和学习计划。',
+      cliDesc: 'Nerdlet CLI 工具支持在终端管理题目、大纲和学习计划。',
       cliInstall: '安装 CLI',
       cliLogin: '身份验证',
       cliSync: '同步题目',

@@ -76,7 +76,7 @@ export default {
     signOut: 'Sign out'
   },
   home: {
-    heroTitle: 'A-Level ToolKit: Empower Teachers, Engage Students.',
+    heroTitle: 'Nerdlet: Empower Teachers, Engage Students.',
     heroSubtitle: 'The all-in-one platform for students and teachers, supporting major international exam syllabuses.',
     studentPractice: 'Student Practice: Start Quick Practice',
     teacherBuildExam: 'Teacher: Build Exam Paper',
@@ -637,7 +637,7 @@ export default {
     description4: 'You can donate via WeChat Pay or join our QQ group for community support. Thank you for helping {appTitle} grow!',
     wechatPay: 'WeChat Pay',
     joinQQGroup: 'Join QQ Group',
-    popupDescription1: 'LTEDU is a non-profit, community-driven education platform. Your donation helps us keep the platform free and improve our services.',
+    popupDescription1: 'Nerdlet is a non-profit, community-driven education platform. Your donation helps us keep the platform free and improve our services.',
     popupDescription2: 'Scan the QR code below to donate via WeChat Pay. Thank you for your support!',
     qqGroup: 'QQ Group',
     moreOptions: 'More donation options'
@@ -990,14 +990,14 @@ export default {
     },
     api: {
       title: 'API & Developer Documentation',
-      subtitle: 'Integrate with the LTEdu platform using our REST API, CLI tool, or MCP integration.',
+      subtitle: 'Integrate with the Nerdlet platform using our REST API, CLI tool, or MCP integration.',
       restTitle: 'REST API',
       restDesc: 'The backend exposes a full REST API under /api/v1/. All endpoints return JSON. Authentication is via Bearer token.',
       mcpTitle: 'MCP Integration',
       mcpDesc: 'Use MCP tokens to connect AI assistants such as Claude to the platform. Ideal for building intelligent tutoring workflows.',
       getMcpToken: 'Get your MCP Token',
       cliTitle: 'CLI Tool',
-      cliDesc: 'The ltedu CLI lets you manage questions, syllabuses, and learning plans from the terminal.',
+      cliDesc: 'The Nerdlet CLI lets you manage questions, syllabuses, and learning plans from the terminal.',
       cliInstall: 'Install the CLI',
       cliLogin: 'Authenticate',
       cliSync: 'Sync questions',
