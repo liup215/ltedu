@@ -460,6 +460,15 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/rbac/me/permissions", v1.RBACCtrl.GetMyPermissions)
 	r.POST("/v1/rbac/me/check-permission", v1.RBACCtrl.CheckPermission)
 
+	// Feedback endpoints — submit/my are user-facing; list/stats/byId/updateStatus are admin-only
+	r.POST("/v1/feedback/submit", v1.FeedbackCtrl.Submit)
+	r.POST("/v1/feedback/my", v1.FeedbackCtrl.MyFeedback)
+	feedbackAdmin := r.Group("/v1/feedback", RequireAdmin())
+	{
+		feedbackAdmin.POST("/list", v1.FeedbackCtrl.List)
+		feedbackAdmin.POST("/byId", v1.FeedbackCtrl.GetByID)
+		feedbackAdmin.POST("/updateStatus", v1.FeedbackCtrl.UpdateStatus)
+		feedbackAdmin.GET("/stats", v1.FeedbackCtrl.GetStats)
 	// Blog admin endpoints (require admin)
 	blogAdmin := r.Group("/v1/blog", RequireAdmin())
 	{
