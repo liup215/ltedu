@@ -50,6 +50,8 @@ var (
 	PhasePlanRepo                IPhasePlanRepository
 	ClassTeacherApplicationRepo  IClassTeacherApplicationRepository
 	ConversationRepo             IConversationRepository
+	ConversationSessionRepo      IConversationSessionRepository
+	ConversationMessageRepo      IConversationMessageRepository
 	NLUFeedbackRepo              INLUFeedbackRepository
 	AuditLogRepo                 IAuditLogRepository
 	FeedbackRepo                 IFeedbackRepository
@@ -115,6 +117,8 @@ func InitRepositories(db *gorm.DB) {
 	PhasePlanRepo = NewPhasePlanRepository(db)
 	ClassTeacherApplicationRepo = NewClassTeacherApplicationRepository(db)
 	ConversationRepo = NewConversationRepository(db)
+	ConversationSessionRepo = NewConversationSessionRepository(db)
+	ConversationMessageRepo = NewConversationMessageRepository(db)
 	NLUFeedbackRepo = NewNLUFeedbackRepository(db)
 	AuditLogRepo = NewAuditLogRepository(db)
 	FeedbackRepo = NewFeedbackRepository(db)

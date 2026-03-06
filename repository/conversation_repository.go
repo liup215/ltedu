@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"edu/model"
-	"time"
+"edu/model"
+"time"
 
 	"gorm.io/gorm"
 )
@@ -97,7 +97,7 @@ func (r *conversationRepository) GetActiveSessionWithMessages(sessionKey string,
 		return nil, nil, gorm.ErrRecordNotFound
 	}
 
-	if !session.IsActive || time.Now().After(session.ExpiresAt) {
+	if !session.Active || time.Now().After(session.ExpiresAt) {
 		return nil, nil, gorm.ErrRecordNotFound
 	}
 

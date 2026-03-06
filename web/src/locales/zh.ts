@@ -577,7 +577,7 @@ export default {
     systemSettings: '系统设置',
     roles: '角色管理',
     permissions: '权限管理',
-    feedback: '用户反馈'
+    feedback: '用户反馈',
     blog: '博客管理',
   },
   analytics: {
