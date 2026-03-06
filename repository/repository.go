@@ -49,8 +49,7 @@ var (
 	ExamNodeRepo                 IExamNodeRepository
 	PhasePlanRepo                IPhasePlanRepository
 	ClassTeacherApplicationRepo  IClassTeacherApplicationRepository
-	ConversationSessionRepo      IConversationSessionRepository
-	ConversationMessageRepo      IConversationMessageRepository
+	ConversationRepo             IConversationRepository
 	NLUFeedbackRepo              INLUFeedbackRepository
 	AuditLogRepo                 IAuditLogRepository
 	FeedbackRepo                 IFeedbackRepository
@@ -115,8 +114,7 @@ func InitRepositories(db *gorm.DB) {
 	ExamNodeRepo = NewExamNodeRepository(db)
 	PhasePlanRepo = NewPhasePlanRepository(db)
 	ClassTeacherApplicationRepo = NewClassTeacherApplicationRepository(db)
-	ConversationSessionRepo = NewConversationSessionRepository(db)
-	ConversationMessageRepo = NewConversationMessageRepository(db)
+	ConversationRepo = NewConversationRepository(db)
 	NLUFeedbackRepo = NewNLUFeedbackRepository(db)
 	AuditLogRepo = NewAuditLogRepository(db)
 	FeedbackRepo = NewFeedbackRepository(db)

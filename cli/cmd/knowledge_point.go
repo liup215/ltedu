@@ -13,6 +13,8 @@ Use:   "knowledge-point",
 Short: "Manage knowledge points (知识点管理)",
 }
 
+// ---- generate ----
+
 // ---- list ----
 
 var (

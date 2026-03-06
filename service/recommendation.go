@@ -11,7 +11,6 @@ import (
 var RecommendationSvr = &RecommendationService{baseService: newBaseService()}
 
 // RecommendationService provides personalized question recommendations for students.
-// RecommendationService provides AI-driven practice question recommendations.
 type RecommendationService struct {
 	baseService
 }
