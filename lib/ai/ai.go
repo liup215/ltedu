@@ -9,9 +9,9 @@ import (
 	"go.uber.org/zap"
 )
 
-// Message represents a single chat message with a role and content.
+// Message represents a single chat message used for multi-turn conversations.
 type Message struct {
-	Role    string // "system", "user", or "assistant"
+	Role    string // "user", "assistant", or "system"
 	Content string
 }
 
@@ -32,6 +32,9 @@ func NewModel(c *Config, logger *zap.Logger) Model {
 type Model interface {
 	// CreateCompletion sends a single user prompt and returns the model response.
 	CreateCompletion(string) (string, error)
+	// CreateCompletionWithHistory sends a full conversation history to the AI
+	// and returns the assistant's next response.
+	CreateCompletionWithHistory(messages []Message) (string, error)
 	// CreateCompletionWithMessages sends a multi-turn message list (supporting system
 	// prompts and conversation history) and returns the model response.
 	CreateCompletionWithMessages(messages []Message) (string, error)
@@ -69,6 +72,40 @@ func (b *BaseAIClient) CreateCompletionWithMessages(messages []Message) (string,
 
 	if err != nil {
 		b.logger.Error("Failed to create completion", zap.Error(err))
+		return "", err
+	}
+
+	if len(chatCompletion.Choices) == 0 {
+		return "", fmt.Errorf("no choices in response")
+	}
+
+	return chatCompletion.Choices[0].Message.Content, nil
+}
+
+// CreateCompletionWithHistory sends a full conversation history (including system messages)
+// to the AI model and returns the assistant's reply.
+func (b *BaseAIClient) CreateCompletionWithHistory(messages []Message) (string, error) {
+	params := make([]openai.ChatCompletionMessageParamUnion, 0, len(messages))
+	for _, m := range messages {
+		switch m.Role {
+		case "system":
+			params = append(params, openai.SystemMessage(m.Content))
+		case "assistant":
+			params = append(params, openai.AssistantMessage(m.Content))
+		default: // "user"
+			params = append(params, openai.UserMessage(m.Content))
+		}
+	}
+
+	chatCompletion, err := b.client.Chat.Completions.New(
+		context.TODO(), openai.ChatCompletionNewParams{
+			Messages: params,
+			Model:    b.model,
+		},
+	)
+
+	if err != nil {
+		b.logger.Error("Failed to create completion with history", zap.Error(err))
 		return "", err
 	}
 
