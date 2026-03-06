@@ -454,8 +454,8 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/ai/conversation/start", v1.ConversationCtrl.StartSession)
 	r.POST("/v1/ai/conversation/message", v1.ConversationCtrl.SendMessage)
 	r.POST("/v1/ai/conversation/history", v1.ConversationCtrl.GetHistory)
-	r.POST("/v1/ai/conversation/sessions", v1.ConversationCtrl.ListSessions)
-	r.POST("/v1/ai/conversation/reset", v1.ConversationCtrl.ResetContext)
+	r.POST("/v1/ai/conversation/sessions", v1.ConversationCtrl.GetSessions)
+	r.POST("/v1/ai/conversation/reset", v1.ConversationCtrl.ResetSession)
 	r.POST("/v1/ai/conversation/close", v1.ConversationCtrl.CloseSession)
 	{
 		rbacAdmin.POST("/roles/list", v1.RBACCtrl.ListRoles)
@@ -497,6 +497,7 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 		feedbackAdmin.POST("/byId", v1.FeedbackCtrl.GetByID)
 		feedbackAdmin.POST("/updateStatus", v1.FeedbackCtrl.UpdateStatus)
 		feedbackAdmin.GET("/stats", v1.FeedbackCtrl.GetStats)
+	}
 	// Blog admin endpoints (require admin)
 	blogAdmin := r.Group("/v1/blog", RequireAdmin())
 	{
