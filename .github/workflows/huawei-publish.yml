@@ -1,0 +1,90 @@
+name: HarmonyOS – Publish to Huawei AppGallery
+
+on:
+  push:
+    tags: [ "v*" ]
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: "Release type (full | phased)"
+        required: true
+        default: phased
+
+permissions:
+  contents: read
+
+env:
+  RELEASE_TYPE: ${{ github.event.inputs.release_type || 'phased' }}
+
+jobs:
+  build-and-publish:
+    name: Build & Publish HarmonyOS HAP
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── Decode signing keystore ──────────────────────────────────────────
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.HUAWEI_KEYSTORE_BASE64 }}" | base64 --decode > release.keystore
+
+      # ── Build release HAP ────────────────────────────────────────────────
+      # Replace this step with your actual HarmonyOS build command once the
+      # HarmonyOS app source is added to the repository.
+      # DevEco Studio CLI is used for HarmonyOS builds.
+      - name: Build release HAP
+        env:
+          HUAWEI_KEY_ALIAS: ${{ secrets.HUAWEI_KEY_ALIAS }}
+          HUAWEI_KEY_PASSWORD: ${{ secrets.HUAWEI_KEY_PASSWORD }}
+          HUAWEI_STORE_PASSWORD: ${{ secrets.HUAWEI_STORE_PASSWORD }}
+        run: |
+          echo "TODO: replace with actual DevEco Studio CLI build command, e.g.:"
+          echo "  hvigorw assembleHap --mode module \\"
+          echo "    -p product=default \\"
+          echo "    -p buildMode=release"
+
+      # ── Obtain AppGallery access token ───────────────────────────────────
+      - name: Obtain AppGallery Connect access token
+        id: agc_token
+        run: |
+          RESPONSE=$(curl -s -X POST \
+            "https://connect-api.cloud.huawei.com/api/oauth2/v1/token" \
+            -H "Content-Type: application/json" \
+            -d "{\"grant_type\":\"client_credentials\",\"client_id\":\"${{ secrets.HUAWEI_CLIENT_ID }}\",\"client_secret\":\"${{ secrets.HUAWEI_CLIENT_SECRET }}\"}")
+          TOKEN=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin)['access_token'])")
+          echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
+
+      # ── Upload HAP to AppGallery Connect ─────────────────────────────────
+      # Replace the HAP path below with the actual output path from the build
+      # step (e.g. harmony/build/default/outputs/default/ltedu-default-unsigned.hap).
+      - name: Upload HAP to AppGallery Connect
+        run: |
+          HAP_PATH="harmony/build/default/outputs/default/ltedu-default-signed.hap"
+          APP_ID="${{ secrets.HUAWEI_APP_ID }}"
+          TOKEN="${{ steps.agc_token.outputs.token }}"
+
+          echo "TODO: replace with actual AppGallery Connect file upload API call, e.g.:"
+          echo "  Upload URL: https://connect-api.cloud.huawei.com/api/publish/v2/upload-url"
+          echo "  Submit URL: https://connect-api.cloud.huawei.com/api/publish/v2/app-submit"
+          echo "  App ID: \$APP_ID"
+          echo "  HAP: \$HAP_PATH"
+
+      # ── Submit app update ────────────────────────────────────────────────
+      - name: Submit app update for review
+        run: |
+          TOKEN="${{ steps.agc_token.outputs.token }}"
+          APP_ID="${{ secrets.HUAWEI_APP_ID }}"
+          curl -s -X POST \
+            "https://connect-api.cloud.huawei.com/api/publish/v2/app-submit?appId=$APP_ID&releaseType=${{ env.RELEASE_TYPE }}" \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "client_id: ${{ secrets.HUAWEI_CLIENT_ID }}" \
+            -H "Content-Type: application/json" \
+            -d '{}' \
+            | python3 -c "import sys,json; d=json.load(sys.stdin); print(d)"
+
+      # ── Cleanup secrets from disk ────────────────────────────────────────
+      - name: Remove secrets from disk
+        if: always()
+        run: rm -f release.keystore
