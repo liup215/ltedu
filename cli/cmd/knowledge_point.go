@@ -248,37 +248,39 @@ kpGenerateMode      string
 )
 
 var kpGenerateCmd = &cobra.Command{
-Use:   "generate",
-Short: "AI-generate knowledge points for a chapter (requires --chapter-id)",
-RunE: func(cmd *cobra.Command, args []string) error {
-if kpGenerateChapterID == 0 {
-return fmt.Errorf("--chapter-id is required")
-}
-c := client.NewClient()
-body := map[string]interface{}{
-"chapterId": kpGenerateChapterID,
-"mode":      kpGenerateMode,
-}
-var result struct {
-Keypoints []map[string]interface{} `json:"keypoints"`
-Count     int                      `json:"count"`
-}
-if err := c.PostAndDecode("/v1/chapter/generate-keypoints", body, &result); err != nil {
-return err
-}
-fmt.Printf("Generated %d knowledge points.\n\n", result.Count)
-headers := []string{"Name", "Difficulty", "EstimatedMinutes"}
-rows := make([][]string, 0, len(result.Keypoints))
-for _, kp := range result.Keypoints {
-rows = append(rows, []string{
-fmtStr(kp["name"]),
-fmtStr(kp["difficulty"]),
-fmtFloat(kp["estimatedMinutes"]),
-})
-}
-printTable(headers, rows)
-return nil
-},
+	Use:   "generate",
+	Short: "AI-generate knowledge points for a chapter (requires --chapter-id)",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if kpGenerateChapterID == 0 {
+			return fmt.Errorf("--chapter-id is required")
+		}
+		c := client.NewClient()
+		body := map[string]interface{}{
+			"chapterId": kpGenerateChapterID,
+			"mode":      kpGenerateMode,
+		}
+		var result struct {
+			Keypoints []map[string]interface{} `json:"keypoints"`
+			Count     int                      `json:"count"`
+		}
+		if err := c.PostAndDecode("/v1/knowledge-points/generate", body, &result); err != nil {
+			return err
+		}
+		fmt.Printf("Generated %d knowledge point(s) for chapter %d:\n\n", result.Count, kpGenerateChapterID)
+		headers := []string{"ID", "Name", "Difficulty", "Minutes", "Confidence"}
+		rows := make([][]string, 0, len(result.Keypoints))
+		for _, kp := range result.Keypoints {
+			rows = append(rows, []string{
+				fmtFloat(kp["id"]),
+				fmtStr(kp["name"]),
+				fmtStr(kp["difficulty"]),
+				fmtFloat(kp["estimatedMinutes"]),
+				fmt.Sprintf("%.2f", toFloat64(kp["confidenceScore"])),
+			})
+		}
+		printTable(headers, rows)
+		return nil
+	},
 }
 
 // ---- auto-link-question ----
@@ -380,54 +382,54 @@ return 0
 }
 
 func init() {
-kpListCmd.Flags().IntVar(&kpListPage, "page", 1, "Page number")
-kpListCmd.Flags().IntVar(&kpListPageSize, "page-size", 20, "Page size")
-kpListCmd.Flags().UintVar(&kpListSyllabusID, "syllabus-id", 0, "Filter by syllabus ID")
-kpListCmd.Flags().UintVar(&kpListChapterID, "chapter-id", 0, "Filter by chapter ID")
-kpListCmd.Flags().StringVar(&kpListName, "name", "", "Filter by name")
-kpListCmd.Flags().StringVar(&kpListDifficulty, "difficulty", "", "Filter by difficulty (basic/medium/hard)")
+	kpListCmd.Flags().IntVar(&kpListPage, "page", 1, "Page number")
+	kpListCmd.Flags().IntVar(&kpListPageSize, "page-size", 20, "Page size")
+	kpListCmd.Flags().UintVar(&kpListSyllabusID, "syllabus-id", 0, "Filter by syllabus ID")
+	kpListCmd.Flags().UintVar(&kpListChapterID, "chapter-id", 0, "Filter by chapter ID")
+	kpListCmd.Flags().StringVar(&kpListName, "name", "", "Filter by name")
+	kpListCmd.Flags().StringVar(&kpListDifficulty, "difficulty", "", "Filter by difficulty (basic/medium/hard)")
 
-kpCreateCmd.Flags().StringVar(&kpCreateName, "name", "", "Knowledge point name (required)")
-kpCreateCmd.Flags().UintVar(&kpCreateChapterID, "chapter-id", 0, "Chapter ID (required)")
-kpCreateCmd.Flags().StringVar(&kpCreateDescription, "description", "", "Description")
-kpCreateCmd.Flags().StringVar(&kpCreateDifficulty, "difficulty", "basic", "Difficulty (basic/medium/hard)")
-kpCreateCmd.Flags().IntVar(&kpCreateEstimatedMinutes, "estimated-minutes", 0, "Estimated study minutes")
-kpCreateCmd.Flags().IntVar(&kpCreateOrderIndex, "order-index", 0, "Order index")
+	kpCreateCmd.Flags().StringVar(&kpCreateName, "name", "", "Knowledge point name (required)")
+	kpCreateCmd.Flags().UintVar(&kpCreateChapterID, "chapter-id", 0, "Chapter ID (required)")
+	kpCreateCmd.Flags().StringVar(&kpCreateDescription, "description", "", "Description")
+	kpCreateCmd.Flags().StringVar(&kpCreateDifficulty, "difficulty", "basic", "Difficulty (basic/medium/hard)")
+	kpCreateCmd.Flags().IntVar(&kpCreateEstimatedMinutes, "estimated-minutes", 0, "Estimated study minutes")
+	kpCreateCmd.Flags().IntVar(&kpCreateOrderIndex, "order-index", 0, "Order index")
 
-kpEditCmd.Flags().UintVar(&kpEditID, "id", 0, "Knowledge point ID (required)")
-kpEditCmd.Flags().StringVar(&kpEditName, "name", "", "New name")
-kpEditCmd.Flags().StringVar(&kpEditDescription, "description", "", "New description")
-kpEditCmd.Flags().StringVar(&kpEditDifficulty, "difficulty", "", "New difficulty (basic/medium/hard)")
-kpEditCmd.Flags().IntVar(&kpEditEstimatedMinutes, "estimated-minutes", 0, "New estimated study minutes")
-kpEditCmd.Flags().IntVar(&kpEditOrderIndex, "order-index", 0, "New order index")
+	kpEditCmd.Flags().UintVar(&kpEditID, "id", 0, "Knowledge point ID (required)")
+	kpEditCmd.Flags().StringVar(&kpEditName, "name", "", "New name")
+	kpEditCmd.Flags().StringVar(&kpEditDescription, "description", "", "New description")
+	kpEditCmd.Flags().StringVar(&kpEditDifficulty, "difficulty", "", "New difficulty (basic/medium/hard)")
+	kpEditCmd.Flags().IntVar(&kpEditEstimatedMinutes, "estimated-minutes", 0, "New estimated study minutes")
+	kpEditCmd.Flags().IntVar(&kpEditOrderIndex, "order-index", 0, "New order index")
 
-kpLinkQuestionCmd.Flags().UintVar(&kpLinkQuestionKPID, "knowledge-point-id", 0, "Knowledge point ID (required)")
-kpLinkQuestionCmd.Flags().UintVar(&kpLinkQuestionQuestionID, "question-id", 0, "Question ID (required)")
+	kpLinkQuestionCmd.Flags().UintVar(&kpLinkQuestionKPID, "knowledge-point-id", 0, "Knowledge point ID (required)")
+	kpLinkQuestionCmd.Flags().UintVar(&kpLinkQuestionQuestionID, "question-id", 0, "Question ID (required)")
 
-kpUnlinkQuestionCmd.Flags().UintVar(&kpUnlinkQuestionKPID, "knowledge-point-id", 0, "Knowledge point ID (required)")
-kpUnlinkQuestionCmd.Flags().UintVar(&kpUnlinkQuestionQuestionID, "question-id", 0, "Question ID (required)")
+	kpUnlinkQuestionCmd.Flags().UintVar(&kpUnlinkQuestionKPID, "knowledge-point-id", 0, "Knowledge point ID (required)")
+	kpUnlinkQuestionCmd.Flags().UintVar(&kpUnlinkQuestionQuestionID, "question-id", 0, "Question ID (required)")
 
-kpGenerateCmd.Flags().UintVar(&kpGenerateChapterID, "chapter-id", 0, "Chapter ID (required)")
-kpGenerateCmd.Flags().StringVar(&kpGenerateMode, "mode", "auto", "Generation mode (auto/manual)")
+	kpGenerateCmd.Flags().UintVar(&kpGenerateChapterID, "chapter-id", 0, "Chapter ID (required)")
+	kpGenerateCmd.Flags().StringVar(&kpGenerateMode, "mode", "auto", "Generation mode (auto/manual)")
 
-kpAutoLinkQuestionCmd.Flags().UintVar(&kpAutoLinkQuestionID, "question-id", 0, "Question ID (required)")
-kpAutoLinkQuestionCmd.Flags().UintVar(&kpAutoLinkChapterID, "chapter-id", 0, "Chapter ID (scope for linking)")
-kpAutoLinkQuestionCmd.Flags().UintVar(&kpAutoLinkSyllabusID, "syllabus-id", 0, "Syllabus ID (scope for linking)")
-kpAutoLinkQuestionCmd.Flags().BoolVar(&kpAutoLinkIntelligent, "intelligent", false, "Use two-phase intelligent linking (requires --syllabus-id)")
+	kpAutoLinkQuestionCmd.Flags().UintVar(&kpAutoLinkQuestionID, "question-id", 0, "Question ID (required)")
+	kpAutoLinkQuestionCmd.Flags().UintVar(&kpAutoLinkChapterID, "chapter-id", 0, "Chapter ID (scope for linking)")
+	kpAutoLinkQuestionCmd.Flags().UintVar(&kpAutoLinkSyllabusID, "syllabus-id", 0, "Syllabus ID (scope for linking)")
+	kpAutoLinkQuestionCmd.Flags().BoolVar(&kpAutoLinkIntelligent, "intelligent", false, "Use two-phase intelligent linking (requires --syllabus-id)")
 
-kpAutoMigrateCmd.Flags().UintVar(&kpAutoMigrateSyllabusID, "syllabus-id", 0, "Syllabus ID (required)")
-kpAutoMigrateCmd.Flags().BoolVar(&kpAutoMigrateGenerateKP, "generate-keypoints", true, "Generate knowledge points for chapters")
-kpAutoMigrateCmd.Flags().BoolVar(&kpAutoMigrateLinkQuestions, "link-questions", true, "Auto-link existing questions to knowledge points")
-kpAutoMigrateCmd.Flags().IntVar(&kpAutoMigrateBatchSize, "batch-size", 10, "Batch size for processing")
+	kpAutoMigrateCmd.Flags().UintVar(&kpAutoMigrateSyllabusID, "syllabus-id", 0, "Syllabus ID (required)")
+	kpAutoMigrateCmd.Flags().BoolVar(&kpAutoMigrateGenerateKP, "generate-keypoints", true, "Generate knowledge points for chapters")
+	kpAutoMigrateCmd.Flags().BoolVar(&kpAutoMigrateLinkQuestions, "link-questions", true, "Auto-link existing questions to knowledge points")
+	kpAutoMigrateCmd.Flags().IntVar(&kpAutoMigrateBatchSize, "batch-size", 10, "Batch size for processing")
 
-knowledgePointCmd.AddCommand(kpListCmd)
-knowledgePointCmd.AddCommand(kpGetCmd)
-knowledgePointCmd.AddCommand(kpCreateCmd)
-knowledgePointCmd.AddCommand(kpEditCmd)
-knowledgePointCmd.AddCommand(kpDeleteCmd)
-knowledgePointCmd.AddCommand(kpLinkQuestionCmd)
-knowledgePointCmd.AddCommand(kpUnlinkQuestionCmd)
-knowledgePointCmd.AddCommand(kpGenerateCmd)
-knowledgePointCmd.AddCommand(kpAutoLinkQuestionCmd)
-knowledgePointCmd.AddCommand(kpAutoMigrateCmd)
+	knowledgePointCmd.AddCommand(kpListCmd)
+	knowledgePointCmd.AddCommand(kpGetCmd)
+	knowledgePointCmd.AddCommand(kpCreateCmd)
+	knowledgePointCmd.AddCommand(kpEditCmd)
+	knowledgePointCmd.AddCommand(kpDeleteCmd)
+	knowledgePointCmd.AddCommand(kpLinkQuestionCmd)
+	knowledgePointCmd.AddCommand(kpUnlinkQuestionCmd)
+	knowledgePointCmd.AddCommand(kpGenerateCmd)
+	knowledgePointCmd.AddCommand(kpAutoLinkQuestionCmd)
+	knowledgePointCmd.AddCommand(kpAutoMigrateCmd)
 }

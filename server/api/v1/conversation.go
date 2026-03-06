@@ -56,7 +56,7 @@ http.SuccessData(c, "会话已创建", session)
 // @Accept       json
 // @Produce      json
 // @Param        body  body  model.ConversationMessageRequest  true  "Message"
-// @Success      200   {object}  map[string]interface{}  "AI reply"
+// @Success      200   {object}  map[string]interface{}  "Reply"
 // @Failure      400   {object}  map[string]interface{}  "Bad request"
 // @Router       /v1/ai/conversation/message [post]
 func (ctrl *ConversationController) SendMessage(c *gin.Context) {
@@ -81,17 +81,17 @@ if err != nil {
 http.ErrorData(c, err.Error(), nil)
 return
 }
-http.SuccessData(c, "回复成功", reply)
+http.SuccessData(c, "ok", reply)
 }
 
-// GetHistory returns the message history for a session.
+// GetHistory returns the message history of a conversation session.
 // @Summary      Get conversation history
-// @Description  Returns all messages in a conversation session
+// @Description  Returns all messages in the specified conversation session
 // @Tags         Conversation
 // @Accept       json
 // @Produce      json
 // @Param        body  body  model.ConversationHistoryRequest  true  "Session ID"
-// @Success      200   {object}  map[string]interface{}  "Message list"
+// @Success      200   {object}  map[string]interface{}  "History"
 // @Failure      400   {object}  map[string]interface{}  "Bad request"
 // @Router       /v1/ai/conversation/history [post]
 func (ctrl *ConversationController) GetHistory(c *gin.Context) {
@@ -111,21 +111,22 @@ http.ErrorData(c, "未登录", nil)
 return
 }
 
-msgs, err := ctrl.conversationSvr.GetHistory(user.ID, req.SessionID)
+messages, err := ctrl.conversationSvr.GetHistory(user.ID, req.SessionID)
 if err != nil {
 http.ErrorData(c, err.Error(), nil)
 return
 }
-http.SuccessData(c, "获取成功", msgs)
+http.SuccessData(c, "ok", messages)
 }
 
-// GetSessions returns all active conversation sessions for the authenticated user.
-// @Summary      List conversation sessions
-// @Description  Returns all active conversation sessions for the current user
+// GetSessions returns all active conversation sessions for the current user.
+// @Summary      List user conversation sessions
+// @Description  Returns all active AI conversation sessions for the authenticated user
 // @Tags         Conversation
 // @Accept       json
 // @Produce      json
-// @Success      200   {object}  map[string]interface{}  "Session list"
+// @Success      200   {object}  map[string]interface{}  "Sessions"
+// @Failure      400   {object}  map[string]interface{}  "Bad request"
 // @Router       /v1/ai/conversation/sessions [post]
 func (ctrl *ConversationController) GetSessions(c *gin.Context) {
 user, err := auth.GetCurrentUser(c)
@@ -139,12 +140,12 @@ if err != nil {
 http.ErrorData(c, err.Error(), nil)
 return
 }
-http.SuccessData(c, "获取成功", sessions)
+http.SuccessData(c, "ok", sessions)
 }
 
-// ResetSession clears the message history of a session.
-// @Summary      Reset conversation session
-// @Description  Clears all messages in a conversation session while keeping the session open
+// ResetSession clears all messages in a conversation session.
+// @Summary      Reset a conversation session
+// @Description  Clears all messages in the specified conversation session
 // @Tags         Conversation
 // @Accept       json
 // @Produce      json
