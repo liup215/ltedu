@@ -1,5 +1,43 @@
 basePath: /api
 definitions:
+  model.AccountUpdateRequest:
+    properties:
+      engname:
+        type: string
+      mobile:
+        type: string
+      nickname:
+        type: string
+      realname:
+        type: string
+      sex:
+        type: integer
+    type: object
+  model.AdminPermission:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      description:
+        type: string
+      displayName:
+        type: string
+      groupName:
+        type: string
+      id:
+        type: integer
+      method:
+        type: string
+      route:
+        type: string
+      slug:
+        type: string
+      updatedAt:
+        type: string
+      url:
+        type: string
+    type: object
   model.AdminRole:
     properties:
       createdAt:
@@ -12,6 +50,10 @@ definitions:
         type: string
       id:
         type: integer
+      permissions:
+        items:
+          $ref: '#/definitions/model.AdminPermission'
+        type: array
       slug:
         type: string
       updatedAt:
@@ -103,6 +145,42 @@ definitions:
       userId:
         type: integer
     type: object
+  model.BlogPostCreateEditRequest:
+    properties:
+      category:
+        type: string
+      content:
+        type: string
+      coverImage:
+        type: string
+      id:
+        type: integer
+      slug:
+        type: string
+      status:
+        type: string
+      summary:
+        type: string
+      tags:
+        type: string
+      title:
+        type: string
+    type: object
+  model.BlogPostQueryRequest:
+    properties:
+      category:
+        type: string
+      id:
+        type: integer
+      keyword:
+        type: string
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      status:
+        type: string
+    type: object
   model.Chapter:
     properties:
       children:
@@ -113,6 +191,8 @@ definitions:
         type: string
       deletedAt:
         type: string
+      examNodeId:
+        type: integer
       id:
         type: integer
       isLeaf:
@@ -121,10 +201,6 @@ definitions:
         type: string
       parentId:
         type: integer
-      questions:
-        items:
-          $ref: '#/definitions/model.Question'
-        type: array
       syllabus:
         $ref: '#/definitions/model.Syllabus'
       syllabusId:
@@ -165,86 +241,89 @@ definitions:
     type: object
   model.Class:
     properties:
+      adminUser:
+        $ref: '#/definitions/model.User'
+      adminUserId:
+        type: integer
       classType:
-        $ref: '#/definitions/model.ClassType'
-      classTypeId:
+        description: '1: 教学班, 2: 行政班'
         type: integer
       createdAt:
         type: string
       deletedAt:
         type: string
-      deputyHeadTeacher:
-        $ref: '#/definitions/model.Teacher'
-      deputyHeadTeacherId:
-        type: integer
-      grade:
-        $ref: '#/definitions/model.Grade'
-      gradeId:
-        type: integer
-      headTeacher:
-        $ref: '#/definitions/model.Teacher'
-      headTeacherId:
-        type: integer
       id:
         type: integer
-      intershipHeadTeacher:
-        $ref: '#/definitions/model.Teacher'
-      intershipHeadTeacherId:
-        type: integer
+      inviteCode:
+        type: string
       name:
         type: string
       students:
         items:
           $ref: '#/definitions/model.User'
         type: array
-      subjectTeacher:
-        $ref: '#/definitions/model.Teacher'
-      subjectTeacherId:
+      syllabus:
+        $ref: '#/definitions/model.Syllabus'
+      syllabusId:
+        description: 教学班绑定的syllabus（仅教学班使用）
         type: integer
+      teachers:
+        items:
+          $ref: '#/definitions/model.User'
+        type: array
       updatedAt:
         type: string
     type: object
   model.ClassCreateEditRequest:
     properties:
-      classTypeId:
-        type: integer
-      deputyHeadTeacherId:
-        type: integer
-      gradeId:
-        type: integer
-      headTeacherId:
+      classType:
+        description: '1: 教学班 (default), 2: 行政班'
         type: integer
       id:
-        type: integer
-      intershipHeadTeacherId:
         type: integer
       name:
         type: string
-      subjectTeacherId:
-        type: integer
     type: object
-  model.ClassQuery:
+  model.ClassJoinRequestQuery:
     properties:
-      classTypeId:
-        type: integer
-      deputyHeadTeacherId:
-        type: integer
-      gradeId:
-        type: integer
-      headTeacherId:
-        type: integer
-      id:
-        type: integer
-      intershipHeadTeacherId:
+      classId:
         type: integer
       pageIndex:
         type: integer
       pageSize:
         type: integer
-      subjectTeacherId:
+      status:
         type: integer
-      teacherType:
-        description: 1. 学科老师, 2. 班主任 3. 副班 4. 实习班主任
+      userId:
+        type: integer
+    type: object
+  model.ClassQuery:
+    properties:
+      adminUserId:
+        type: integer
+      classType:
+        description: 0 = all, 1 = 教学班, 2 = 行政班
+        type: integer
+      id:
+        type: integer
+      inviteCode:
+        type: string
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+    type: object
+  model.ClassTeacherApplicationQuery:
+    properties:
+      classId:
+        type: integer
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      status:
+        type: integer
+      userId:
         type: integer
     type: object
   model.ClassType:
@@ -281,6 +360,29 @@ definitions:
         type: string
       page:
         $ref: '#/definitions/model.Page'
+    type: object
+  model.ConversationContext:
+    properties:
+      currentSelection:
+        additionalProperties: true
+        type: object
+      preferences:
+        additionalProperties:
+          type: string
+        type: object
+      recentActions:
+        items:
+          type: string
+        type: array
+      userRole:
+        type: string
+    type: object
+  model.ConversationHistoryRequest:
+    properties:
+      sessionKey:
+        type: string
+    required:
+    - sessionKey
     type: object
   model.Course:
     properties:
@@ -543,6 +645,19 @@ definitions:
       userId:
         type: integer
     type: object
+  model.FeedbackListRequest:
+    properties:
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+      status:
+        type: string
+      type:
+        type: string
+      userId:
+        type: integer
+    type: object
   model.GapFillingQuestion:
     properties:
       answer:
@@ -706,6 +821,9 @@ definitions:
         $ref: '#/definitions/model.Chapter'
       chapterId:
         type: integer
+      confidenceScore:
+        description: AI-generated confidence (not persisted)
+        type: number
       createdAt:
         type: string
       deletedAt:
@@ -822,6 +940,25 @@ definitions:
           $ref: '#/definitions/model.ChoiceQuestionOption'
         type: array
     type: object
+  model.NLUFeedbackRequest:
+    properties:
+      correctIntent:
+        type: string
+      feedback:
+        type: string
+      predictedIntent:
+        type: string
+      query:
+        type: string
+    type: object
+  model.NLURequest:
+    properties:
+      context:
+        description: optional surrounding context
+        type: string
+      query:
+        type: string
+    type: object
   model.Organisation:
     properties:
       createdAt:
@@ -859,6 +996,10 @@ definitions:
         type: string
       deletedAt:
         type: string
+      examNode:
+        $ref: '#/definitions/model.SyllabusExamNode'
+      examNodeId:
+        type: integer
       id:
         type: integer
       name:
@@ -1027,10 +1168,6 @@ definitions:
     type: object
   model.Question:
     properties:
-      chapters:
-        items:
-          $ref: '#/definitions/model.Chapter'
-        type: array
       createdAt:
         type: string
       deletedAt:
@@ -1067,15 +1204,6 @@ definitions:
       updatedAt:
         type: string
     type: object
-  model.QuestionChapterUpdateRequest:
-    properties:
-      chapters:
-        items:
-          type: integer
-        type: array
-      questionId:
-        type: integer
-    type: object
   model.QuestionContent:
     properties:
       analyze:
@@ -1108,11 +1236,9 @@ definitions:
     properties:
       Status:
         type: integer
-      chapters:
-        items:
-          type: integer
-        type: array
       difficult:
+        type: integer
+      examNodeId:
         type: integer
       id:
         type: integer
@@ -1228,6 +1354,25 @@ definitions:
       updatedAt:
         type: string
     type: object
+  model.ResetContextRequest:
+    properties:
+      context:
+        $ref: '#/definitions/model.ConversationContext'
+      sessionKey:
+        type: string
+    required:
+    - sessionKey
+    type: object
+  model.SendMessageRequest:
+    properties:
+      message:
+        type: string
+      sessionKey:
+        type: string
+    required:
+    - message
+    - sessionKey
+    type: object
   model.ShortAnswerQuestion:
     properties:
       answer:
@@ -1285,6 +1430,11 @@ definitions:
       syllabusId:
         type: integer
     type: object
+  model.StartSessionRequest:
+    properties:
+      context:
+        $ref: '#/definitions/model.ConversationContext'
+    type: object
   model.Syllabus:
     properties:
       code:
@@ -1300,6 +1450,35 @@ definitions:
       qualification:
         $ref: '#/definitions/model.Qualification'
       qualificationId:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  model.SyllabusExamNode:
+    properties:
+      chapters:
+        items:
+          $ref: '#/definitions/model.Chapter'
+        type: array
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      paperCodes:
+        items:
+          $ref: '#/definitions/model.PaperCode'
+        type: array
+      sortOrder:
+        type: integer
+      syllabus:
+        $ref: '#/definitions/model.Syllabus'
+      syllabusId:
         type: integer
       updatedAt:
         type: string
@@ -1486,18 +1665,21 @@ definitions:
         description: 1 正确 2 错误
         type: integer
     type: object
+  model.UpdateStudentStatusRequest:
+    properties:
+      classId:
+        type: integer
+      status:
+        type: integer
+      userId:
+        type: integer
+    required:
+    - classId
+    - status
+    - userId
+    type: object
   model.User:
     properties:
-      adminRole:
-        allOf:
-        - $ref: '#/definitions/model.AdminRole'
-        description: Pointer to allow null
-      adminRoleId:
-        description: Pointer to allow null
-        type: integer
-      adminStatus:
-        description: Pointer to allow null, uses ADMIN_STATUS_OK etc. from model/admin.go
-        type: integer
       avatar:
         type: string
       classes:
@@ -1528,7 +1710,9 @@ definitions:
       isActive:
         type: integer
       isAdmin:
-        description: Admin-related fields (moved from old Admin model or new)
+        description: |-
+          IsAdmin is a virtual field computed from Roles (not stored in DB).
+          It is true when the user has the "admin" or "super_admin" role.
         type: boolean
       isPasswordSet:
         type: integer
@@ -1537,13 +1721,7 @@ definitions:
         type: boolean
       isUsernameSet:
         type: integer
-      lastLoginDate:
-        type: string
       lastLoginId:
-        type: integer
-      lastLoginIp:
-        type: string
-      loginTimes:
         type: integer
       mobile:
         type: string
@@ -1555,6 +1733,11 @@ definitions:
         type: string
       registerIp:
         type: string
+      roles:
+        description: 'RBAC: user can have multiple roles (many2many via user_roles)'
+        items:
+          $ref: '#/definitions/model.AdminRole'
+        type: array
       sex:
         description: 1 男，2 女
         type: integer
@@ -1763,6 +1946,26 @@ definitions:
       webSiteUrl:
         type: string
     type: object
+  v1.AddStudentToClassRequest:
+    properties:
+      classId:
+        type: integer
+      userId:
+        type: integer
+    required:
+    - classId
+    - userId
+    type: object
+  v1.AssignTeacherRequest:
+    properties:
+      classId:
+        type: integer
+      teacherId:
+        type: integer
+    required:
+    - classId
+    - teacherId
+    type: object
   v1.RegistrationRequest:
     properties:
       email:
@@ -1785,6 +1988,23 @@ definitions:
     - passwordConfirm
     - username
     - verificationCode
+    type: object
+  v1.RemoveStudentFromClassRequest:
+    properties:
+      classId:
+        type: integer
+      userId:
+        type: integer
+    type: object
+  v1.RemoveTeacherRequest:
+    properties:
+      classId:
+        type: integer
+      teacherId:
+        type: integer
+    required:
+    - classId
+    - teacherId
     type: object
   v1.SendCodeRequest:
     properties:
@@ -1810,6 +2030,36 @@ info:
   title: LTEdu API
   version: "1.0"
 paths:
+  /v1/account/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新当前已登录用户的个人信息（不包含状态等管理员字段）
+      parameters:
+      - description: 账户更新信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AccountUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 更新当前用户账户信息
+      tags:
+      - 用户管理
   /v1/addons:
     get:
       consumes:
@@ -1951,6 +2201,234 @@ paths:
       summary: 拒绝教师申请
       tags:
       - 教师申请
+  /v1/ai/conversation/close:
+    post:
+      consumes:
+      - application/json
+      description: Deactivates the specified conversation session for the current
+        user.
+      parameters:
+      - description: Session key
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ConversationHistoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Session closed
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Close a conversation session
+      tags:
+      - AI Conversation
+  /v1/ai/conversation/history:
+    post:
+      consumes:
+      - application/json
+      description: Returns the full message history for the specified conversation
+        session.
+      parameters:
+      - description: Session key
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ConversationHistoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: History retrieved
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get conversation history
+      tags:
+      - AI Conversation
+  /v1/ai/conversation/message:
+    post:
+      consumes:
+      - application/json
+      description: Sends a user message to the AI and returns the assistant's reply.
+        Maintains full conversation context.
+      parameters:
+      - description: Message payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.SendMessageRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Message sent
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Send a message in a conversation
+      tags:
+      - AI Conversation
+  /v1/ai/conversation/reset:
+    post:
+      consumes:
+      - application/json
+      description: Clears the message history for the specified session. Supports
+        explicit context reset ("start over"). Optionally accepts new context data.
+      parameters:
+      - description: Session key and optional new context
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ResetContextRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Context reset
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Reset conversation context
+      tags:
+      - AI Conversation
+  /v1/ai/conversation/sessions:
+    post:
+      description: Returns a list of all active AI conversation sessions for the authenticated
+        user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Sessions listed
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List conversation sessions
+      tags:
+      - AI Conversation
+  /v1/ai/conversation/start:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new conversation session with optional user context (role,
+        preferences, recent actions).
+      parameters:
+      - description: Optional initial context
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/model.StartSessionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Session created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Start a new AI conversation session
+      tags:
+      - AI Conversation
+  /v1/ai/nlu/analyze:
+    post:
+      consumes:
+      - application/json
+      description: Performs NLU analysis on an educational query, returning detected
+        intent, entities, and language
+      parameters:
+      - description: Query to analyze
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.NLURequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: NLU result
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Analyze educational query intent and entities
+      tags:
+      - NLU
+  /v1/ai/nlu/feedback:
+    post:
+      consumes:
+      - application/json
+      description: Allows users to correct an NLU prediction to improve future accuracy
+      parameters:
+      - description: Feedback data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.NLUFeedbackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Feedback saved
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Submit NLU correction feedback
+      tags:
+      - NLU
   /v1/attempt/create:
     post:
       consumes:
@@ -2073,6 +2551,177 @@ paths:
       summary: 获取学习统计
       tags:
       - 学习导航
+  /v1/blog/byId:
+    post:
+      consumes:
+      - application/json
+      description: Get blog post details by ID (admin, any status)
+      parameters:
+      - description: Blog post ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.BlogPostQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get blog post by ID (admin)
+      tags:
+      - Blog
+  /v1/blog/create:
+    post:
+      consumes:
+      - application/json
+      description: Admin creates a new blog post
+      parameters:
+      - description: Blog post
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.BlogPostCreateEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create blog post
+      tags:
+      - Blog
+  /v1/blog/delete:
+    post:
+      consumes:
+      - application/json
+      description: Admin deletes a blog post
+      parameters:
+      - description: Blog post ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.BlogPostQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete blog post
+      tags:
+      - Blog
+  /v1/blog/edit:
+    post:
+      consumes:
+      - application/json
+      description: Admin edits an existing blog post
+      parameters:
+      - description: Blog post
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.BlogPostCreateEditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Edit blog post
+      tags:
+      - Blog
+  /v1/blog/list:
+    post:
+      consumes:
+      - application/json
+      description: Paginated list of blog posts for admin (all statuses)
+      parameters:
+      - description: Query
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.BlogPostQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List blog posts (admin)
+      tags:
+      - Blog
+  /v1/blog/public/bySlug:
+    post:
+      consumes:
+      - application/json
+      description: Get a single published blog post by its slug (public)
+      parameters:
+      - description: slug
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get published blog post by slug
+      tags:
+      - Blog
+  /v1/blog/public/list:
+    post:
+      consumes:
+      - application/json
+      description: List published blog posts for public consumption
+      parameters:
+      - description: Query
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.BlogPostQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Public blog post list
+      tags:
+      - Blog
   /v1/captcha:
     post:
       consumes:
@@ -2274,6 +2923,34 @@ paths:
       summary: 生成章节知识点
       tags:
       - 知识点
+  /v1/chapter/list:
+    post:
+      consumes:
+      - application/json
+      description: 分页查询章节列表，支持按syllabusId筛选。不指定parentId时只返回根章节（parentId=0）
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ChapterQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取章节列表
+      tags:
+      - 考纲管理
   /v1/chapter/tree:
     post:
       consumes:
@@ -3011,6 +3688,147 @@ paths:
       summary: 下载文档
       tags:
       - 媒体
+  /v1/feedback/byId:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: '{ \'
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get feedback by ID (admin)
+      tags:
+      - Feedback
+  /v1/feedback/list:
+    post:
+      consumes:
+      - application/json
+      description: Returns paginated feedback with optional filters for status and
+        type.
+      parameters:
+      - description: List request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.FeedbackListRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List all feedback (admin)
+      tags:
+      - Feedback
+  /v1/feedback/my:
+    post:
+      consumes:
+      - application/json
+      description: Returns paginated feedback submitted by the currently authenticated
+        user.
+      parameters:
+      - description: Page parameters
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Page'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List own feedback
+      tags:
+      - Feedback
+  /v1/feedback/stats:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get feedback statistics (admin)
+      tags:
+      - Feedback
+  /v1/feedback/submit:
+    post:
+      consumes:
+      - application/json
+      description: Allows authenticated users to submit feedback with optional rating
+        and type.
+      parameters:
+      - description: Feedback payload
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Submit user feedback
+      tags:
+      - Feedback
+  /v1/feedback/updateStatus:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: '{ \'
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update feedback status (admin)
+      tags:
+      - Feedback
   /v1/goal/active:
     post:
       consumes:
@@ -3401,6 +4219,37 @@ paths:
       summary: 更新知识点
       tags:
       - 知识点
+  /v1/knowledge-point/link-question:
+    post:
+      consumes:
+      - application/json
+      description: 手动将题目关联到指定知识点
+      parameters:
+      - description: 知识点ID和题目ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 关联题目到知识点
+      tags:
+      - 知识点
   /v1/knowledge-point/list:
     post:
       consumes:
@@ -3429,6 +4278,68 @@ paths:
       security:
       - BearerAuth: []
       summary: 获取知识点列表
+      tags:
+      - 知识点
+  /v1/knowledge-point/unlink-question:
+    post:
+      consumes:
+      - application/json
+      description: 手动取消题目与知识点的关联关系
+      parameters:
+      - description: 知识点ID和题目ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 取消题目与知识点的关联
+      tags:
+      - 知识点
+  /v1/knowledge-points/generate:
+    post:
+      consumes:
+      - application/json
+      description: 为指定章节自动生成知识点（含置信度分数）
+      parameters:
+      - description: 章节ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: AI生成知识点
       tags:
       - 知识点
   /v1/knowledge-state/byChapter:
@@ -5443,36 +6354,6 @@ paths:
       summary: 获取资质列表
       tags:
       - 考纲管理
-  /v1/question/addChapter:
-    post:
-      consumes:
-      - application/json
-      description: 为题目添加章节关联
-      parameters:
-      - description: 题目与章节ID
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/model.QuestionChapterUpdateRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 成功
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: 参数错误
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - BearerAuth: []
-      summary: 添加题目章节关联
-      tags:
-      - 题目管理
   /v1/question/all:
     post:
       consumes:
@@ -5651,36 +6532,6 @@ paths:
       summary: 删除题目
       tags:
       - 题目管理
-  /v1/question/deleteChapter:
-    post:
-      consumes:
-      - application/json
-      description: 删除题目与章节的关联
-      parameters:
-      - description: 题目与章节ID
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/model.QuestionChapterUpdateRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 成功
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: 参数错误
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - BearerAuth: []
-      summary: 删除题目章节关联
-      tags:
-      - 题目管理
   /v1/question/edit:
     post:
       consumes:
@@ -5739,6 +6590,38 @@ paths:
       summary: 获取题目列表
       tags:
       - 题目管理
+  /v1/recommendations/questions:
+    get:
+      description: 根据学生的学习进度和知识薄弱点，推荐个性化练习题。若调用方为学生本人可省略 studentId；管理员或教师可通过 studentId
+        查询任意学生的推荐。
+      parameters:
+      - description: 目标学生ID（管理员/教师专用）
+        in: query
+        name: studentId
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: 无权限
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取个性化题目推荐
+      tags:
+      - 推荐系统
   /v1/register:
     post:
       consumes:
@@ -5771,15 +6654,14 @@ paths:
     post:
       consumes:
       - application/json
-      description: 将学生添加到指定班级
+      description: 超级管理员直接将学生添加到班级（绕过邀请码流程）
       parameters:
       - description: 班级ID和学生ID
         in: body
         name: body
         required: true
         schema:
-          additionalProperties: true
-          type: object
+          $ref: '#/definitions/v1.AddStudentToClassRequest'
       produces:
       - application/json
       responses:
@@ -5795,7 +6677,7 @@ paths:
             type: object
       security:
       - BearerAuth: []
-      summary: 添加学生到班级
+      summary: 直接添加学生到班级
       tags:
       - 学校管理
   /v1/school/class/all:
@@ -5826,6 +6708,98 @@ paths:
       security:
       - BearerAuth: []
       summary: 获取所有班级
+      tags:
+      - 学校管理
+  /v1/school/class/apply:
+    post:
+      consumes:
+      - application/json
+      description: 学生使用邀请码申请加入班级
+      parameters:
+      - description: 邀请码和消息
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 申请加入班级
+      tags:
+      - 学校管理
+  /v1/school/class/assignTeacher:
+    post:
+      consumes:
+      - application/json
+      description: 管理员为班级指定额外的教师
+      parameters:
+      - description: 班级ID和教师ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/v1.AssignTeacherRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 为班级指定教师
+      tags:
+      - 学校管理
+  /v1/school/class/bindSyllabus:
+    post:
+      consumes:
+      - application/json
+      description: 将指定syllabus绑定到教学班（教学班管理员或系统管理员操作）
+      parameters:
+      - description: 班级ID和SyllabusID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 绑定Syllabus到教学班
       tags:
       - 学校管理
   /v1/school/class/byId:
@@ -5862,7 +6836,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: 创建新班级
+      description: 创建新班级（仅教师可创建，创建者自动成为管理员，自动生成邀请码）
       parameters:
       - description: 班级信息
         in: body
@@ -5918,37 +6892,6 @@ paths:
       summary: 删除班级
       tags:
       - 学校管理
-  /v1/school/class/deleteStudent:
-    post:
-      consumes:
-      - application/json
-      description: 将学生从指定班级移除
-      parameters:
-      - description: 班级ID和学生ID
-        in: body
-        name: body
-        required: true
-        schema:
-          additionalProperties: true
-          type: object
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 成功
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: 参数错误
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - BearerAuth: []
-      summary: 从班级移除学生
-      tags:
-      - 学校管理
   /v1/school/class/edit:
     post:
       consumes:
@@ -5977,6 +6920,98 @@ paths:
       security:
       - BearerAuth: []
       summary: 编辑班级
+      tags:
+      - 学校管理
+  /v1/school/class/joinRequest/approve:
+    post:
+      consumes:
+      - application/json
+      description: 管理员审核通过学生的加入申请
+      parameters:
+      - description: 申请ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 审核通过加入申请
+      tags:
+      - 学校管理
+  /v1/school/class/joinRequest/list:
+    post:
+      consumes:
+      - application/json
+      description: 获取班级的加入申请列表（管理员）
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ClassJoinRequestQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取加入申请列表
+      tags:
+      - 学校管理
+  /v1/school/class/joinRequest/reject:
+    post:
+      consumes:
+      - application/json
+      description: 管理员拒绝学生的加入申请
+      parameters:
+      - description: 申请ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 拒绝加入申请
       tags:
       - 学校管理
   /v1/school/class/list:
@@ -6009,11 +7044,71 @@ paths:
       summary: 获取班级列表
       tags:
       - 学校管理
+  /v1/school/class/removeStudent:
+    post:
+      consumes:
+      - application/json
+      description: 将学生从指定班级移除（管理员操作）
+      parameters:
+      - description: 班级ID和学生ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/v1.RemoveStudentFromClassRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 从班级移除学生
+      tags:
+      - 学校管理
+  /v1/school/class/removeTeacher:
+    post:
+      consumes:
+      - application/json
+      description: 管理员从班级移除教师
+      parameters:
+      - description: 班级ID和教师ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/v1.RemoveTeacherRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 从班级移除教师
+      tags:
+      - 学校管理
   /v1/school/class/studentList:
     post:
       consumes:
       - application/json
-      description: 获取指定班级的所有学生
+      description: 获取指定班级的所有学生（含状态）
       parameters:
       - description: 班级ID
         in: body
@@ -6037,6 +7132,220 @@ paths:
       security:
       - BearerAuth: []
       summary: 获取班级学生列表
+      tags:
+      - 学校管理
+  /v1/school/class/teacher/applications:
+    post:
+      consumes:
+      - application/json
+      description: 获取班级的教师加入申请列表（管理员）
+      parameters:
+      - description: 查询条件
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ClassTeacherApplicationQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取教师加入申请列表
+      tags:
+      - 学校管理
+  /v1/school/class/teacher/apply:
+    post:
+      consumes:
+      - application/json
+      description: 教师申请加入指定班级进行协作教学
+      parameters:
+      - description: 班级ID和申请消息
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 教师申请加入班级
+      tags:
+      - 学校管理
+  /v1/school/class/teacher/approve:
+    post:
+      consumes:
+      - application/json
+      description: 管理员审核通过教师的加入申请
+      parameters:
+      - description: 申请ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 审核通过教师加入申请
+      tags:
+      - 学校管理
+  /v1/school/class/teacher/reject:
+    post:
+      consumes:
+      - application/json
+      description: 管理员拒绝教师的加入申请
+      parameters:
+      - description: 申请ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 拒绝教师加入申请
+      tags:
+      - 学校管理
+  /v1/school/class/teacherList:
+    post:
+      consumes:
+      - application/json
+      description: 获取指定班级的所有教师
+      parameters:
+      - description: 班级ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Class'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取班级教师列表
+      tags:
+      - 学校管理
+  /v1/school/class/unbindSyllabus:
+    post:
+      consumes:
+      - application/json
+      description: 解除教学班的syllabus绑定（教学班管理员或系统管理员操作）
+      parameters:
+      - description: 班级ID
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 解除教学班Syllabus绑定
+      tags:
+      - 学校管理
+  /v1/school/class/updateStudentStatus:
+    post:
+      consumes:
+      - application/json
+      description: 更新指定班级中学生的状态（在读/结业/转走/弃科）
+      parameters:
+      - description: 班级ID、学生ID和状态
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateStudentStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 更新班级学生状态
       tags:
       - 学校管理
   /v1/school/classType/all:

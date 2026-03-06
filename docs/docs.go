@@ -22,6 +22,53 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/v1/account/update": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "更新当前已登录用户的个人信息（不包含状态等管理员字段）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "更新当前用户账户信息",
+                "parameters": [
+                    {
+                        "description": "账户更新信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.AccountUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/v1/addons": {
             "get": {
                 "security": [
@@ -242,6 +289,350 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/ai/conversation/close": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deactivates the specified conversation session for the current user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Conversation"
+                ],
+                "summary": "Close a conversation session",
+                "parameters": [
+                    {
+                        "description": "Session key",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.ConversationHistoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Session closed",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/ai/conversation/history": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the full message history for the specified conversation session.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Conversation"
+                ],
+                "summary": "Get conversation history",
+                "parameters": [
+                    {
+                        "description": "Session key",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.ConversationHistoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "History retrieved",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/ai/conversation/message": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sends a user message to the AI and returns the assistant's reply. Maintains full conversation context.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Conversation"
+                ],
+                "summary": "Send a message in a conversation",
+                "parameters": [
+                    {
+                        "description": "Message payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.SendMessageRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Message sent",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/ai/conversation/reset": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Clears the message history for the specified session. Supports explicit context reset (\"start over\"). Optionally accepts new context data.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Conversation"
+                ],
+                "summary": "Reset conversation context",
+                "parameters": [
+                    {
+                        "description": "Session key and optional new context",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.ResetContextRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Context reset",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/ai/conversation/sessions": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns a list of all active AI conversation sessions for the authenticated user.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Conversation"
+                ],
+                "summary": "List conversation sessions",
+                "responses": {
+                    "200": {
+                        "description": "Sessions listed",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/ai/conversation/start": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new conversation session with optional user context (role, preferences, recent actions).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI Conversation"
+                ],
+                "summary": "Start a new AI conversation session",
+                "parameters": [
+                    {
+                        "description": "Optional initial context",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/model.StartSessionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Session created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/ai/nlu/analyze": {
+            "post": {
+                "description": "Performs NLU analysis on an educational query, returning detected intent, entities, and language",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NLU"
+                ],
+                "summary": "Analyze educational query intent and entities",
+                "parameters": [
+                    {
+                        "description": "Query to analyze",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.NLURequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "NLU result",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/ai/nlu/feedback": {
+            "post": {
+                "description": "Allows users to correct an NLU prediction to improve future accuracy",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NLU"
+                ],
+                "summary": "Submit NLU correction feedback",
+                "parameters": [
+                    {
+                        "description": "Feedback data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.NLUFeedbackRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Feedback saved",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/v1/attempt/create": {
             "post": {
                 "security": [
@@ -424,6 +815,276 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/blog/byId": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get blog post details by ID (admin, any status)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Blog"
+                ],
+                "summary": "Get blog post by ID (admin)",
+                "parameters": [
+                    {
+                        "description": "Blog post ID",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.BlogPostQueryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/blog/create": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Admin creates a new blog post",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Blog"
+                ],
+                "summary": "Create blog post",
+                "parameters": [
+                    {
+                        "description": "Blog post",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.BlogPostCreateEditRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/blog/delete": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Admin deletes a blog post",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Blog"
+                ],
+                "summary": "Delete blog post",
+                "parameters": [
+                    {
+                        "description": "Blog post ID",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.BlogPostQueryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/blog/edit": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Admin edits an existing blog post",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Blog"
+                ],
+                "summary": "Edit blog post",
+                "parameters": [
+                    {
+                        "description": "Blog post",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.BlogPostCreateEditRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/blog/list": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Paginated list of blog posts for admin (all statuses)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Blog"
+                ],
+                "summary": "List blog posts (admin)",
+                "parameters": [
+                    {
+                        "description": "Query",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.BlogPostQueryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/blog/public/bySlug": {
+            "post": {
+                "description": "Get a single published blog post by its slug (public)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Blog"
+                ],
+                "summary": "Get published blog post by slug",
+                "parameters": [
+                    {
+                        "description": "slug",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/blog/public/list": {
+            "post": {
+                "description": "List published blog posts for public consumption",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Blog"
+                ],
+                "summary": "Public blog post list",
+                "parameters": [
+                    {
+                        "description": "Query",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.BlogPostQueryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -721,6 +1382,48 @@ const docTemplate = `{
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/chapter/list": {
+            "post": {
+                "description": "分页查询章节列表，支持按syllabusId筛选。不指定parentId时只返回根章节（parentId=0）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "考纲管理"
+                ],
+                "summary": "获取章节列表",
+                "parameters": [
+                    {
+                        "description": "查询条件",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.ChapterQuery"
                         }
                     }
                 ],
@@ -1876,6 +2579,229 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/feedback/byId": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Feedback"
+                ],
+                "summary": "Get feedback by ID (admin)",
+                "parameters": [
+                    {
+                        "description": "{ \\",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/feedback/list": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns paginated feedback with optional filters for status and type.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Feedback"
+                ],
+                "summary": "List all feedback (admin)",
+                "parameters": [
+                    {
+                        "description": "List request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.FeedbackListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/feedback/my": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns paginated feedback submitted by the currently authenticated user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Feedback"
+                ],
+                "summary": "List own feedback",
+                "parameters": [
+                    {
+                        "description": "Page parameters",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Page"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/feedback/stats": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Feedback"
+                ],
+                "summary": "Get feedback statistics (admin)",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/feedback/submit": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Allows authenticated users to submit feedback with optional rating and type.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Feedback"
+                ],
+                "summary": "Submit user feedback",
+                "parameters": [
+                    {
+                        "description": "Feedback payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/feedback/updateStatus": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Feedback"
+                ],
+                "summary": "Update feedback status (admin)",
+                "parameters": [
+                    {
+                        "description": "{ \\",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/v1/goal/active": {
             "post": {
                 "security": [
@@ -2483,6 +3409,54 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/knowledge-point/link-question": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "手动将题目关联到指定知识点",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "知识点"
+                ],
+                "summary": "关联题目到知识点",
+                "parameters": [
+                    {
+                        "description": "知识点ID和题目ID",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/v1/knowledge-point/list": {
             "post": {
                 "security": [
@@ -2509,6 +3483,102 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/model.KnowledgePointQuery"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/knowledge-point/unlink-question": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "手动取消题目与知识点的关联关系",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "知识点"
+                ],
+                "summary": "取消题目与知识点的关联",
+                "parameters": [
+                    {
+                        "description": "知识点ID和题目ID",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/knowledge-points/generate": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "为指定章节自动生成知识点（含置信度分数）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "知识点"
+                ],
+                "summary": "AI生成知识点",
+                "parameters": [
+                    {
+                        "description": "章节ID",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 ],
@@ -5636,53 +6706,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/question/addChapter": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "为题目添加章节关联",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "题目管理"
-                ],
-                "summary": "添加题目章节关联",
-                "parameters": [
-                    {
-                        "description": "题目与章节ID",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.QuestionChapterUpdateRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "参数错误",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
         "/v1/question/all": {
             "post": {
                 "description": "获取全部题目列表（不分页）",
@@ -5957,53 +6980,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/question/deleteChapter": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "删除题目与章节的关联",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "题目管理"
-                ],
-                "summary": "删除题目章节关联",
-                "parameters": [
-                    {
-                        "description": "题目与章节ID",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.QuestionChapterUpdateRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "参数错误",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
         "/v1/question/edit": {
             "post": {
                 "security": [
@@ -6093,6 +7069,54 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/recommendations/questions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据学生的学习进度和知识薄弱点，推荐个性化练习题。若调用方为学生本人可省略 studentId；管理员或教师可通过 studentId 查询任意学生的推荐。",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "推荐系统"
+                ],
+                "summary": "获取个性化题目推荐",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "目标学生ID（管理员/教师专用）",
+                        "name": "studentId",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "403": {
+                        "description": "无权限",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/v1/register": {
             "post": {
                 "description": "注册新用户账号（需要邮箱验证码）",
@@ -6142,7 +7166,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "将学生添加到指定班级",
+                "description": "超级管理员直接将学生添加到班级（绕过邀请码流程）",
                 "consumes": [
                     "application/json"
                 ],
@@ -6152,7 +7176,7 @@ const docTemplate = `{
                 "tags": [
                     "学校管理"
                 ],
-                "summary": "添加学生到班级",
+                "summary": "直接添加学生到班级",
                 "parameters": [
                     {
                         "description": "班级ID和学生ID",
@@ -6160,8 +7184,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/v1.AddStudentToClassRequest"
                         }
                     }
                 ],
@@ -6209,6 +7232,149 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/model.ClassQuery"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/school/class/apply": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "学生使用邀请码申请加入班级",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "学校管理"
+                ],
+                "summary": "申请加入班级",
+                "parameters": [
+                    {
+                        "description": "邀请码和消息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/school/class/assignTeacher": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "管理员为班级指定额外的教师",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "学校管理"
+                ],
+                "summary": "为班级指定教师",
+                "parameters": [
+                    {
+                        "description": "班级ID和教师ID",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.AssignTeacherRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/school/class/bindSyllabus": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将指定syllabus绑定到教学班（教学班管理员或系统管理员操作）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "学校管理"
+                ],
+                "summary": "绑定Syllabus到教学班",
+                "parameters": [
+                    {
+                        "description": "班级ID和SyllabusID",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 ],
@@ -6284,7 +7450,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "创建新班级",
+                "description": "创建新班级（仅教师可创建，创建者自动成为管理员，自动生成邀请码）",
                 "consumes": [
                     "application/json"
                 ],
@@ -6371,14 +7537,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/school/class/deleteStudent": {
+        "/v1/school/class/edit": {
             "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "将学生从指定班级移除",
+                "description": "修改班级信息",
                 "consumes": [
                     "application/json"
                 ],
@@ -6388,10 +7554,57 @@ const docTemplate = `{
                 "tags": [
                     "学校管理"
                 ],
-                "summary": "从班级移除学生",
+                "summary": "编辑班级",
                 "parameters": [
                     {
-                        "description": "班级ID和学生ID",
+                        "description": "班级信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.ClassCreateEditRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/school/class/joinRequest/approve": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "管理员审核通过学生的加入申请",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "学校管理"
+                ],
+                "summary": "审核通过加入申请",
+                "parameters": [
+                    {
+                        "description": "申请ID",
                         "name": "body",
                         "in": "body",
                         "required": true,
@@ -6419,14 +7632,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/school/class/edit": {
+        "/v1/school/class/joinRequest/list": {
             "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "修改班级信息",
+                "description": "获取班级的加入申请列表（管理员）",
                 "consumes": [
                     "application/json"
                 ],
@@ -6436,15 +7649,63 @@ const docTemplate = `{
                 "tags": [
                     "学校管理"
                 ],
-                "summary": "编辑班级",
+                "summary": "获取加入申请列表",
                 "parameters": [
                     {
-                        "description": "班级信息",
+                        "description": "查询条件",
                         "name": "body",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.ClassCreateEditRequest"
+                            "$ref": "#/definitions/model.ClassJoinRequestQuery"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/school/class/joinRequest/reject": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "管理员拒绝学生的加入申请",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "学校管理"
+                ],
+                "summary": "拒绝加入申请",
+                "parameters": [
+                    {
+                        "description": "申请ID",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 ],
@@ -6513,6 +7774,100 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/school/class/removeStudent": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "将学生从指定班级移除（管理员操作）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "学校管理"
+                ],
+                "summary": "从班级移除学生",
+                "parameters": [
+                    {
+                        "description": "班级ID和学生ID",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.RemoveStudentFromClassRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/school/class/removeTeacher": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "管理员从班级移除教师",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "学校管理"
+                ],
+                "summary": "从班级移除教师",
+                "parameters": [
+                    {
+                        "description": "班级ID和教师ID",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.RemoveTeacherRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/v1/school/class/studentList": {
             "post": {
                 "security": [
@@ -6520,7 +7875,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取指定班级的所有学生",
+                "description": "获取指定班级的所有学生（含状态）",
                 "consumes": [
                     "application/json"
                 ],
@@ -6539,6 +7894,339 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/model.Class"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/school/class/teacher/applications": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "获取班级的教师加入申请列表（管理员）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "学校管理"
+                ],
+                "summary": "获取教师加入申请列表",
+                "parameters": [
+                    {
+                        "description": "查询条件",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.ClassTeacherApplicationQuery"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/school/class/teacher/apply": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "教师申请加入指定班级进行协作教学",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "学校管理"
+                ],
+                "summary": "教师申请加入班级",
+                "parameters": [
+                    {
+                        "description": "班级ID和申请消息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/school/class/teacher/approve": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "管理员审核通过教师的加入申请",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "学校管理"
+                ],
+                "summary": "审核通过教师加入申请",
+                "parameters": [
+                    {
+                        "description": "申请ID",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/school/class/teacher/reject": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "管理员拒绝教师的加入申请",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "学校管理"
+                ],
+                "summary": "拒绝教师加入申请",
+                "parameters": [
+                    {
+                        "description": "申请ID",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/school/class/teacherList": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "获取指定班级的所有教师",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "学校管理"
+                ],
+                "summary": "获取班级教师列表",
+                "parameters": [
+                    {
+                        "description": "班级ID",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Class"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/school/class/unbindSyllabus": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "解除教学班的syllabus绑定（教学班管理员或系统管理员操作）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "学校管理"
+                ],
+                "summary": "解除教学班Syllabus绑定",
+                "parameters": [
+                    {
+                        "description": "班级ID",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/school/class/updateStudentStatus": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "更新指定班级中学生的状态（在读/结业/转走/弃科）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "学校管理"
+                ],
+                "summary": "更新班级学生状态",
+                "parameters": [
+                    {
+                        "description": "班级ID、学生ID和状态",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UpdateStudentStatusRequest"
                         }
                     }
                 ],
@@ -9702,6 +11390,64 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "model.AccountUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "engname": {
+                    "type": "string"
+                },
+                "mobile": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "realname": {
+                    "type": "string"
+                },
+                "sex": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.AdminPermission": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "displayName": {
+                    "type": "string"
+                },
+                "groupName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "method": {
+                    "type": "string"
+                },
+                "route": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "model.AdminRole": {
             "type": "object",
             "properties": {
@@ -9719,6 +11465,12 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.AdminPermission"
+                    }
                 },
                 "slug": {
                     "type": "string"
@@ -9857,6 +11609,61 @@ const docTemplate = `{
                 }
             }
         },
+        "model.BlogPostCreateEditRequest": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "coverImage": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.BlogPostQueryRequest": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "keyword": {
+                    "type": "string"
+                },
+                "pageIndex": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Chapter": {
             "type": "object",
             "properties": {
@@ -9872,6 +11679,9 @@ const docTemplate = `{
                 "deletedAt": {
                     "type": "string"
                 },
+                "examNodeId": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -9883,12 +11693,6 @@ const docTemplate = `{
                 },
                 "parentId": {
                     "type": "integer"
-                },
-                "questions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Question"
-                    }
                 },
                 "syllabus": {
                     "$ref": "#/definitions/model.Syllabus"
@@ -9951,10 +11755,14 @@ const docTemplate = `{
         "model.Class": {
             "type": "object",
             "properties": {
-                "classType": {
-                    "$ref": "#/definitions/model.ClassType"
+                "adminUser": {
+                    "$ref": "#/definitions/model.User"
                 },
-                "classTypeId": {
+                "adminUserId": {
+                    "type": "integer"
+                },
+                "classType": {
+                    "description": "1: 教学班, 2: 行政班",
                     "type": "integer"
                 },
                 "createdAt": {
@@ -9963,32 +11771,11 @@ const docTemplate = `{
                 "deletedAt": {
                     "type": "string"
                 },
-                "deputyHeadTeacher": {
-                    "$ref": "#/definitions/model.Teacher"
-                },
-                "deputyHeadTeacherId": {
-                    "type": "integer"
-                },
-                "grade": {
-                    "$ref": "#/definitions/model.Grade"
-                },
-                "gradeId": {
-                    "type": "integer"
-                },
-                "headTeacher": {
-                    "$ref": "#/definitions/model.Teacher"
-                },
-                "headTeacherId": {
-                    "type": "integer"
-                },
                 "id": {
                     "type": "integer"
                 },
-                "intershipHeadTeacher": {
-                    "$ref": "#/definitions/model.Teacher"
-                },
-                "intershipHeadTeacherId": {
-                    "type": "integer"
+                "inviteCode": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -9999,11 +11786,18 @@ const docTemplate = `{
                         "$ref": "#/definitions/model.User"
                     }
                 },
-                "subjectTeacher": {
-                    "$ref": "#/definitions/model.Teacher"
+                "syllabus": {
+                    "$ref": "#/definitions/model.Syllabus"
                 },
-                "subjectTeacherId": {
+                "syllabusId": {
+                    "description": "教学班绑定的syllabus（仅教学班使用）",
                     "type": "integer"
+                },
+                "teachers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.User"
+                    }
                 },
                 "updatedAt": {
                     "type": "string"
@@ -10013,51 +11807,22 @@ const docTemplate = `{
         "model.ClassCreateEditRequest": {
             "type": "object",
             "properties": {
-                "classTypeId": {
-                    "type": "integer"
-                },
-                "deputyHeadTeacherId": {
-                    "type": "integer"
-                },
-                "gradeId": {
-                    "type": "integer"
-                },
-                "headTeacherId": {
+                "classType": {
+                    "description": "1: 教学班 (default), 2: 行政班",
                     "type": "integer"
                 },
                 "id": {
-                    "type": "integer"
-                },
-                "intershipHeadTeacherId": {
                     "type": "integer"
                 },
                 "name": {
                     "type": "string"
-                },
-                "subjectTeacherId": {
-                    "type": "integer"
                 }
             }
         },
-        "model.ClassQuery": {
+        "model.ClassJoinRequestQuery": {
             "type": "object",
             "properties": {
-                "classTypeId": {
-                    "type": "integer"
-                },
-                "deputyHeadTeacherId": {
-                    "type": "integer"
-                },
-                "gradeId": {
-                    "type": "integer"
-                },
-                "headTeacherId": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "intershipHeadTeacherId": {
+                "classId": {
                     "type": "integer"
                 },
                 "pageIndex": {
@@ -10066,11 +11831,54 @@ const docTemplate = `{
                 "pageSize": {
                     "type": "integer"
                 },
-                "subjectTeacherId": {
+                "status": {
                     "type": "integer"
                 },
-                "teacherType": {
-                    "description": "1. 学科老师, 2. 班主任 3. 副班 4. 实习班主任",
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.ClassQuery": {
+            "type": "object",
+            "properties": {
+                "adminUserId": {
+                    "type": "integer"
+                },
+                "classType": {
+                    "description": "0 = all, 1 = 教学班, 2 = 行政班",
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "inviteCode": {
+                    "type": "string"
+                },
+                "pageIndex": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.ClassTeacherApplicationQuery": {
+            "type": "object",
+            "properties": {
+                "classId": {
+                    "type": "integer"
+                },
+                "pageIndex": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "userId": {
                     "type": "integer"
                 }
             }
@@ -10126,6 +11934,41 @@ const docTemplate = `{
                 },
                 "page": {
                     "$ref": "#/definitions/model.Page"
+                }
+            }
+        },
+        "model.ConversationContext": {
+            "type": "object",
+            "properties": {
+                "currentSelection": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "preferences": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "recentActions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "userRole": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ConversationHistoryRequest": {
+            "type": "object",
+            "required": [
+                "sessionKey"
+            ],
+            "properties": {
+                "sessionKey": {
+                    "type": "string"
                 }
             }
         },
@@ -10526,6 +12369,26 @@ const docTemplate = `{
                 }
             }
         },
+        "model.FeedbackListRequest": {
+            "type": "object",
+            "properties": {
+                "pageIndex": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
         "model.GapFillingQuestion": {
             "type": "object",
             "properties": {
@@ -10773,6 +12636,10 @@ const docTemplate = `{
                 "chapterId": {
                     "type": "integer"
                 },
+                "confidenceScore": {
+                    "description": "AI-generated confidence (not persisted)",
+                    "type": "number"
+                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -10949,6 +12816,35 @@ const docTemplate = `{
                 }
             }
         },
+        "model.NLUFeedbackRequest": {
+            "type": "object",
+            "properties": {
+                "correctIntent": {
+                    "type": "string"
+                },
+                "feedback": {
+                    "type": "string"
+                },
+                "predictedIntent": {
+                    "type": "string"
+                },
+                "query": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.NLURequest": {
+            "type": "object",
+            "properties": {
+                "context": {
+                    "description": "optional surrounding context",
+                    "type": "string"
+                },
+                "query": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Organisation": {
             "type": "object",
             "properties": {
@@ -11005,6 +12901,12 @@ const docTemplate = `{
                 },
                 "deletedAt": {
                     "type": "string"
+                },
+                "examNode": {
+                    "$ref": "#/definitions/model.SyllabusExamNode"
+                },
+                "examNodeId": {
+                    "type": "integer"
                 },
                 "id": {
                     "type": "integer"
@@ -11264,12 +13166,6 @@ const docTemplate = `{
         "model.Question": {
             "type": "object",
             "properties": {
-                "chapters": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Chapter"
-                    }
-                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -11324,20 +13220,6 @@ const docTemplate = `{
                 }
             }
         },
-        "model.QuestionChapterUpdateRequest": {
-            "type": "object",
-            "properties": {
-                "chapters": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "questionId": {
-                    "type": "integer"
-                }
-            }
-        },
         "model.QuestionContent": {
             "type": "object",
             "properties": {
@@ -11386,13 +13268,10 @@ const docTemplate = `{
                 "Status": {
                     "type": "integer"
                 },
-                "chapters": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
                 "difficult": {
+                    "type": "integer"
+                },
+                "examNodeId": {
                     "type": "integer"
                 },
                 "id": {
@@ -11568,6 +13447,35 @@ const docTemplate = `{
                 }
             }
         },
+        "model.ResetContextRequest": {
+            "type": "object",
+            "required": [
+                "sessionKey"
+            ],
+            "properties": {
+                "context": {
+                    "$ref": "#/definitions/model.ConversationContext"
+                },
+                "sessionKey": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.SendMessageRequest": {
+            "type": "object",
+            "required": [
+                "message",
+                "sessionKey"
+            ],
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "sessionKey": {
+                    "type": "string"
+                }
+            }
+        },
         "model.ShortAnswerQuestion": {
             "type": "object",
             "properties": {
@@ -11656,6 +13564,14 @@ const docTemplate = `{
                 }
             }
         },
+        "model.StartSessionRequest": {
+            "type": "object",
+            "properties": {
+                "context": {
+                    "$ref": "#/definitions/model.ConversationContext"
+                }
+            }
+        },
         "model.Syllabus": {
             "type": "object",
             "properties": {
@@ -11678,6 +13594,50 @@ const docTemplate = `{
                     "$ref": "#/definitions/model.Qualification"
                 },
                 "qualificationId": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.SyllabusExamNode": {
+            "type": "object",
+            "properties": {
+                "chapters": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Chapter"
+                    }
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "paperCodes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.PaperCode"
+                    }
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "syllabus": {
+                    "$ref": "#/definitions/model.Syllabus"
+                },
+                "syllabusId": {
                     "type": "integer"
                 },
                 "updatedAt": {
@@ -11959,25 +13919,28 @@ const docTemplate = `{
                 }
             }
         },
+        "model.UpdateStudentStatusRequest": {
+            "type": "object",
+            "required": [
+                "classId",
+                "status",
+                "userId"
+            ],
+            "properties": {
+                "classId": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
         "model.User": {
             "type": "object",
             "properties": {
-                "adminRole": {
-                    "description": "Pointer to allow null",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/model.AdminRole"
-                        }
-                    ]
-                },
-                "adminRoleId": {
-                    "description": "Pointer to allow null",
-                    "type": "integer"
-                },
-                "adminStatus": {
-                    "description": "Pointer to allow null, uses ADMIN_STATUS_OK etc. from model/admin.go",
-                    "type": "integer"
-                },
                 "avatar": {
                     "type": "string"
                 },
@@ -12022,7 +13985,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "isAdmin": {
-                    "description": "Admin-related fields (moved from old Admin model or new)",
+                    "description": "IsAdmin is a virtual field computed from Roles (not stored in DB).\nIt is true when the user has the \"admin\" or \"super_admin\" role.",
                     "type": "boolean"
                 },
                 "isPasswordSet": {
@@ -12035,16 +13998,7 @@ const docTemplate = `{
                 "isUsernameSet": {
                     "type": "integer"
                 },
-                "lastLoginDate": {
-                    "type": "string"
-                },
                 "lastLoginId": {
-                    "type": "integer"
-                },
-                "lastLoginIp": {
-                    "type": "string"
-                },
-                "loginTimes": {
                     "type": "integer"
                 },
                 "mobile": {
@@ -12061,6 +14015,13 @@ const docTemplate = `{
                 },
                 "registerIp": {
                     "type": "string"
+                },
+                "roles": {
+                    "description": "RBAC: user can have multiple roles (many2many via user_roles)",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.AdminRole"
+                    }
                 },
                 "sex": {
                     "description": "1 男，2 女",
@@ -12377,6 +14338,36 @@ const docTemplate = `{
                 }
             }
         },
+        "v1.AddStudentToClassRequest": {
+            "type": "object",
+            "required": [
+                "classId",
+                "userId"
+            ],
+            "properties": {
+                "classId": {
+                    "type": "integer"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "v1.AssignTeacherRequest": {
+            "type": "object",
+            "required": [
+                "classId",
+                "teacherId"
+            ],
+            "properties": {
+                "classId": {
+                    "type": "integer"
+                },
+                "teacherId": {
+                    "type": "integer"
+                }
+            }
+        },
         "v1.RegistrationRequest": {
             "type": "object",
             "required": [
@@ -12406,6 +14397,32 @@ const docTemplate = `{
                 },
                 "verificationCode": {
                     "type": "string"
+                }
+            }
+        },
+        "v1.RemoveStudentFromClassRequest": {
+            "type": "object",
+            "properties": {
+                "classId": {
+                    "type": "integer"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "v1.RemoveTeacherRequest": {
+            "type": "object",
+            "required": [
+                "classId",
+                "teacherId"
+            ],
+            "properties": {
+                "classId": {
+                    "type": "integer"
+                },
+                "teacherId": {
+                    "type": "integer"
                 }
             }
         },

@@ -450,13 +450,6 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	// RBAC management endpoints — admin-only (enforced by RequireAdmin middleware)
 	rbacAdmin := r.Group("/v1/rbac", RequireAdmin())
 
-	// AI Conversation context management endpoints
-	r.POST("/v1/ai/conversation/start", v1.ConversationCtrl.StartSession)
-	r.POST("/v1/ai/conversation/message", v1.ConversationCtrl.SendMessage)
-	r.POST("/v1/ai/conversation/history", v1.ConversationCtrl.GetHistory)
-	r.POST("/v1/ai/conversation/sessions", v1.ConversationCtrl.ListSessions)
-	r.POST("/v1/ai/conversation/reset", v1.ConversationCtrl.ResetContext)
-	r.POST("/v1/ai/conversation/close", v1.ConversationCtrl.CloseSession)
 	{
 		rbacAdmin.POST("/roles/list", v1.RBACCtrl.ListRoles)
 		rbacAdmin.POST("/roles/byId", v1.RBACCtrl.GetRole)
@@ -485,8 +478,8 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/ai/conversation/start", v1.ConversationCtrl.StartSession)
 	r.POST("/v1/ai/conversation/message", v1.ConversationCtrl.SendMessage)
 	r.POST("/v1/ai/conversation/history", v1.ConversationCtrl.GetHistory)
-	r.POST("/v1/ai/conversation/sessions", v1.ConversationCtrl.GetSessions)
-	r.POST("/v1/ai/conversation/reset", v1.ConversationCtrl.ResetSession)
+	r.POST("/v1/ai/conversation/sessions", v1.ConversationCtrl.ListSessions)
+	r.POST("/v1/ai/conversation/reset", v1.ConversationCtrl.ResetContext)
 	r.POST("/v1/ai/conversation/close", v1.ConversationCtrl.CloseSession)
 	// Feedback endpoints — submit/my are user-facing; list/stats/byId/updateStatus are admin-only
 	r.POST("/v1/feedback/submit", v1.FeedbackCtrl.Submit)
