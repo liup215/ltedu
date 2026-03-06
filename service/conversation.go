@@ -55,7 +55,6 @@ var ConversationSvr = &ConversationService{
 }
 
 // ConversationService manages multi-turn AI conversation sessions.
-// ConversationService manages AI conversation sessions.
 type ConversationService struct {
 	baseService
 	ai ai.Model
