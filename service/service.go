@@ -107,9 +107,6 @@ func setDB() {
 		// Phase Plan model
 		db.AutoMigrate(&model.LearningPhasePlan{})
 
-		// Conversation context management models
-		db.AutoMigrate(&model.ConversationSession{})
-		db.AutoMigrate(&model.ConversationMessage{})
 		// Conversation and NLU models
 		db.AutoMigrate(&model.ConversationSession{})
 		db.AutoMigrate(&model.ConversationMessage{})
