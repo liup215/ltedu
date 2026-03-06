@@ -1,0 +1,20 @@
+{
+  "color": [
+    { "name": "start_window_background", "value": "#FFFFFF" },
+    { "name": "primary", "value": "#3B82F6" },
+    { "name": "primary_dark", "value": "#1D4ED8" },
+    { "name": "secondary", "value": "#6366F1" },
+    { "name": "background", "value": "#F8FAFC" },
+    { "name": "surface", "value": "#FFFFFF" },
+    { "name": "text_primary", "value": "#1E293B" },
+    { "name": "text_secondary", "value": "#64748B" },
+    { "name": "text_hint", "value": "#94A3B8" },
+    { "name": "border", "value": "#E2E8F0" },
+    { "name": "error", "value": "#EF4444" },
+    { "name": "success", "value": "#22C55E" },
+    { "name": "chat_user_bubble", "value": "#3B82F6" },
+    { "name": "chat_ai_bubble", "value": "#F1F5F9" },
+    { "name": "chat_user_text", "value": "#FFFFFF" },
+    { "name": "chat_ai_text", "value": "#1E293B" }
+  ]
+}

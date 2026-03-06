@@ -50,6 +50,12 @@ var (
 	PhasePlanRepo                IPhasePlanRepository
 	ClassTeacherApplicationRepo  IClassTeacherApplicationRepository
 	ConversationRepo             IConversationRepository
+	ConversationSessionRepo      IConversationSessionRepository
+	ConversationMessageRepo      IConversationMessageRepository
+	NLUFeedbackRepo              INLUFeedbackRepository
+	AuditLogRepo                 IAuditLogRepository
+	FeedbackRepo                 IFeedbackRepository
+	BlogPostRepo                  IBlogPostRepository
 )
 
 func GetTableName(db *gorm.DB, model interface{}) string {
@@ -87,8 +93,8 @@ func InitRepositories(db *gorm.DB) {
 	DocumentCategoryRepo = NewDocumentCategoryRepository(db)
 	OrganisationRepo = NewOrganisationRepository(db)
 	QualificationRepo = NewQualificationRepository(db)
-	SyllabusRepo = NewSyllabusRepository(db)
-	ChapterRepo = NewChapterRepository(db)
+	SyllabusRepo = NewCachedSyllabusRepository(NewSyllabusRepository(db))
+	ChapterRepo = NewCachedChapterRepository(NewChapterRepository(db))
 	QuestionRepo = NewQuestionRepository(db)
 	GradeRepo = NewGradeRepository(db)
 	SlideRepo = NewSlideRepository(db)
@@ -111,5 +117,11 @@ func InitRepositories(db *gorm.DB) {
 	PhasePlanRepo = NewPhasePlanRepository(db)
 	ClassTeacherApplicationRepo = NewClassTeacherApplicationRepository(db)
 	ConversationRepo = NewConversationRepository(db)
+	ConversationSessionRepo = NewConversationSessionRepository(db)
+	ConversationMessageRepo = NewConversationMessageRepository(db)
+	NLUFeedbackRepo = NewNLUFeedbackRepository(db)
+	AuditLogRepo = NewAuditLogRepository(db)
+	FeedbackRepo = NewFeedbackRepository(db)
+	BlogPostRepo = NewBlogPostRepository(db)
 	// ... 其他repository按需添加
 }

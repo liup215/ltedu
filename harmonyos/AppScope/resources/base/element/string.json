@@ -1,0 +1,12 @@
+{
+  "string": [
+    {
+      "name": "app_name",
+      "value": "LTEdu"
+    },
+    {
+      "name": "app_desc",
+      "value": "AI-native education platform for LTEdu learners"
+    }
+  ]
+}
