@@ -107,6 +107,10 @@ func setDB() {
 		// Phase Plan model
 		db.AutoMigrate(&model.LearningPhasePlan{})
 
+		// Conversation and NLU models
+		db.AutoMigrate(&model.ConversationSession{})
+		db.AutoMigrate(&model.ConversationMessage{})
+		db.AutoMigrate(&model.NLUFeedback{})
 		// Feedback model
 		db.AutoMigrate(&model.UserFeedback{})
 		// Blog model
