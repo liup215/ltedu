@@ -11,7 +11,6 @@ import (
 var RecommendationSvr = &RecommendationService{baseService: newBaseService()}
 
 // RecommendationService provides personalized question recommendations for students.
-// RecommendationService provides AI-driven practice question recommendations.
 type RecommendationService struct {
 	baseService
 }
@@ -350,9 +349,7 @@ func priorityToInt(p float64) int {
 	default:
 		return 3
 	}
-	// consecutiveWrongThreshold is the number of consecutive wrong answers that triggers a high-priority recommendation.
-	consecutiveWrongThreshold = 3
-)
+}
 
 // GetRecommendations returns a personalized list of question recommendations for a student's goal.
 // The algorithm:
