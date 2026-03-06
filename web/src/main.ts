@@ -29,5 +29,13 @@ userStore.loadUserFromStorage()
 const appStore = useAppStore()
 appStore.loadThemeFromStorage()
 
+// Register service worker for offline support and API response caching
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {
+      // Service worker registration failure is non-fatal
+    })
+  })
+}
 
 app.mount('#app');

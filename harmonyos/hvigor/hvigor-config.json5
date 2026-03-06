@@ -1,0 +1,7 @@
+{
+  "modelVersion": "5.0.0",
+  "description": "Hvigor build tool configuration for LTEdu HarmonyOS",
+  "dependencies": {
+    "@ohos/hvigor-ohos-plugin": "4.2.0"
+  }
+}

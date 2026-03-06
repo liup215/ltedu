@@ -1,0 +1,20 @@
+{
+  "name": "ltedu-harmonyos",
+  "version": "1.0.0",
+  "description": "LTEdu HarmonyOS Native Application",
+  "main": "",
+  "author": "LTEdu Team",
+  "license": "MIT",
+  "dependencies": {
+    "@ohos/axios": "2.2.0"
+  },
+  "devDependencies": {
+    "@ohos/hamock": "1.0.0"
+  },
+  "ohos": {
+    "org": "ohos",
+    "buildTool": "hvigor",
+    "abilityType": "app",
+    "deviceTypes": ["phone", "tablet"]
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "string": [
+    { "name": "module_desc", "value": "LTEdu main module" },
+    { "name": "EntryAbility_desc", "value": "LTEdu entry ability" },
+    { "name": "EntryAbility_label", "value": "LTEdu" },
+    { "name": "form_desc", "value": "LTEdu quick access widget" },
+    { "name": "widget_desc", "value": "Quick access to LTEdu features" },
+    { "name": "internet_permission_reason", "value": "Required to communicate with LTEdu backend services" },
+    { "name": "network_info_reason", "value": "Required to check network connectivity" },
+    { "name": "login_title", "value": "Welcome to LTEdu" },
+    { "name": "login_subtitle", "value": "AI-powered learning platform" },
+    { "name": "username_hint", "value": "Username or Email" },
+    { "name": "password_hint", "value": "Password" },
+    { "name": "login_btn", "value": "Sign In" },
+    { "name": "register_btn", "value": "Create Account" },
+    { "name": "chat_title", "value": "AI Assistant" },
+    { "name": "chat_hint", "value": "Ask me anything about your studies..." },
+    { "name": "practice_title", "value": "Practice" },
+    { "name": "plan_title", "value": "Learning Plans" },
+    { "name": "profile_title", "value": "Profile" },
+    { "name": "loading", "value": "Loading..." },
+    { "name": "error_network", "value": "Network error. Please try again." },
+    { "name": "error_auth", "value": "Invalid username or password." },
+    { "name": "logout_confirm", "value": "Are you sure you want to sign out?" },
+    { "name": "confirm", "value": "Confirm" },
+    { "name": "cancel", "value": "Cancel" }
+  ]
+}
