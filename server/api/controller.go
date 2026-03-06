@@ -411,6 +411,7 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/knowledge-point/unlink-question", v1.KnowledgePointCtrl.UnlinkQuestion)
 	
 	// Knowledge Point automation endpoints
+	r.POST("/v1/knowledge-points/generate", v1.KnowledgePointCtrl.Generate)
 	r.POST("/v1/chapter/generate-keypoints", v1.KnowledgePointCtrl.GenerateKeypoints)
 	r.POST("/v1/question/auto-link-keypoints", v1.KnowledgePointCtrl.AutoLinkQuestion)
 	r.POST("/v1/question/auto-link-keypoints-intelligent", v1.KnowledgePointCtrl.AutoLinkQuestionIntelligent)

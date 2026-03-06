@@ -9,6 +9,7 @@ type KnowledgePoint struct {
 	Difficulty       string      `json:"difficulty"` // basic/medium/hard
 	EstimatedMinutes int         `json:"estimatedMinutes"`
 	OrderIndex       int         `json:"orderIndex"`
+	ConfidenceScore  float64     `json:"confidenceScore,omitempty" gorm:"-"` // AI-generated confidence (not persisted)
 	Questions        []*Question `gorm:"many2many:question_keypoints" json:"questions,omitempty"`
 }
 
@@ -23,10 +24,11 @@ type KnowledgePointQuery struct {
 
 // AI生成知识点的响应结构
 type AIKnowledgePointData struct {
-	Name             string `json:"name"`
-	Description      string `json:"description"`
-	Difficulty       string `json:"difficulty"`
-	EstimatedMinutes int    `json:"estimatedMinutes"`
+	Name             string  `json:"name"`
+	Description      string  `json:"description"`
+	Difficulty       string  `json:"difficulty"`
+	EstimatedMinutes int     `json:"estimatedMinutes"`
+	ConfidenceScore  float64 `json:"confidenceScore"`
 }
 
 // AI关联题目的响应结构

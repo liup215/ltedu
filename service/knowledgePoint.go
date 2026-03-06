@@ -65,6 +65,7 @@ func (s *KnowledgePointService) AutoGenerateFromChapter(chapterId uint) ([]model
 		if err != nil {
 			return nil, fmt.Errorf("failed to create knowledge point: %w", err)
 		}
+		newKp.ConfidenceScore = kp.ConfidenceScore
 		keypoints = append(keypoints, newKp)
 	}
 
@@ -415,7 +416,8 @@ func (s *KnowledgePointService) generateKnowledgePoints(syllabusName, chapterNam
     "name": "知识点名称",
     "description": "1-2句话描述该知识点的核心内容",
     "difficulty": "basic/medium/hard",
-    "estimatedMinutes": 30
+    "estimatedMinutes": 30,
+    "confidenceScore": 0.95
 }]
 `, contextInfo)
 
