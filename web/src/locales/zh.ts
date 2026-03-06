@@ -1084,6 +1084,7 @@ export default {
     saveStatus: '保存状态',
     saveError: '保存状态失败。',
     actionView: '查看',
+  },
   blog: {
     management: {
       title: '博客管理',
