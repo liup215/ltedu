@@ -10,9 +10,7 @@ import (
 var FeedbackSvr = &FeedbackService{}
 
 // FeedbackService handles user feedback submission and management.
-type FeedbackService struct {
-	baseService
-}
+type FeedbackService struct{}
 
 // positiveKeywords and negativeKeywords drive the simple keyword-based sentiment analysis.
 var positiveKeywords = []string{
