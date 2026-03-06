@@ -27,7 +27,7 @@
 import { ref, onMounted } from 'vue'
 import { APP_TITLE } from '../const/config'
 
-const appTitle = ref('LTEDU')
+const appTitle = ref('Nerdlet')
 onMounted(async () => {
   appTitle.value = await APP_TITLE()
 })

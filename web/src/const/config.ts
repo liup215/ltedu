@@ -13,7 +13,7 @@ export async function getConfig(): Promise<Config> {
   const config = await response.json();
   return {
     API_BASE_URL: config.API_BASE_URL || 'http://api.example.com',
-    APP_TITLE: config.APP_TITLE || 'LTEDU',
+    APP_TITLE: config.APP_TITLE || 'Nerdlet',
   };
 }
 
@@ -24,5 +24,5 @@ export const API_BASE_URL = async () => {
 
 export const APP_TITLE = async () => {
   const config = await getConfig();
-  return config.APP_TITLE || 'LTEDU'; // Fallback title
+  return config.APP_TITLE || 'Nerdlet'; // Fallback title
 };

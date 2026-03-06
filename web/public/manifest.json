@@ -1,7 +1,7 @@
 {
-  "name": "LTEdu - Learning Platform",
-  "short_name": "LTEdu",
-  "description": "AI-powered learning platform for students and teachers",
+  "name": "Nerdlet",
+  "short_name": "Nerdlet",
+  "description": "Nerdlet – the smart, fun learning platform for students and teachers",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
