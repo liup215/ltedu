@@ -29,9 +29,9 @@ type ConversationMessage struct {
 
 // ConversationContext holds structured context about a user's current state.
 type ConversationContext struct {
-	UserRole        string            `json:"userRole"`
-	Preferences     map[string]string `json:"preferences,omitempty"`
-	RecentActions   []string          `json:"recentActions,omitempty"`
+	UserRole         string                 `json:"userRole"`
+	Preferences      map[string]string      `json:"preferences,omitempty"`
+	RecentActions    []string               `json:"recentActions,omitempty"`
 	CurrentSelection map[string]interface{} `json:"currentSelection,omitempty"`
 }
 
@@ -59,13 +59,13 @@ type ResetContextRequest struct {
 
 // ConversationSessionResponse is the API response for a conversation session.
 type ConversationSessionResponse struct {
-	SessionKey   string      `json:"sessionKey"`
-	UserRole     string      `json:"userRole"`
-	MessageCount int         `json:"messageCount"`
-	LastActiveAt time.Time   `json:"lastActiveAt"`
-	ExpiresAt    time.Time   `json:"expiresAt"`
-	IsActive     bool        `json:"isActive"`
-	CreatedAt    time.Time   `json:"createdAt"`
+	SessionKey   string    `json:"sessionKey"`
+	UserRole     string    `json:"userRole"`
+	MessageCount int       `json:"messageCount"`
+	LastActiveAt time.Time `json:"lastActiveAt"`
+	ExpiresAt    time.Time `json:"expiresAt"`
+	IsActive     bool      `json:"isActive"`
+	CreatedAt    time.Time `json:"createdAt"`
 }
 
 // SendMessageResponse is the API response after sending a message.
@@ -82,5 +82,3 @@ const (
 	ConvRoleAssistant = "assistant"
 	ConvRoleSystem    = "system"
 )
-
-

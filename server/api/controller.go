@@ -4,9 +4,9 @@ import (
 	"edu/conf"
 	_ "edu/docs" // swaggo generated docs
 	"edu/lib/net/http/middleware/auth"
-	"edu/service"
 	v1 "edu/server/api/v1"
 	"edu/server/mcp"
+	"edu/service"
 	"fmt"
 	"net/http"
 	"os"
@@ -409,7 +409,7 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/knowledge-point/list", v1.KnowledgePointCtrl.List)
 	r.POST("/v1/knowledge-point/link-question", v1.KnowledgePointCtrl.LinkQuestion)
 	r.POST("/v1/knowledge-point/unlink-question", v1.KnowledgePointCtrl.UnlinkQuestion)
-	
+
 	// Knowledge Point automation endpoints
 	r.POST("/v1/knowledge-points/generate", v1.KnowledgePointCtrl.Generate)
 	r.POST("/v1/chapter/generate-keypoints", v1.KnowledgePointCtrl.GenerateKeypoints)

@@ -260,7 +260,7 @@ func (svr *RecommendationService) collaborativeFilteringBoost(
 		// still has low mastery chapters.  We use a simple proxy: questions
 		// that peers got right and the student hasn't attempted recently.
 		type boostRow struct {
-			QuestionID uint
+			QuestionID  uint
 			CorrectRate float64
 		}
 		var boostRows []boostRow

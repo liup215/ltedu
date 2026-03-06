@@ -2,13 +2,13 @@ package service
 
 import (
 	"crypto/rand"
-	"encoding/hex"
-	"encoding/json"
 	"edu/conf"
 	"edu/lib/ai"
 	"edu/lib/logger"
 	"edu/model"
 	"edu/repository"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -347,4 +347,3 @@ func (s *ConversationService) CloseSession(userID uint, sessionKey string) error
 func (s *ConversationService) CleanupExpiredSessions() (int64, error) {
 	return repository.ConversationRepo.DeleteExpiredSessions()
 }
-
