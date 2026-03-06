@@ -33,6 +33,11 @@ const accountRoutes: RouteRecordRaw[] = [
         path: 'cli-tokens',
         name: 'AccountCLITokens',
         component: () => import('./CLITokens.vue')
+      },
+      {
+        path: 'analytics',
+        name: 'StudentAnalytics',
+        component: () => import('./StudentAnalytics.vue')
       }
     ]
   }

@@ -411,3 +411,69 @@ func (ctrl *KnowledgePointController) List(c *gin.Context) {
 		"pageSize":  query.PageSize,
 	})
 }
+
+// LinkQuestion 手动关联题目到知识点
+// @Summary      关联题目到知识点
+// @Description  手动将题目关联到指定知识点
+// @Tags         知识点
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "知识点ID和题目ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/knowledge-point/link-question [post]
+func (ctrl *KnowledgePointController) LinkQuestion(c *gin.Context) {
+	u, _ := auth.GetCurrentUser(c)
+	_ = u
+
+	var req struct {
+		KnowledgePointId uint `json:"knowledgePointId" binding:"required"`
+		QuestionId       uint `json:"questionId" binding:"required"`
+	}
+
+	if err := c.BindJSON(&req); err != nil {
+		http.ErrorData(c, "Parameter parsing failed", nil)
+		return
+	}
+
+	if err := service.KnowledgePointSvr.LinkQuestion(req.KnowledgePointId, req.QuestionId); err != nil {
+		http.ErrorData(c, err.Error(), nil)
+		return
+	}
+
+	http.SuccessData(c, "Question linked to knowledge point!", nil)
+}
+
+// UnlinkQuestion 取消题目与知识点的关联
+// @Summary      取消题目与知识点的关联
+// @Description  手动取消题目与知识点的关联关系
+// @Tags         知识点
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "知识点ID和题目ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/knowledge-point/unlink-question [post]
+func (ctrl *KnowledgePointController) UnlinkQuestion(c *gin.Context) {
+	u, _ := auth.GetCurrentUser(c)
+	_ = u
+
+	var req struct {
+		KnowledgePointId uint `json:"knowledgePointId" binding:"required"`
+		QuestionId       uint `json:"questionId" binding:"required"`
+	}
+
+	if err := c.BindJSON(&req); err != nil {
+		http.ErrorData(c, "Parameter parsing failed", nil)
+		return
+	}
+
+	if err := service.KnowledgePointSvr.UnlinkQuestion(req.KnowledgePointId, req.QuestionId); err != nil {
+		http.ErrorData(c, err.Error(), nil)
+		return
+	}
+
+	http.SuccessData(c, "Question unlinked from knowledge point!", nil)
+}

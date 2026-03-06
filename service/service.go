@@ -111,6 +111,10 @@ func setDB() {
 		db.AutoMigrate(&model.ConversationSession{})
 		db.AutoMigrate(&model.ConversationMessage{})
 		db.AutoMigrate(&model.NLUFeedback{})
+		// Feedback model
+		db.AutoMigrate(&model.UserFeedback{})
+		// Blog model
+		db.AutoMigrate(&model.BlogPost{})
 
 		// 初始化Repository层
 		repository.InitRepositories(db)

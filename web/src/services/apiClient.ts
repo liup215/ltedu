@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios';
 import { useUserStore } from '../stores/userStore';
 import { useAppStore } from '../stores/appStore';
 import type { ApiResponse } from '../models/api.model';
@@ -9,6 +9,59 @@ import { showError } from '../utils/notification'
 import Vroute from '../router'
 
  const router = Vroute
+
+// In-flight request deduplication: maps a request key to the pending Promise.
+// If an identical read request is already in-flight, the new caller receives the
+// same Promise rather than issuing a duplicate network request.
+const inFlight = new Map<string, Promise<AxiosResponse>>();
+
+/**
+ * Returns a stable key for deduplication of read-only (non-mutating) requests.
+ * Returns null for requests that must never be deduplicated (e.g. writes).
+ */
+function dedupeKey(config: AxiosRequestConfig): string | null {
+  const method = (config.method ?? 'get').toLowerCase();
+  // Only deduplicate read-oriented list/byId endpoints.
+  const url = config.url ?? '';
+  const isReadEndpoint =
+    url.endsWith('/list') || url.endsWith('/byId') || url.endsWith('/all');
+  if (method !== 'post' || !isReadEndpoint) return null;
+  const body = config.data ? (typeof config.data === 'string' ? config.data : JSON.stringify(config.data)) : '';
+  return `${method}:${url}:${body}`;
+}
+
+/**
+ * Wraps an AxiosInstance's `post` method so that identical in-flight read
+ * requests share a single network call. All other methods are left untouched.
+ */
+function withDeduplication(client: AxiosInstance): AxiosInstance {
+  const originalPost = client.post.bind(client)
+
+  client.post = function <T = any, R = AxiosResponse<T>>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<R> {
+    const key = dedupeKey({ method: 'post', url, data })
+    if (!key) {
+      return originalPost<T, R>(url, data, config)
+    }
+
+    const existing = inFlight.get(key)
+    if (existing) {
+      return existing as unknown as Promise<R>
+    }
+
+    const promise = originalPost<T, R>(url, data, config).finally(() => {
+      inFlight.delete(key)
+    }) as Promise<AxiosResponse>
+
+    inFlight.set(key, promise)
+    return promise as unknown as Promise<R>
+  }
+
+  return client
+}
 
 const getApiClient = async (): Promise<AxiosInstance> => {
 
@@ -118,7 +171,7 @@ apiClient.interceptors.response.use(
   }
 );
 
-return apiClient;
+return withDeduplication(apiClient);
 
 }
 
