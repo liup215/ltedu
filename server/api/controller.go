@@ -388,6 +388,8 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/attempt/stats", v1.AttemptCtrl.GetAttemptStats)
 	r.POST("/v1/attempt/list", v1.AttemptCtrl.ListAttempts)
 
+	// Recommendation endpoints
+	r.GET("/v1/recommendations/questions", v1.RecommendationCtrl.GetQuestionRecommendations)
 	// Analytics & Recommendation endpoints
 	r.POST("/v1/analytics/class/summary", v1.AnalyticsCtrl.GetClassSummary)
 	r.POST("/v1/analytics/class/students", v1.AnalyticsCtrl.GetStudentPerformanceList)
