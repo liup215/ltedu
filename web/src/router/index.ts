@@ -88,6 +88,7 @@ const routes: RouteRecordRaw[] = [
         name: 'AIChat',
         component: () => import('../views/AIChat.vue'),
         meta: { requiresAuth: true }
+      },
       // Blog routes (public)
       {
         path: '/blog',

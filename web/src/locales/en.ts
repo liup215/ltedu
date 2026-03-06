@@ -1084,6 +1084,7 @@ export default {
     saveStatus: 'Save Status',
     saveError: 'Failed to save status.',
     actionView: 'View',
+  },
   blog: {
     management: {
       title: 'Blog Management',
