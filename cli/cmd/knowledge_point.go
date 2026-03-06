@@ -13,18 +13,6 @@ var knowledgePointCmd = &cobra.Command{
 	Short: "Manage knowledge points (知识点管理)",
 }
 
-// ---- generate ----
-
-var knowledgePointGenerateChapterID uint
-
-var knowledgePointGenerateCmd = &cobra.Command{
-	Use:   "generate",
-	Short: "AI-generate knowledge points for a chapter (requires --chapter-id)",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		if knowledgePointGenerateChapterID == 0 {
-			return fmt.Errorf("--chapter-id is required")
-		}
-		c := client.NewClient()
 // ---- list ----
 
 var (
@@ -141,12 +129,12 @@ var kpCreateCmd = &cobra.Command{
 // ---- edit ----
 
 var (
-	kpEditID                uint
-	kpEditName              string
-	kpEditDescription       string
-	kpEditDifficulty        string
-	kpEditEstimatedMinutes  int
-	kpEditOrderIndex        int
+	kpEditID               uint
+	kpEditName             string
+	kpEditDescription      string
+	kpEditDifficulty       string
+	kpEditEstimatedMinutes int
+	kpEditOrderIndex       int
 )
 
 var kpEditCmd = &cobra.Command{
@@ -196,8 +184,8 @@ var kpDeleteCmd = &cobra.Command{
 // ---- link-question ----
 
 var (
-	kpLinkQuestionKPID         uint
-	kpLinkQuestionQuestionID   uint
+	kpLinkQuestionKPID       uint
+	kpLinkQuestionQuestionID uint
 )
 
 var kpLinkQuestionCmd = &cobra.Command{
@@ -276,13 +264,10 @@ var kpGenerateCmd = &cobra.Command{
 			Keypoints []map[string]interface{} `json:"keypoints"`
 			Count     int                      `json:"count"`
 		}
-		body := map[string]interface{}{
-			"chapterId": knowledgePointGenerateChapterID,
-		}
 		if err := c.PostAndDecode("/v1/knowledge-points/generate", body, &result); err != nil {
 			return err
 		}
-		fmt.Printf("Generated %d knowledge point(s) for chapter %d:\n\n", result.Count, knowledgePointGenerateChapterID)
+		fmt.Printf("Generated %d knowledge point(s) for chapter %d:\n\n", result.Count, kpGenerateChapterID)
 		headers := []string{"ID", "Name", "Difficulty", "Minutes", "Confidence"}
 		rows := make([][]string, 0, len(result.Keypoints))
 		for _, kp := range result.Keypoints {
@@ -292,17 +277,6 @@ var kpGenerateCmd = &cobra.Command{
 				fmtStr(kp["difficulty"]),
 				fmtFloat(kp["estimatedMinutes"]),
 				fmt.Sprintf("%.2f", toFloat64(kp["confidenceScore"])),
-		if err := c.PostAndDecode("/v1/chapter/generate-keypoints", body, &result); err != nil {
-			return err
-		}
-		fmt.Printf("Generated %d knowledge points.\n\n", result.Count)
-		headers := []string{"Name", "Difficulty", "EstimatedMinutes"}
-		rows := make([][]string, 0, len(result.Keypoints))
-		for _, kp := range result.Keypoints {
-			rows = append(rows, []string{
-				fmtStr(kp["name"]),
-				fmtStr(kp["difficulty"]),
-				fmtFloat(kp["estimatedMinutes"]),
 			})
 		}
 		printTable(headers, rows)
@@ -310,56 +284,13 @@ var kpGenerateCmd = &cobra.Command{
 	},
 }
 
-// ---- list ----
-
-var (
-	knowledgePointListChapterID  uint
-	knowledgePointListSyllabusID uint
-	knowledgePointListPage       int
-	knowledgePointListPageSize   int
-)
-
-var knowledgePointListCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List knowledge points (requires --chapter-id or --syllabus-id)",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		if knowledgePointListChapterID == 0 && knowledgePointListSyllabusID == 0 {
-			return fmt.Errorf("--chapter-id or --syllabus-id is required")
-		}
-		c := client.NewClient()
-		var result struct {
-			List  []map[string]interface{} `json:"list"`
-			Total int                      `json:"total"`
-		}
-		body := map[string]interface{}{
-			"chapterId":  knowledgePointListChapterID,
-			"syllabusId": knowledgePointListSyllabusID,
-			"pageIndex":  knowledgePointListPage,
-			"pageSize":   knowledgePointListPageSize,
-		}
-		if err := c.PostAndDecode("/v1/knowledge-point/list", body, &result); err != nil {
-			return err
-		}
-		fmt.Printf("Total: %d\n\n", result.Total)
-		headers := []string{"ID", "ChapterId", "Name", "Difficulty", "Minutes"}
-		rows := make([][]string, 0, len(result.List))
-		for _, kp := range result.List {
-			rows = append(rows, []string{
-				fmtFloat(kp["id"]),
-				fmtFloat(kp["chapterId"]),
-				fmtStr(kp["name"]),
-				fmtStr(kp["difficulty"]),
-				fmtFloat(kp["estimatedMinutes"]),
-			})
-		}
-		printTable(headers, rows)
 // ---- auto-link-question ----
 
 var (
-	kpAutoLinkQuestionID   uint
-	kpAutoLinkChapterID    uint
-	kpAutoLinkSyllabusID   uint
-	kpAutoLinkIntelligent  bool
+	kpAutoLinkQuestionID  uint
+	kpAutoLinkChapterID   uint
+	kpAutoLinkSyllabusID  uint
+	kpAutoLinkIntelligent bool
 )
 
 var kpAutoLinkQuestionCmd = &cobra.Command{
@@ -405,29 +336,13 @@ var kpAutoLinkQuestionCmd = &cobra.Command{
 	},
 }
 
-// ---- get ----
-
-var knowledgePointGetCmd = &cobra.Command{
-	Use:   "get <id>",
-	Short: "Get a knowledge point by ID",
-	Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		id, err := strconv.ParseUint(args[0], 10, 64)
-		if err != nil || id == 0 {
-			return fmt.Errorf("invalid id: %s", args[0])
-		}
-		c := client.NewClient()
-		var result interface{}
-		if err := c.PostAndDecode("/v1/knowledge-point/byId", map[string]interface{}{"id": id}, &result); err != nil {
-			return err
-		}
 // ---- auto-migrate ----
 
 var (
-	kpAutoMigrateSyllabusID      uint
-	kpAutoMigrateGenerateKP      bool
-	kpAutoMigrateLinkQuestions   bool
-	kpAutoMigrateBatchSize       int
+	kpAutoMigrateSyllabusID    uint
+	kpAutoMigrateGenerateKP    bool
+	kpAutoMigrateLinkQuestions bool
+	kpAutoMigrateBatchSize     int
 )
 
 var kpAutoMigrateCmd = &cobra.Command{
@@ -467,17 +382,6 @@ func toFloat64(v interface{}) float64 {
 	return 0
 }
 
-func init() {
-	knowledgePointGenerateCmd.Flags().UintVar(&knowledgePointGenerateChapterID, "chapter-id", 0, "Chapter ID to generate knowledge points for (required)")
-
-	knowledgePointListCmd.Flags().UintVar(&knowledgePointListChapterID, "chapter-id", 0, "Filter by chapter ID")
-	knowledgePointListCmd.Flags().UintVar(&knowledgePointListSyllabusID, "syllabus-id", 0, "Filter by syllabus ID")
-	knowledgePointListCmd.Flags().IntVar(&knowledgePointListPage, "page", 1, "Page number")
-	knowledgePointListCmd.Flags().IntVar(&knowledgePointListPageSize, "page-size", 20, "Page size")
-
-	knowledgePointCmd.AddCommand(knowledgePointGenerateCmd)
-	knowledgePointCmd.AddCommand(knowledgePointListCmd)
-	knowledgePointCmd.AddCommand(knowledgePointGetCmd)
 func init() {
 	kpListCmd.Flags().IntVar(&kpListPage, "page", 1, "Page number")
 	kpListCmd.Flags().IntVar(&kpListPageSize, "page-size", 20, "Page size")
