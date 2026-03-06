@@ -577,7 +577,7 @@ export default {
     systemSettings: 'System Settings',
     roles: 'Roles',
     permissions: 'Permissions',
-    feedback: 'User Feedback'
+    feedback: 'User Feedback',
     blog: 'Blog',
   },
   analytics: {
