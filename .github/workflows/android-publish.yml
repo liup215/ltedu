@@ -1,10 +1,7 @@
 name: Android – Publish to Google Play
 
 on:
-  push:
-    branches-ignore: []   # trigger build on every branch
-    tags: [ "v*" ]
-  workflow_dispatch:
+  workflow_dispatch:  # disabled: no app store credentials yet
     inputs:
       track:
         description: "Play Store track (internal | alpha | beta | production)"
