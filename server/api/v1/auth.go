@@ -118,6 +118,9 @@ func (lc *AuthController) Authenticator(c *gin.Context) (interface{}, error) {
 		// For now, we proceed with login.
 	}
 
+	// Record login audit event (non-fatal if it fails)
+	_ = service.AuditLogSvr.Record(authUser.ID, "admin-login", "LOGIN", "login: "+loginReq.Username, c.ClientIP())
+
 	// If all checks pass, return the authenticated *model.User.
 	// The auth middleware's IdentityHandler will need to extract User.ID from this.
 
@@ -181,6 +184,9 @@ func (lc *AuthController) ChangePassword(c *gin.Context) {
 		http.ErrorData(c, "密码修改失败", err.Error())
 		return
 	}
+
+	// Record password change audit event
+	_ = service.AuditLogSvr.Record(user.ID, "admin-login", "UPDATE", "password changed", c.ClientIP())
 
 	http.SuccessData(c, "密码修改成功，已强制重新登录", nil)
 }

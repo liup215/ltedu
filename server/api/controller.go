@@ -86,7 +86,7 @@ func (h *Handler) noAuthRout(r *gin.RouterGroup) {
 	// Swagger UI - 访问地址: /api/docs/index.html
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	r.POST("/v1/login", h.authMiddleware.LoginHandler)
+	r.POST("/v1/login", LoginRateLimit(), h.authMiddleware.LoginHandler)
 	r.POST("/v1/captcha", v1.CaptchaCtrl.GetImage)
 
 	r.POST("/v1/verification/send-code", v1.VerificationCtrl.SendCode)
@@ -300,15 +300,21 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/chapter/edit", v1.QualificationCtrl.EditChapter)
 	r.POST("/v1/chapter/delete", v1.QualificationCtrl.DeleteChapter)
 
-	r.POST("/v1/user/list", v1.UserCtrl.SelectUserList)
-	r.POST("/v1/user/byId", v1.UserCtrl.SelectUserById)
-	r.POST("/v1/user/all", v1.UserCtrl.SelectUserAll)
-	r.POST("/v1/user/create", v1.UserCtrl.CreateUser)
-	r.POST("/v1/user/edit", v1.UserCtrl.EditUser)
-	r.POST("/v1/user/delete", v1.UserCtrl.DeleteUser)
-	r.POST("/v1/user/setAdmin", v1.UserCtrl.SetAdmin)
-	r.POST("/v1/user/removeAdmin", v1.UserCtrl.RemoveAdmin)
-	r.POST("/v1/user/vip", v1.UserCtrl.GrantVipMonth)
+	// User management — requires explicit RBAC permissions
+	{
+		userRead := r.Group("/v1/user", RequirePermission("user:read"))
+		userRead.POST("/list", v1.UserCtrl.SelectUserList)
+		userRead.POST("/byId", v1.UserCtrl.SelectUserById)
+		userRead.POST("/all", v1.UserCtrl.SelectUserAll)
+
+		r.POST("/v1/user/create", RequirePermission("user:create"), AuditLog("member", "STORE"), v1.UserCtrl.CreateUser)
+		r.POST("/v1/user/edit", RequirePermission("user:edit"), AuditLog("member", "UPDATE"), v1.UserCtrl.EditUser)
+		r.POST("/v1/user/delete", RequirePermission("user:delete"), AuditLog("member", "DESTROY"), v1.UserCtrl.DeleteUser)
+		// Admin-escalation endpoints require full admin access
+		r.POST("/v1/user/setAdmin", RequireAdmin(), AuditLog("administrator", "UPDATE"), v1.UserCtrl.SetAdmin)
+		r.POST("/v1/user/removeAdmin", RequireAdmin(), AuditLog("administrator", "UPDATE"), v1.UserCtrl.RemoveAdmin)
+		r.POST("/v1/user/vip", RequireAdmin(), AuditLog("member", "UPDATE"), v1.UserCtrl.GrantVipMonth)
+	}
 
 	r.POST("/v1/school/grade/list", v1.SchoolCtrl.SelectGradeList)
 	r.POST("/v1/school/grade/byId", v1.SchoolCtrl.SelectGradeById)
@@ -443,18 +449,18 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	{
 		rbacAdmin.POST("/roles/list", v1.RBACCtrl.ListRoles)
 		rbacAdmin.POST("/roles/byId", v1.RBACCtrl.GetRole)
-		rbacAdmin.POST("/roles/create", v1.RBACCtrl.CreateRole)
-		rbacAdmin.POST("/roles/edit", v1.RBACCtrl.UpdateRole)
-		rbacAdmin.POST("/roles/delete", v1.RBACCtrl.DeleteRole)
+		rbacAdmin.POST("/roles/create", AuditLog("administrator-role", "STORE"), v1.RBACCtrl.CreateRole)
+		rbacAdmin.POST("/roles/edit", AuditLog("administrator-role", "UPDATE"), v1.RBACCtrl.UpdateRole)
+		rbacAdmin.POST("/roles/delete", AuditLog("administrator-role", "DESTROY"), v1.RBACCtrl.DeleteRole)
 		rbacAdmin.POST("/permissions/list", v1.RBACCtrl.ListPermissions)
-		rbacAdmin.POST("/permissions/create", v1.RBACCtrl.CreatePermission)
-		rbacAdmin.POST("/permissions/edit", v1.RBACCtrl.UpdatePermission)
-		rbacAdmin.POST("/permissions/delete", v1.RBACCtrl.DeletePermission)
-		rbacAdmin.POST("/roles/permission/assign", v1.RBACCtrl.AssignPermissionToRole)
-		rbacAdmin.POST("/roles/permission/remove", v1.RBACCtrl.RemovePermissionFromRole)
+		rbacAdmin.POST("/permissions/create", AuditLog("administrator-role", "STORE"), v1.RBACCtrl.CreatePermission)
+		rbacAdmin.POST("/permissions/edit", AuditLog("administrator-role", "UPDATE"), v1.RBACCtrl.UpdatePermission)
+		rbacAdmin.POST("/permissions/delete", AuditLog("administrator-role", "DESTROY"), v1.RBACCtrl.DeletePermission)
+		rbacAdmin.POST("/roles/permission/assign", AuditLog("administrator-role", "UPDATE"), v1.RBACCtrl.AssignPermissionToRole)
+		rbacAdmin.POST("/roles/permission/remove", AuditLog("administrator-role", "UPDATE"), v1.RBACCtrl.RemovePermissionFromRole)
 		rbacAdmin.POST("/user/roles/list", v1.RBACCtrl.GetUserRoles)
-		rbacAdmin.POST("/user/roles/assign", v1.RBACCtrl.AssignRoleToUser)
-		rbacAdmin.POST("/user/roles/remove", v1.RBACCtrl.RemoveRoleFromUser)
+		rbacAdmin.POST("/user/roles/assign", AuditLog("administrator", "UPDATE"), v1.RBACCtrl.AssignRoleToUser)
+		rbacAdmin.POST("/user/roles/remove", AuditLog("administrator", "UPDATE"), v1.RBACCtrl.RemoveRoleFromUser)
 	}
 	// RBAC "me" endpoints — authenticated users only (no admin required)
 	r.POST("/v1/rbac/me/permissions", v1.RBACCtrl.GetMyPermissions)
