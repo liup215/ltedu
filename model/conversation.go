@@ -78,7 +78,7 @@ type SendMessageResponse struct {
 
 // ConversationRole constants for message roles.
 const (
-ConvRoleUser      = "user"
-ConvRoleAssistant = "assistant"
-ConvRoleSystem    = "system"
+	ConvRoleUser      = "user"
+	ConvRoleAssistant = "assistant"
+	ConvRoleSystem    = "system"
 )
