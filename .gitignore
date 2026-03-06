@@ -3,6 +3,7 @@
 .idea/
 *.log
 *.db
+/main
 
 # VS Code
 .vscode/*
