@@ -167,6 +167,10 @@ func (h *Handler) noAuthRout(r *gin.RouterGroup) {
 	r.POST("/v1/practice/quick", v1.PracticeCtrl.QuickPractice)
 	r.POST("/v1/practice/paper", v1.PracticeCtrl.PaperPractice)
 
+	// Blog public endpoints (no auth required)
+	r.POST("/v1/blog/public/list", v1.BlogCtrl.PublicListBlogPosts)
+	r.POST("/v1/blog/public/bySlug", v1.BlogCtrl.PublicGetBlogPostBySlug)
+
 }
 
 func (h *Handler) authRout(r *gin.RouterGroup) {
@@ -384,6 +388,15 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/attempt/stats", v1.AttemptCtrl.GetAttemptStats)
 	r.POST("/v1/attempt/list", v1.AttemptCtrl.ListAttempts)
 
+	// Analytics & Recommendation endpoints
+	r.POST("/v1/analytics/class/summary", v1.AnalyticsCtrl.GetClassSummary)
+	r.POST("/v1/analytics/class/students", v1.AnalyticsCtrl.GetStudentPerformanceList)
+	r.POST("/v1/analytics/class/heatmap", v1.AnalyticsCtrl.GetClassHeatmap)
+	r.POST("/v1/analytics/class/trends", v1.AnalyticsCtrl.GetAttemptTrends)
+	r.POST("/v1/analytics/class/earlyWarning", v1.AnalyticsCtrl.GetEarlyWarnings)
+	r.POST("/v1/analytics/student/summary", v1.AnalyticsCtrl.GetStudentAnalytics)
+	r.POST("/v1/analytics/recommend", v1.AnalyticsCtrl.GetRecommendations)
+
 	// Knowledge Point endpoints
 	r.POST("/v1/knowledge-point/create", v1.KnowledgePointCtrl.Create)
 	r.POST("/v1/knowledge-point/edit", v1.KnowledgePointCtrl.Update)
@@ -392,6 +405,8 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/knowledge-point/byChapter", v1.KnowledgePointCtrl.GetByChapter)
 	r.POST("/v1/knowledge-point/bySyllabus", v1.KnowledgePointCtrl.GetBySyllabus)
 	r.POST("/v1/knowledge-point/list", v1.KnowledgePointCtrl.List)
+	r.POST("/v1/knowledge-point/link-question", v1.KnowledgePointCtrl.LinkQuestion)
+	r.POST("/v1/knowledge-point/unlink-question", v1.KnowledgePointCtrl.UnlinkQuestion)
 	
 	// Knowledge Point automation endpoints
 	r.POST("/v1/chapter/generate-keypoints", v1.KnowledgePointCtrl.GenerateKeypoints)
@@ -450,4 +465,23 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	// RBAC "me" endpoints — authenticated users only (no admin required)
 	r.POST("/v1/rbac/me/permissions", v1.RBACCtrl.GetMyPermissions)
 	r.POST("/v1/rbac/me/check-permission", v1.RBACCtrl.CheckPermission)
+
+	// Feedback endpoints — submit/my are user-facing; list/stats/byId/updateStatus are admin-only
+	r.POST("/v1/feedback/submit", v1.FeedbackCtrl.Submit)
+	r.POST("/v1/feedback/my", v1.FeedbackCtrl.MyFeedback)
+	feedbackAdmin := r.Group("/v1/feedback", RequireAdmin())
+	{
+		feedbackAdmin.POST("/list", v1.FeedbackCtrl.List)
+		feedbackAdmin.POST("/byId", v1.FeedbackCtrl.GetByID)
+		feedbackAdmin.POST("/updateStatus", v1.FeedbackCtrl.UpdateStatus)
+		feedbackAdmin.GET("/stats", v1.FeedbackCtrl.GetStats)
+	// Blog admin endpoints (require admin)
+	blogAdmin := r.Group("/v1/blog", RequireAdmin())
+	{
+		blogAdmin.POST("/create", v1.BlogCtrl.CreateBlogPost)
+		blogAdmin.POST("/edit", v1.BlogCtrl.EditBlogPost)
+		blogAdmin.POST("/delete", v1.BlogCtrl.DeleteBlogPost)
+		blogAdmin.POST("/byId", v1.BlogCtrl.GetBlogPostById)
+		blogAdmin.POST("/list", v1.BlogCtrl.ListBlogPosts)
+	}
 }

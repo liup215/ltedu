@@ -4,6 +4,7 @@
   </Notivue>
   <DonationPopup ref="donationPopupRef" />
   <router-view />
+  <FeedbackWidget v-if="userStore.user" />
 </template>
 
 <script setup lang="ts">
@@ -11,6 +12,7 @@ import { Notivue, Notification } from 'notivue'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import DonationPopup from './components/DonationPopup.vue'
+import FeedbackWidget from './components/FeedbackWidget.vue'
 import { useUserStore } from './stores/userStore'
 
 const donationPopupRef = ref()
