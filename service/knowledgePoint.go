@@ -388,6 +388,16 @@ func (s *KnowledgePointService) GetAll(query *model.KnowledgePointQuery) ([]mode
 	return repository.KnowledgePointRepo.FindAll(query)
 }
 
+// LinkQuestion 手动关联题目到知识点
+func (s *KnowledgePointService) LinkQuestion(knowledgePointId uint, questionId uint) error {
+	return repository.KnowledgePointRepo.LinkQuestion(knowledgePointId, questionId)
+}
+
+// UnlinkQuestion 取消题目与知识点的关联
+func (s *KnowledgePointService) UnlinkQuestion(knowledgePointId uint, questionId uint) error {
+	return repository.KnowledgePointRepo.UnlinkQuestion(knowledgePointId, questionId)
+}
+
 // generateKnowledgePoints AI生成知识点
 func (s *KnowledgePointService) generateKnowledgePoints(syllabusName, chapterName string) ([]model.AIKnowledgePointData, error) {
 	contextInfo := fmt.Sprintf("考纲: %s, 章节: %s", syllabusName, chapterName)
