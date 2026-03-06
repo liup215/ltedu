@@ -475,6 +475,7 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 		feedbackAdmin.POST("/byId", v1.FeedbackCtrl.GetByID)
 		feedbackAdmin.POST("/updateStatus", v1.FeedbackCtrl.UpdateStatus)
 		feedbackAdmin.GET("/stats", v1.FeedbackCtrl.GetStats)
+	}
 	// Blog admin endpoints (require admin)
 	blogAdmin := r.Group("/v1/blog", RequireAdmin())
 	{
