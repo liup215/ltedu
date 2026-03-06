@@ -82,6 +82,17 @@ const routes: RouteRecordRaw[] = [
         name: 'Donation',
         component: () => import('../views/Donation.vue')
       },
+      // Blog routes (public)
+      {
+        path: '/blog',
+        name: 'Blog',
+        component: () => import('../views/Blog.vue')
+      },
+      {
+        path: '/blog/:slug',
+        name: 'BlogPost',
+        component: () => import('../views/BlogPost.vue')
+      },
       // Help & Documentation page
       {
         path: '/help',
@@ -120,7 +131,7 @@ router.beforeEach(async (to, _, next) => {
   //   return next({ name: 'Home' });
   // }
 
-  const publicRouteNames = ['Login', 'Register', 'Setup', 'Home', 'QuickPractice', 'PaperPractice', 'Donation', 'ExamPaperBuilder', 'Help'];
+  const publicRouteNames = ['Login', 'Register', 'Setup', 'Home', 'QuickPractice', 'PaperPractice', 'Donation', 'ExamPaperBuilder', 'Blog', 'BlogPost', 'Help'];
   const requiresAuth = !publicRouteNames.includes(to.name as string);
 
   if (requiresAuth && !isAuthenticated) {
