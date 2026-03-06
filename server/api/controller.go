@@ -86,7 +86,7 @@ func (h *Handler) noAuthRout(r *gin.RouterGroup) {
 	// Swagger UI - 访问地址: /api/docs/index.html
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	r.POST("/v1/login", h.authMiddleware.LoginHandler)
+	r.POST("/v1/login", LoginRateLimit(), h.authMiddleware.LoginHandler)
 	r.POST("/v1/captcha", v1.CaptchaCtrl.GetImage)
 
 	r.POST("/v1/verification/send-code", v1.VerificationCtrl.SendCode)
@@ -166,6 +166,10 @@ func (h *Handler) noAuthRout(r *gin.RouterGroup) {
 
 	r.POST("/v1/practice/quick", v1.PracticeCtrl.QuickPractice)
 	r.POST("/v1/practice/paper", v1.PracticeCtrl.PaperPractice)
+
+	// Blog public endpoints (no auth required)
+	r.POST("/v1/blog/public/list", v1.BlogCtrl.PublicListBlogPosts)
+	r.POST("/v1/blog/public/bySlug", v1.BlogCtrl.PublicGetBlogPostBySlug)
 
 }
 
@@ -296,15 +300,21 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/chapter/edit", v1.QualificationCtrl.EditChapter)
 	r.POST("/v1/chapter/delete", v1.QualificationCtrl.DeleteChapter)
 
-	r.POST("/v1/user/list", v1.UserCtrl.SelectUserList)
-	r.POST("/v1/user/byId", v1.UserCtrl.SelectUserById)
-	r.POST("/v1/user/all", v1.UserCtrl.SelectUserAll)
-	r.POST("/v1/user/create", v1.UserCtrl.CreateUser)
-	r.POST("/v1/user/edit", v1.UserCtrl.EditUser)
-	r.POST("/v1/user/delete", v1.UserCtrl.DeleteUser)
-	r.POST("/v1/user/setAdmin", v1.UserCtrl.SetAdmin)
-	r.POST("/v1/user/removeAdmin", v1.UserCtrl.RemoveAdmin)
-	r.POST("/v1/user/vip", v1.UserCtrl.GrantVipMonth)
+	// User management — requires explicit RBAC permissions
+	{
+		userRead := r.Group("/v1/user", RequirePermission("user:read"))
+		userRead.POST("/list", v1.UserCtrl.SelectUserList)
+		userRead.POST("/byId", v1.UserCtrl.SelectUserById)
+		userRead.POST("/all", v1.UserCtrl.SelectUserAll)
+
+		r.POST("/v1/user/create", RequirePermission("user:create"), AuditLog("member", "STORE"), v1.UserCtrl.CreateUser)
+		r.POST("/v1/user/edit", RequirePermission("user:edit"), AuditLog("member", "UPDATE"), v1.UserCtrl.EditUser)
+		r.POST("/v1/user/delete", RequirePermission("user:delete"), AuditLog("member", "DESTROY"), v1.UserCtrl.DeleteUser)
+		// Admin-escalation endpoints require full admin access
+		r.POST("/v1/user/setAdmin", RequireAdmin(), AuditLog("administrator", "UPDATE"), v1.UserCtrl.SetAdmin)
+		r.POST("/v1/user/removeAdmin", RequireAdmin(), AuditLog("administrator", "UPDATE"), v1.UserCtrl.RemoveAdmin)
+		r.POST("/v1/user/vip", RequireAdmin(), AuditLog("member", "UPDATE"), v1.UserCtrl.GrantVipMonth)
+	}
 
 	r.POST("/v1/school/grade/list", v1.SchoolCtrl.SelectGradeList)
 	r.POST("/v1/school/grade/byId", v1.SchoolCtrl.SelectGradeById)
@@ -378,6 +388,15 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/attempt/stats", v1.AttemptCtrl.GetAttemptStats)
 	r.POST("/v1/attempt/list", v1.AttemptCtrl.ListAttempts)
 
+	// Analytics & Recommendation endpoints
+	r.POST("/v1/analytics/class/summary", v1.AnalyticsCtrl.GetClassSummary)
+	r.POST("/v1/analytics/class/students", v1.AnalyticsCtrl.GetStudentPerformanceList)
+	r.POST("/v1/analytics/class/heatmap", v1.AnalyticsCtrl.GetClassHeatmap)
+	r.POST("/v1/analytics/class/trends", v1.AnalyticsCtrl.GetAttemptTrends)
+	r.POST("/v1/analytics/class/earlyWarning", v1.AnalyticsCtrl.GetEarlyWarnings)
+	r.POST("/v1/analytics/student/summary", v1.AnalyticsCtrl.GetStudentAnalytics)
+	r.POST("/v1/analytics/recommend", v1.AnalyticsCtrl.GetRecommendations)
+
 	// Knowledge Point endpoints
 	r.POST("/v1/knowledge-point/create", v1.KnowledgePointCtrl.Create)
 	r.POST("/v1/knowledge-point/edit", v1.KnowledgePointCtrl.Update)
@@ -386,6 +405,8 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/knowledge-point/byChapter", v1.KnowledgePointCtrl.GetByChapter)
 	r.POST("/v1/knowledge-point/bySyllabus", v1.KnowledgePointCtrl.GetBySyllabus)
 	r.POST("/v1/knowledge-point/list", v1.KnowledgePointCtrl.List)
+	r.POST("/v1/knowledge-point/link-question", v1.KnowledgePointCtrl.LinkQuestion)
+	r.POST("/v1/knowledge-point/unlink-question", v1.KnowledgePointCtrl.UnlinkQuestion)
 	
 	// Knowledge Point automation endpoints
 	r.POST("/v1/chapter/generate-keypoints", v1.KnowledgePointCtrl.GenerateKeypoints)
@@ -428,20 +449,39 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	{
 		rbacAdmin.POST("/roles/list", v1.RBACCtrl.ListRoles)
 		rbacAdmin.POST("/roles/byId", v1.RBACCtrl.GetRole)
-		rbacAdmin.POST("/roles/create", v1.RBACCtrl.CreateRole)
-		rbacAdmin.POST("/roles/edit", v1.RBACCtrl.UpdateRole)
-		rbacAdmin.POST("/roles/delete", v1.RBACCtrl.DeleteRole)
+		rbacAdmin.POST("/roles/create", AuditLog("administrator-role", "STORE"), v1.RBACCtrl.CreateRole)
+		rbacAdmin.POST("/roles/edit", AuditLog("administrator-role", "UPDATE"), v1.RBACCtrl.UpdateRole)
+		rbacAdmin.POST("/roles/delete", AuditLog("administrator-role", "DESTROY"), v1.RBACCtrl.DeleteRole)
 		rbacAdmin.POST("/permissions/list", v1.RBACCtrl.ListPermissions)
-		rbacAdmin.POST("/permissions/create", v1.RBACCtrl.CreatePermission)
-		rbacAdmin.POST("/permissions/edit", v1.RBACCtrl.UpdatePermission)
-		rbacAdmin.POST("/permissions/delete", v1.RBACCtrl.DeletePermission)
-		rbacAdmin.POST("/roles/permission/assign", v1.RBACCtrl.AssignPermissionToRole)
-		rbacAdmin.POST("/roles/permission/remove", v1.RBACCtrl.RemovePermissionFromRole)
+		rbacAdmin.POST("/permissions/create", AuditLog("administrator-role", "STORE"), v1.RBACCtrl.CreatePermission)
+		rbacAdmin.POST("/permissions/edit", AuditLog("administrator-role", "UPDATE"), v1.RBACCtrl.UpdatePermission)
+		rbacAdmin.POST("/permissions/delete", AuditLog("administrator-role", "DESTROY"), v1.RBACCtrl.DeletePermission)
+		rbacAdmin.POST("/roles/permission/assign", AuditLog("administrator-role", "UPDATE"), v1.RBACCtrl.AssignPermissionToRole)
+		rbacAdmin.POST("/roles/permission/remove", AuditLog("administrator-role", "UPDATE"), v1.RBACCtrl.RemovePermissionFromRole)
 		rbacAdmin.POST("/user/roles/list", v1.RBACCtrl.GetUserRoles)
-		rbacAdmin.POST("/user/roles/assign", v1.RBACCtrl.AssignRoleToUser)
-		rbacAdmin.POST("/user/roles/remove", v1.RBACCtrl.RemoveRoleFromUser)
+		rbacAdmin.POST("/user/roles/assign", AuditLog("administrator", "UPDATE"), v1.RBACCtrl.AssignRoleToUser)
+		rbacAdmin.POST("/user/roles/remove", AuditLog("administrator", "UPDATE"), v1.RBACCtrl.RemoveRoleFromUser)
 	}
 	// RBAC "me" endpoints — authenticated users only (no admin required)
 	r.POST("/v1/rbac/me/permissions", v1.RBACCtrl.GetMyPermissions)
 	r.POST("/v1/rbac/me/check-permission", v1.RBACCtrl.CheckPermission)
+
+	// Feedback endpoints — submit/my are user-facing; list/stats/byId/updateStatus are admin-only
+	r.POST("/v1/feedback/submit", v1.FeedbackCtrl.Submit)
+	r.POST("/v1/feedback/my", v1.FeedbackCtrl.MyFeedback)
+	feedbackAdmin := r.Group("/v1/feedback", RequireAdmin())
+	{
+		feedbackAdmin.POST("/list", v1.FeedbackCtrl.List)
+		feedbackAdmin.POST("/byId", v1.FeedbackCtrl.GetByID)
+		feedbackAdmin.POST("/updateStatus", v1.FeedbackCtrl.UpdateStatus)
+		feedbackAdmin.GET("/stats", v1.FeedbackCtrl.GetStats)
+	// Blog admin endpoints (require admin)
+	blogAdmin := r.Group("/v1/blog", RequireAdmin())
+	{
+		blogAdmin.POST("/create", v1.BlogCtrl.CreateBlogPost)
+		blogAdmin.POST("/edit", v1.BlogCtrl.EditBlogPost)
+		blogAdmin.POST("/delete", v1.BlogCtrl.DeleteBlogPost)
+		blogAdmin.POST("/byId", v1.BlogCtrl.GetBlogPostById)
+		blogAdmin.POST("/list", v1.BlogCtrl.ListBlogPosts)
+	}
 }

@@ -15,6 +15,8 @@ type IKnowledgePointRepository interface {
 	FindBySyllabusId(syllabusId uint) ([]model.KnowledgePoint, error)
 	FindAll(query *model.KnowledgePointQuery) ([]model.KnowledgePoint, int64, error)
 	BatchCreate(kps []model.KnowledgePoint) error
+	LinkQuestion(knowledgePointId uint, questionId uint) error
+	UnlinkQuestion(knowledgePointId uint, questionId uint) error
 }
 
 type KnowledgePointRepository struct {
@@ -98,4 +100,16 @@ func (r *KnowledgePointRepository) FindAll(query *model.KnowledgePointQuery) ([]
 
 func (r *KnowledgePointRepository) BatchCreate(kps []model.KnowledgePoint) error {
 	return r.db.Create(&kps).Error
+}
+
+func (r *KnowledgePointRepository) LinkQuestion(knowledgePointId uint, questionId uint) error {
+	return r.db.Model(&model.KnowledgePoint{Model: model.Model{ID: knowledgePointId}}).
+		Association("Questions").
+		Append(&model.Question{Model: model.Model{ID: questionId}})
+}
+
+func (r *KnowledgePointRepository) UnlinkQuestion(knowledgePointId uint, questionId uint) error {
+	return r.db.Model(&model.KnowledgePoint{Model: model.Model{ID: knowledgePointId}}).
+		Association("Questions").
+		Delete(&model.Question{Model: model.Model{ID: questionId}})
 }

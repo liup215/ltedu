@@ -1,7 +1,7 @@
 <template>
   <div class="p-6">
     <header class="mb-6">
-      <div class="flex justify-between items-start">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
         <div>
           <h1 class="text-3xl font-bold text-gray-900">{{ $t('chapterManagement.title') }}</h1>
           <div class="mt-4 bg-white rounded-lg shadow p-4 border-l-4 border-indigo-500">
@@ -38,9 +38,9 @@
       </div>
     </header>
 
-    <div class="flex gap-6">
+    <div class="flex flex-col md:flex-row gap-6">
       <!-- Left side: Tree view -->
-      <div class="w-1/3 bg-white rounded-lg shadow">
+      <div class="w-full md:w-1/3 bg-white rounded-lg shadow">
         <div class="p-4 border-b border-gray-200 flex justify-between items-center">
           <h2 class="text-lg font-medium text-gray-900">{{ $t('chapterManagement.chapters') }}</h2>
           <button
