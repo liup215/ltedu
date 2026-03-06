@@ -1,9 +1,7 @@
 name: Android – Publish to Google Play
 
 on:
-  push:
-    tags: [ "v*" ]
-  workflow_dispatch:
+  workflow_dispatch:  # disabled: no app store credentials yet
     inputs:
       track:
         description: "Play Store track (internal | alpha | beta | production)"
@@ -48,6 +46,7 @@ jobs:
 
       # ── Prepare Google Play service account ─────────────────────────────
       - name: Write Play Store service account JSON
+        if: startsWith(github.ref, 'refs/tags/v')
         run: |
           echo '${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}' > service-account.json
 
@@ -55,6 +54,7 @@ jobs:
       # Replace the `aabFile` path below with the actual path produced by the
       # build step above (e.g. android/app/build/outputs/bundle/release/app-release.aab).
       - name: Upload AAB to Google Play (${{ env.TRACK }})
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJson: service-account.json

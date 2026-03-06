@@ -2,7 +2,7 @@ name: Build edu-cli
 
 on:
   push:
-    branches: [ "master", "main" ]
+    branches-ignore: []   # trigger on every branch
     tags: [ "v*" ]
   pull_request:
     branches: [ "master", "main" ]

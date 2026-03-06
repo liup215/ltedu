@@ -1,9 +1,7 @@
 name: HarmonyOS – Publish to Huawei AppGallery
 
 on:
-  push:
-    tags: [ "v*" ]
-  workflow_dispatch:
+  workflow_dispatch:  # disabled: no app store credentials yet
     inputs:
       release_type:
         description: "Release type (full | phased)"
@@ -47,6 +45,7 @@ jobs:
 
       # ── Obtain AppGallery access token ───────────────────────────────────
       - name: Obtain AppGallery Connect access token
+        if: startsWith(github.ref, 'refs/tags/v')
         id: agc_token
         run: |
           RESPONSE=$(curl -s -X POST \
@@ -60,6 +59,7 @@ jobs:
       # Replace the HAP path below with the actual output path from the build
       # step (e.g. harmony/build/default/outputs/default/ltedu-default-unsigned.hap).
       - name: Upload HAP to AppGallery Connect
+        if: startsWith(github.ref, 'refs/tags/v')
         run: |
           HAP_PATH="harmony/build/default/outputs/default/ltedu-default-signed.hap"
           APP_ID="${{ secrets.HUAWEI_APP_ID }}"
@@ -73,6 +73,7 @@ jobs:
 
       # ── Submit app update ────────────────────────────────────────────────
       - name: Submit app update for review
+        if: startsWith(github.ref, 'refs/tags/v')
         run: |
           TOKEN="${{ steps.agc_token.outputs.token }}"
           APP_ID="${{ secrets.HUAWEI_APP_ID }}"
