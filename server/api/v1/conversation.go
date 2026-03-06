@@ -9,12 +9,8 @@ import (
 "github.com/gin-gonic/gin"
 )
 
-var ConversationCtrl *ConversationController
-
-func init() {
-ConversationCtrl = &ConversationController{
+var ConversationCtrl = &ConversationController{
 conversationSvr: service.ConversationSvr,
-}
 }
 
 // ConversationController handles AI conversation session API endpoints.

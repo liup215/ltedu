@@ -199,6 +199,8 @@ const adminRoutes: RouteRecordRaw[] = [
         path: 'feedback',
         name: 'AdminFeedbackManagement',
         component: () => import('./FeedbackManagement.vue')
+      },
+      {
         path: 'blog',
         name: 'AdminBlogManagement',
         component: () => import('./BlogManagement.vue')

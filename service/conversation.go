@@ -155,12 +155,11 @@ session.Active = false
 return repository.ConversationSessionRepo.Update(session)
 }
 
-// CleanupExpiredSessions removes conversation sessions that have passed their expiry time.
+// CleanupExpiredSessions removes sessions past their expiry time.
+// This is called periodically by the background task runner.
 func (s *ConversationService) CleanupExpiredSessions() (int64, error) {
-	return repository.ConversationRepo.DeleteExpiredSessions()
+	return repository.ConversationSessionRepo.DeleteExpired()
 }
-
-// buildMessageHistory constructs the full AI message list for a session, including
 // the educational system prompt and stored conversation history.
 func (s *ConversationService) buildMessageHistory(session *model.ConversationSession) ([]ai.Message, error) {
 sysPrompt := conversationSystemPrompt
