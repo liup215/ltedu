@@ -107,8 +107,7 @@ func (r *conversationRepository) GetActiveSessionWithMessages(sessionKey string,
 	}
 
 	return session, messages, nil
-	"gorm.io/gorm"
-)
+}
 
 // IConversationSessionRepository manages ConversationSession persistence.
 type IConversationSessionRepository interface {
