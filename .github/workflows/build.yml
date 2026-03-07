@@ -17,7 +17,7 @@ permissions:
 jobs:
   build-api:
     name: Build API (Go)
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
 
     steps:
       - name: Checkout repository
@@ -38,7 +38,7 @@ jobs:
 
   build-web:
     name: Build Web (Node)
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
 
     steps:
       - name: Checkout repository

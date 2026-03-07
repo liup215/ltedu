@@ -14,7 +14,7 @@ permissions:
 jobs:
   build-and-publish:
     name: Build & Publish iOS IPA
-    runs-on: macos-latest
+    runs-on: [self-hosted, macos, x64]
 
     steps:
       - name: Checkout repository
