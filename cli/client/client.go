@@ -68,7 +68,12 @@ func (c *Client) post(path string, body interface{}) (*APIResponse, error) {
 
 	var apiResp APIResponse
 	if err := json.Unmarshal(raw, &apiResp); err != nil {
-		return nil, fmt.Errorf("failed to parse response: %w", err)
+		// Show first 200 characters of raw response for debugging
+		rawStr := string(raw)
+		if len(rawStr) > 200 {
+			rawStr = rawStr[:200] + "..."
+		}
+		return nil, fmt.Errorf("failed to parse response (status %d, first 200 chars: %q): %w", resp.StatusCode, rawStr, err)
 	}
 
 	return &apiResp, nil
@@ -117,7 +122,12 @@ func (c *Client) get(path string) (*APIResponse, error) {
 
 	var apiResp APIResponse
 	if err := json.Unmarshal(raw, &apiResp); err != nil {
-		return nil, fmt.Errorf("failed to parse response: %w", err)
+		// Show first 200 characters of raw response for debugging
+		rawStr := string(raw)
+		if len(rawStr) > 200 {
+			rawStr = rawStr[:200] + "..."
+		}
+		return nil, fmt.Errorf("failed to parse response (status %d, first 200 chars: %q): %w", resp.StatusCode, rawStr, err)
 	}
 
 	return &apiResp, nil

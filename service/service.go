@@ -133,6 +133,8 @@ func SeedRBACDefaults() {
 	}
 	// Migrate legacy is_admin=true users to the RBAC "admin" role (one-time idempotent migration)
 	migrateAdminFlagToRBAC()
+	// Ensure the "admin" user has super admin role
+	ensureAdminUserHasSuperRole()
 }
 
 // migrateAdminFlagToRBAC finds users with the old is_admin=true DB column and assigns
@@ -165,6 +167,42 @@ func migrateAdminFlagToRBAC() {
 		if err := repository.UserRoleRepo.AssignRole(userID, adminRole.ID); err != nil {
 			fmt.Printf("Warning: failed to migrate user %d to admin role: %v\n", userID, err)
 		}
+	}
+}
+
+// ensureAdminUserHasSuperRole ensures the "admin" user (username="admin") has the "super_admin" role.
+// This is idempotent and runs on every service startup.
+func ensureAdminUserHasSuperRole() {
+	// Find the user with username "admin"
+	user, err := UserSvr.SelectUserByUsername("admin")
+	if err != nil || user == nil {
+		fmt.Println("Note: 'admin' user not found, skipping super admin role assignment")
+		return
+	}
+
+	// Find the super_admin role
+	superAdminRole, err := repository.AdminRoleRepo.FindBySlug("super_admin")
+	if err != nil || superAdminRole == nil {
+		fmt.Println("Warning: could not find 'super_admin' role")
+		return
+	}
+
+	// Check if the user already has the super_admin role
+	hasRole, err := repository.UserRoleRepo.HasRole(user.ID, superAdminRole.ID)
+	if err != nil {
+		fmt.Printf("Warning: failed to check roles for admin user: %v\n", err)
+		return
+	}
+
+	// If the user doesn't have the super_admin role, assign it
+	if !hasRole {
+		if err := repository.UserRoleRepo.AssignRole(user.ID, superAdminRole.ID); err != nil {
+			fmt.Printf("Warning: failed to assign super_admin role to admin user: %v\n", err)
+			return
+		}
+		fmt.Println("✓ Assigned super_admin role to 'admin' user")
+	} else {
+		fmt.Println("✓ 'admin' user already has super_admin role")
 	}
 }
 
