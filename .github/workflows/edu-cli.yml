@@ -17,7 +17,7 @@ permissions:
 jobs:
   build:
     name: Build (${{ matrix.os }}/${{ matrix.arch }})
-    runs-on: [self-hosted, linux, x64]
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
