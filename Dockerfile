@@ -28,9 +28,6 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/main.go
 # Final stage
 FROM alpine:latest
 
-# Add CA certificates
-RUN apk --no-cache add ca-certificates
-
 WORKDIR /app
 
 # Copy binary from builder
