@@ -2,7 +2,9 @@
   <nav
     class="w-full bg-white border-b border-gray-200 shadow-none py-4 px-8 flex items-center justify-between fixed top-0 left-0 z-50">
     <div class="flex items-center gap-2">
-      <span class="text-xl font-normal text-indigo-700">{{ appTitle }}</span>
+      <router-link to="/" class="flex items-center gap-2">
+        <img src="/nerdlet_logo_blue_only.png" alt="Nerdlet Logo" class="h-10 w-auto" />
+      </router-link>
     </div>
 
     <!-- Desktop nav links -->
@@ -265,14 +267,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useUserStore } from '../stores/userStore';
 import { useRouter } from 'vue-router';
-import { APP_TITLE } from '../const/config';
 import { useI18n } from 'vue-i18n'
 
 const { locale } = useI18n()
-const appTitle = ref<string>('Nerdlet'); // Default title, will be updated on mount
 const userStore = useUserStore();
 const router = useRouter();
 
@@ -318,10 +318,6 @@ const handleExamPaperClick = (type: 'teacher' | 'builder') => {
     router.push('/paper/exam/create');
   }
 };
-
-onMounted(async () => {
-  appTitle.value = await APP_TITLE()
-});
 
 const handleQuickPracticeClick = () => {
   router.push('/practice/quick');
