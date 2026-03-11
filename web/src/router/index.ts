@@ -100,6 +100,12 @@ const routes: RouteRecordRaw[] = [
         name: 'BlogPost',
         component: () => import('../views/BlogPost.vue')
       },
+      // Download page (edu-cli)
+      {
+        path: '/download',
+        name: 'Download',
+        component: () => import('../views/Download.vue')
+      },
       // Help & Documentation page
       {
         path: '/help',
@@ -138,7 +144,7 @@ router.beforeEach(async (to, _, next) => {
   //   return next({ name: 'Home' });
   // }
 
-  const publicRouteNames = ['Login', 'Register', 'Setup', 'Home', 'QuickPractice', 'PaperPractice', 'Donation', 'ExamPaperBuilder', 'Blog', 'BlogPost', 'Help'];
+  const publicRouteNames = ['Login', 'Register', 'Setup', 'Home', 'QuickPractice', 'PaperPractice', 'Donation', 'ExamPaperBuilder', 'Blog', 'BlogPost', 'Help', 'Download'];
   const requiresAuth = !publicRouteNames.includes(to.name as string);
 
   if (requiresAuth && !isAuthenticated) {

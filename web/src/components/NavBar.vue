@@ -14,58 +14,18 @@
         v-slot="{ navigate, href }">
         <button :href="href" @click="navigate" type="button">{{ $t('navbar.home') }}</button>
       </router-link>
-      <button
-        class="text-gray-700 px-4 py-2 rounded font-normal transition hover:bg-green-100 hover:text-green-900"
-        type="button"
-        @click="handleQuickPracticeClick"
-      >
-        {{ $t('navbar.quickPractice') }}
-      </button>
-      <button
-        class="text-gray-700 px-4 py-2 rounded font-normal transition hover:bg-purple-100 hover:text-purple-900"
-        type="button"
-        @click="handlePaperPracticeClick"
-      >
-        {{ $t('navbar.pastPaperPractice') }}
-      </button>
 
-      <!-- Exam Paper Links - always visible, navigation logic handled in click -->
-      <button
-        class="text-gray-700 px-4 py-2 rounded font-normal transition hover:bg-blue-100 hover:text-blue-900"
-        type="button"
-        @click="handleExamPaperClick('teacher')"
-      >
-        {{ $t('navbar.myExamPapers') }}
-      </button>
-      <button
-        class="text-gray-700 px-4 py-2 rounded font-normal transition hover:bg-blue-100 hover:text-blue-900"
-        type="button"
-        @click="handleExamPaperClick('builder')"
-      >
-        {{ $t('navbar.examPaperBuilder') }}
-      </button>
-
-      <!-- Admin Link - visible only to admins -->
-      <router-link v-if="userStore.user?.isAdmin" to="/admin"
+      <router-link to="/download"
         class="text-gray-700 px-4 py-2 rounded font-normal transition hover:bg-gray-200 hover:text-gray-900" custom
         v-slot="{ navigate, href }">
-        <button :href="href" @click="navigate" type="button">{{ $t('navbar.systemManagement') }}</button>
+        <button :href="href" @click="navigate" type="button">{{ $t('navbar.download') }}</button>
       </router-link>
 
-      <!-- Help Link -->
       <router-link to="/help"
         class="text-gray-700 px-4 py-2 rounded font-normal transition hover:bg-gray-200 hover:text-gray-900" custom
         v-slot="{ navigate, href }">
-        <button :href="href" @click="navigate" type="button">{{ $t('navbar.help') }}</button>
+        <button :href="href" @click="navigate" type="button">{{ $t('navbar.docs') }}</button>
       </router-link>
-
-      <button
-        class="px-4 py-2 rounded font-normal shadow transition bg-yellow-400 text-white hover:bg-yellow-500 hover:scale-105 border-2 border-yellow-500"
-        type="button"
-        @click="router.push('/donate')"
-      >
-        {{ $t('navbar.donate') }}
-      </button>
 
       <router-link
         to="/blog"
@@ -74,33 +34,12 @@
         {{ $t('navbar.blog') }}
       </router-link>
 
-      <!-- Language Switcher Dropdown -->
-      <div class="relative">
-        <span
-          @click="toggleLangDropdown"
-          class="flex items-center cursor-pointer select-none text-gray-700 text-sm font-normal hover:text-indigo-600"
-        >
-          <span class="mr-1">{{ currentLangLabel }}</span>
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
-        </span>
-        <div
-          v-if="langDropdownOpen"
-          class="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200"
-          @click.away="langDropdownOpen = false"
-        >
-          <button
-            v-for="lang in languages"
-            :key="lang.value"
-            @click="selectLanguage(lang.value)"
-            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-            :class="{ 'font-bold text-indigo-600': currentLocale === lang.value }"
-          >
-            {{ lang.label }}
-          </button>
-        </div>
-      </div>
+      <!-- Admin Link - visible only to admins -->
+      <router-link v-if="userStore.user?.isAdmin" to="/admin"
+        class="text-gray-700 px-4 py-2 rounded font-normal transition hover:bg-gray-200 hover:text-gray-900" custom
+        v-slot="{ navigate, href }">
+        <button :href="href" @click="navigate" type="button">{{ $t('navbar.systemManagement') }}</button>
+      </router-link>
 
       <!-- Conditional rendering for Sign In / User Avatar -->
       <div v-if="!userStore.isAuthenticated" class="flex items-center">
@@ -125,6 +64,10 @@
           <hr class="border-gray-200">
           <router-link to="/account/profile" @click="closeDropdown"
             class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left">{{ $t('navbar.yourProfile') }}</router-link>
+          <router-link to="/account/analytics" @click="closeDropdown"
+            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left">{{ $t('navbar.usageStats') }}</router-link>
+          <router-link to="/account/cli-tokens" @click="closeDropdown"
+            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left">{{ $t('navbar.apiTokens') }}</router-link>
           <router-link to="/account/settings" @click="closeDropdown"
             class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left">{{ $t('navbar.settings') }}</router-link>
           <hr class="border-gray-200">
@@ -136,36 +79,8 @@
       </div>
     </div>
 
-    <!-- Mobile: right side controls (lang switcher + user avatar + hamburger) -->
+    <!-- Mobile: right side controls (user avatar + hamburger) -->
     <div class="flex md:hidden items-center gap-2">
-      <!-- Language Switcher (mobile) -->
-      <div class="relative">
-        <span
-          @click="toggleLangDropdown"
-          class="flex items-center cursor-pointer select-none text-gray-700 text-sm font-normal hover:text-indigo-600"
-        >
-          <span class="mr-1">{{ currentLangLabel }}</span>
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
-        </span>
-        <div
-          v-if="langDropdownOpen"
-          class="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200"
-          @click.away="langDropdownOpen = false"
-        >
-          <button
-            v-for="lang in languages"
-            :key="lang.value"
-            @click="selectLanguage(lang.value)"
-            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-            :class="{ 'font-bold text-indigo-600': currentLocale === lang.value }"
-          >
-            {{ lang.label }}
-          </button>
-        </div>
-      </div>
-
       <!-- User Avatar (mobile) -->
       <div v-if="userStore.isAuthenticated" class="relative flex items-center">
         <button @click="toggleDropdown"
@@ -181,6 +96,10 @@
           <hr class="border-gray-200">
           <router-link to="/account/profile" @click="closeDropdown"
             class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left">{{ $t('navbar.yourProfile') }}</router-link>
+          <router-link to="/account/analytics" @click="closeDropdown"
+            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left">{{ $t('navbar.usageStats') }}</router-link>
+          <router-link to="/account/cli-tokens" @click="closeDropdown"
+            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left">{{ $t('navbar.apiTokens') }}</router-link>
           <router-link to="/account/settings" @click="closeDropdown"
             class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left">{{ $t('navbar.settings') }}</router-link>
           <hr class="border-gray-200">
@@ -217,45 +136,22 @@
         class="text-gray-700 px-6 py-3 font-normal transition hover:bg-gray-100 min-h-[48px] flex items-center">
         {{ $t('navbar.home') }}
       </router-link>
-      <button
-        class="text-left text-gray-700 px-6 py-3 font-normal transition hover:bg-green-50 hover:text-green-900 min-h-[48px] flex items-center"
-        type="button"
-        @click="handleQuickPracticeClick(); closeMobileMenu()"
-      >
-        {{ $t('navbar.quickPractice') }}
-      </button>
-      <button
-        class="text-left text-gray-700 px-6 py-3 font-normal transition hover:bg-purple-50 hover:text-purple-900 min-h-[48px] flex items-center"
-        type="button"
-        @click="handlePaperPracticeClick(); closeMobileMenu()"
-      >
-        {{ $t('navbar.pastPaperPractice') }}
-      </button>
-      <button
-        class="text-left text-gray-700 px-6 py-3 font-normal transition hover:bg-blue-50 hover:text-blue-900 min-h-[48px] flex items-center"
-        type="button"
-        @click="handleExamPaperClick('teacher'); closeMobileMenu()"
-      >
-        {{ $t('navbar.myExamPapers') }}
-      </button>
-      <button
-        class="text-left text-gray-700 px-6 py-3 font-normal transition hover:bg-blue-50 hover:text-blue-900 min-h-[48px] flex items-center"
-        type="button"
-        @click="handleExamPaperClick('builder'); closeMobileMenu()"
-      >
-        {{ $t('navbar.examPaperBuilder') }}
-      </button>
+      <router-link to="/download" @click="closeMobileMenu"
+        class="text-gray-700 px-6 py-3 font-normal transition hover:bg-gray-100 min-h-[48px] flex items-center">
+        {{ $t('navbar.download') }}
+      </router-link>
+      <router-link to="/help" @click="closeMobileMenu"
+        class="text-gray-700 px-6 py-3 font-normal transition hover:bg-gray-100 min-h-[48px] flex items-center">
+        {{ $t('navbar.docs') }}
+      </router-link>
+      <router-link to="/blog" @click="closeMobileMenu"
+        class="text-gray-700 px-6 py-3 font-normal transition hover:bg-gray-100 min-h-[48px] flex items-center">
+        {{ $t('navbar.blog') }}
+      </router-link>
       <router-link v-if="userStore.user?.isAdmin" to="/admin" @click="closeMobileMenu"
         class="text-gray-700 px-6 py-3 font-normal transition hover:bg-gray-100 min-h-[48px] flex items-center">
         {{ $t('navbar.systemManagement') }}
       </router-link>
-      <button
-        class="text-left px-6 py-3 font-normal transition text-yellow-700 hover:bg-yellow-50 min-h-[48px] flex items-center"
-        type="button"
-        @click="router.push('/donate'); closeMobileMenu()"
-      >
-        {{ $t('navbar.donate') }}
-      </button>
       <div v-if="!userStore.isAuthenticated" class="border-t border-gray-100 mt-1 pt-1">
         <router-link to="/login" @click="closeMobileMenu"
           class="text-gray-700 px-6 py-3 font-normal transition hover:bg-gray-100 min-h-[48px] flex items-center">
@@ -267,12 +163,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { useUserStore } from '../stores/userStore';
 import { useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n'
 
-const { locale } = useI18n()
 const userStore = useUserStore();
 const router = useRouter();
 
@@ -289,9 +183,7 @@ const closeDropdown = () => {
 
 const toggleMobileMenu = () => {
   isMobileMenuOpen.value = !isMobileMenuOpen.value;
-  // Close other dropdowns when toggling mobile menu
   isDropdownOpen.value = false;
-  langDropdownOpen.value = false;
 };
 
 const closeMobileMenu = () => {
@@ -300,54 +192,14 @@ const closeMobileMenu = () => {
 
 const handleLogout = async () => {
   try {
-    await userStore.logout(); // userStore.logout should handle token removal and state reset
+    await userStore.logout();
     closeDropdown();
     closeMobileMenu();
     router.push('/login');
   } catch (error) {
     console.error('Logout failed:', error);
-    // Optionally show an error message to the user
   }
 };
-
-// Exam Paper navigation logic
-const handleExamPaperClick = (type: 'teacher' | 'builder') => {
-  if (type === 'teacher') {
-    router.push('/paper/exam/teacher');
-  } else {
-    router.push('/paper/exam/create');
-  }
-};
-
-const handleQuickPracticeClick = () => {
-  router.push('/practice/quick');
-};
-
-const handlePaperPracticeClick = () => {
-  router.push('/practice/paper');
-};
-
-// Language switcher logic
-const languages = [
-  { value: 'en', label: 'English' },
-  { value: 'zh', label: '中文' },
-]
-const currentLocale = ref(locale.value)
-const langDropdownOpen = ref(false)
-const currentLangLabel = computed(() => {
-  const found = languages.find(l => l.value === currentLocale.value)
-  return found ? found.label : ''
-})
-function toggleLangDropdown() {
-  langDropdownOpen.value = !langDropdownOpen.value
-}
-function selectLanguage(lang: string) {
-  currentLocale.value = lang
-  locale.value = lang
-  localStorage.setItem('locale', lang)
-  langDropdownOpen.value = false
-  location.reload()
-}
 </script>
 
 <style scoped>
@@ -356,3 +208,4 @@ function selectLanguage(lang: string) {
   top: 100%;
 }
 </style>
+
