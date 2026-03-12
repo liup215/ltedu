@@ -15,7 +15,7 @@ const (
 type BlogPost struct {
 	Model
 	Title       string `json:"title"`
-	Slug        string `json:"slug" gorm:"uniqueIndex"`
+	Slug        string `json:"slug" gorm:"type:varchar(255);uniqueIndex"`
 	Summary     string `json:"summary"`
 	Content     string `json:"content" gorm:"type:text"`
 	Category    string `json:"category"`
