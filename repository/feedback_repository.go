@@ -98,7 +98,7 @@ func (r *feedbackRepository) GetStats() (*model.FeedbackStats, error) {
 	}
 
 	var typeResults []countResult
-	if err := r.db.Model(&model.UserFeedback{}).Select("`type` as key, count(*) as count").Group("`type`").Scan(&typeResults).Error; err != nil {
+	if err := r.db.Model(&model.UserFeedback{}).Select("`type` as `key`, count(*) as count").Group("`type`").Scan(&typeResults).Error; err != nil {
 		return nil, err
 	}
 	for _, r := range typeResults {
@@ -106,7 +106,7 @@ func (r *feedbackRepository) GetStats() (*model.FeedbackStats, error) {
 	}
 
 	var sentimentResults []countResult
-	if err := r.db.Model(&model.UserFeedback{}).Select("sentiment as key, count(*) as count").Group("sentiment").Scan(&sentimentResults).Error; err != nil {
+	if err := r.db.Model(&model.UserFeedback{}).Select("sentiment as `key`, count(*) as count").Group("sentiment").Scan(&sentimentResults).Error; err != nil {
 		return nil, err
 	}
 	for _, r := range sentimentResults {
@@ -114,7 +114,7 @@ func (r *feedbackRepository) GetStats() (*model.FeedbackStats, error) {
 	}
 
 	var statusResults []countResult
-	if err := r.db.Model(&model.UserFeedback{}).Select("`status` as key, count(*) as count").Group("`status`").Scan(&statusResults).Error; err != nil {
+	if err := r.db.Model(&model.UserFeedback{}).Select("`status` as `key`, count(*) as count").Group("`status`").Scan(&statusResults).Error; err != nil {
 		return nil, err
 	}
 	for _, r := range statusResults {
