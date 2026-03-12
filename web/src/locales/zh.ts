@@ -7,6 +7,7 @@ export default {
     language: '中文',
     switch: '切换语言',
     save: '保存',
+    saved: '保存成功',
     cancel: '取消',
     confirm: '确认',
     submit: '提交',
@@ -15,6 +16,8 @@ export default {
     actions: '操作',
     loading: '加载中...',
     noData: '暂无数据',
+    back: '返回',
+    error: '发生错误，请重试。',
   },
   login: {
     title: '登录',

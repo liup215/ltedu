@@ -7,6 +7,7 @@ export default {
     language: 'English',
     switch: 'Switch Language',
     save: 'Save',
+    saved: 'Saved successfully',
     cancel: 'Cancel',
     confirm: 'Confirm',
     submit: 'Submit',
@@ -15,6 +16,8 @@ export default {
     actions: 'Actions',
     loading: 'Loading...',
     noData: 'No data found',
+    back: 'Back',
+    error: 'An error occurred. Please try again.',
   },
   login: {
     title: 'Login',
