@@ -1,3 +1,5 @@
+import type { ApiResponse } from './api.model'
+
 export interface BlogPost {
   id: number
   title: string
@@ -48,3 +50,11 @@ export const BLOG_STATUSES = [
   { value: 'draft', labelEn: 'Draft', labelZh: '草稿' },
   { value: 'published', labelEn: 'Published', labelZh: '已发布' },
 ]
+
+export interface BlogListData {
+  list: BlogPost[]
+  total: number
+}
+
+export type BlogListResponse = ApiResponse<BlogListData>
+export type BlogDetailResponse = ApiResponse<BlogPost>
