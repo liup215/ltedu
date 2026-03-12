@@ -41,10 +41,10 @@ func (r *feedbackRepository) FindAll(req model.FeedbackListRequest) ([]*model.Us
 	query := r.db.Model(&model.UserFeedback{})
 
 	if req.Status != "" {
-		query = query.Where("status = ?", req.Status)
+		query = query.Where("`status` = ?", req.Status)
 	}
 	if req.Type != "" {
-		query = query.Where("type = ?", req.Type)
+		query = query.Where("`type` = ?", req.Type)
 	}
 	if req.UserID > 0 {
 		query = query.Where("user_id = ?", req.UserID)
@@ -98,7 +98,7 @@ func (r *feedbackRepository) GetStats() (*model.FeedbackStats, error) {
 	}
 
 	var typeResults []countResult
-	if err := r.db.Model(&model.UserFeedback{}).Select("type as key, count(*) as count").Group("type").Scan(&typeResults).Error; err != nil {
+	if err := r.db.Model(&model.UserFeedback{}).Select("`type` as key, count(*) as count").Group("`type`").Scan(&typeResults).Error; err != nil {
 		return nil, err
 	}
 	for _, r := range typeResults {
@@ -114,7 +114,7 @@ func (r *feedbackRepository) GetStats() (*model.FeedbackStats, error) {
 	}
 
 	var statusResults []countResult
-	if err := r.db.Model(&model.UserFeedback{}).Select("status as key, count(*) as count").Group("status").Scan(&statusResults).Error; err != nil {
+	if err := r.db.Model(&model.UserFeedback{}).Select("`status` as key, count(*) as count").Group("`status`").Scan(&statusResults).Error; err != nil {
 		return nil, err
 	}
 	for _, r := range statusResults {
