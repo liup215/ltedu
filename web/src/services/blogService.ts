@@ -1,6 +1,6 @@
 import apiClient from './apiClient'
 import type { ApiResponse } from '../models/api.model'
-import type { BlogPost, BlogPostCreateRequest, BlogPostQuery, BlogListResponse, BlogDetailResponse } from '../models/blog.model'
+import type { BlogPostCreateRequest, BlogPostQuery, BlogListResponse, BlogDetailResponse } from '../models/blog.model'
 
 class BlogService {
   // Public endpoints (no auth required)
