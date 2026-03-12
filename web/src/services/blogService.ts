@@ -4,7 +4,7 @@ import type { BlogPost, BlogPostCreateRequest, BlogPostQuery } from '../models/b
 
 interface BlogListResponse {
   code: number
-  msg: string
+  message: string
   data: {
     list: BlogPost[]
     total: number
@@ -13,7 +13,7 @@ interface BlogListResponse {
 
 interface BlogDetailResponse {
   code: number
-  msg: string
+  message: string
   data: BlogPost
 }
 
