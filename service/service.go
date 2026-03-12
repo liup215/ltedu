@@ -7,6 +7,8 @@ import (
 	"edu/repository"
 	"fmt"
 	"sync"
+
+	"gorm.io/gorm"
 	// bg "github.com/dgraph-io/badger/v4"
 )
 
@@ -88,8 +90,13 @@ func setDB() {
 		db.AutoMigrate(&model.SyllabusExamNode{})
 		// Migrate chapter-exam_node relationship from many2many join table to FK on Chapter.
 		// This is idempotent: if exam_node_chapters doesn't exist, the Exec is a no-op error.
-		if result := db.Exec(`
-			UPDATE chapters c
+		// Resolve the chapter table name dynamically from the configured naming strategy
+		// so the migration is not broken when the DB prefix is changed.
+		chapterStmt := &gorm.Statement{DB: db}
+		_ = chapterStmt.Parse(&model.Chapter{})
+		chapterTable := chapterStmt.Schema.Table
+		if result := db.Exec(fmt.Sprintf(`
+			UPDATE %s c
 			JOIN (
 				SELECT chapter_id, MIN(syllabus_exam_node_id) AS exam_node_id
 				FROM exam_node_chapters
@@ -97,7 +104,7 @@ func setDB() {
 			) t ON c.id = t.chapter_id
 			SET c.exam_node_id = t.exam_node_id
 			WHERE c.exam_node_id = 0 OR c.exam_node_id IS NULL
-		`); result.Error != nil {
+		`, chapterTable)); result.Error != nil {
 			_ = result.Error // non-fatal: table may not exist (fresh install) or already migrated
 		}
 		if result := db.Exec("DROP TABLE IF EXISTS exam_node_chapters"); result.Error != nil {
