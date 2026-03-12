@@ -1121,7 +1121,7 @@ export default {
       slugPlaceholder: 'Auto-generated from title if empty',
       tagsPlaceholder: 'Comma-separated tags',
       coverImagePlaceholder: 'Image URL (optional)',
-      contentTip: 'Supports plain text. Markdown rendering coming soon.',
+      contentTip: 'Supports Markdown formatting. Use **bold**, *italic*, # headings, - lists, and more.',
       saving: 'Saving...',
       deleting: 'Deleting...',
       requiredFields: 'Please fill in required fields: title, category, content',

@@ -3,6 +3,10 @@
     <header class="mb-10 text-center">
       <h1 class="text-4xl font-bold text-gray-900">{{ $t('blog.list.title') }}</h1>
       <p class="mt-2 text-lg text-gray-600">{{ $t('blog.list.subtitle') }}</p>
+      <a href="/api/v1/blog/rss.xml" target="_blank" rel="noopener" class="inline-flex items-center gap-1 mt-3 text-sm text-orange-500 hover:text-orange-700">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19.01 7.38 20 6.18 20C4.98 20 4 19.01 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1z"/></svg>
+        RSS
+      </a>
     </header>
 
     <!-- Category Filter -->
@@ -93,7 +97,11 @@ import { BLOG_CATEGORIES } from '../models/blog.model'
 import type { BlogPost } from '../models/blog.model'
 
 const router = useRouter()
-const { locale } = useI18n()
+const { locale, t } = useI18n()
+
+onMounted(() => {
+  document.title = `${t('blog.list.title')} | Nerdlet`
+})
 
 const posts = ref<BlogPost[]>([])
 const loading = ref(false)

@@ -170,6 +170,7 @@ func (h *Handler) noAuthRout(r *gin.RouterGroup) {
 	// Blog public endpoints (no auth required)
 	r.POST("/v1/blog/public/list", v1.BlogCtrl.PublicListBlogPosts)
 	r.POST("/v1/blog/public/bySlug", v1.BlogCtrl.PublicGetBlogPostBySlug)
+	r.GET("/v1/blog/rss.xml", v1.BlogCtrl.GetBlogRSS)
 
 }
 

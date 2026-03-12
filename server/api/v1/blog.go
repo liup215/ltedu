@@ -5,6 +5,10 @@ import (
 	"edu/lib/net/http/middleware/auth"
 	"edu/model"
 	"edu/service"
+	"encoding/xml"
+	"fmt"
+	nethttp "net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -206,4 +210,96 @@ func (ctrl *BlogController) PublicGetBlogPostBySlug(c *gin.Context) {
 	}
 
 	http.SuccessData(c, "获取成功", post)
+}
+
+// RSS feed types
+
+type rssItem struct {
+	XMLName     xml.Name `xml:"item"`
+	Title       string   `xml:"title"`
+	Link        string   `xml:"link"`
+	Description string   `xml:"description"`
+	PubDate     string   `xml:"pubDate"`
+	GUID        string   `xml:"guid"`
+}
+
+type rssChannel struct {
+	XMLName       xml.Name  `xml:"channel"`
+	Title         string    `xml:"title"`
+	Link          string    `xml:"link"`
+	Description   string    `xml:"description"`
+	LastBuildDate string    `xml:"lastBuildDate"`
+	Items         []rssItem `xml:"item"`
+}
+
+type rssFeed struct {
+	XMLName xml.Name   `xml:"rss"`
+	Version string     `xml:"version,attr"`
+	Channel rssChannel `xml:"channel"`
+}
+
+// @Summary      Blog RSS feed
+// @Description  Returns an RSS 2.0 feed of recent published blog posts
+// @Tags         Blog
+// @Produce      xml
+// @Success      200  {string}  string  "RSS XML"
+// @Router       /v1/blog/rss.xml [get]
+func (ctrl *BlogController) GetBlogRSS(c *gin.Context) {
+	req := model.BlogPostQueryRequest{
+		Status: model.BlogStatusPublished,
+	}
+	req.PageIndex = 1
+	req.PageSize = 20
+
+	posts, _, err := ctrl.blogSvr.ListBlogPosts(req)
+	if err != nil {
+		c.Status(nethttp.StatusInternalServerError)
+		return
+	}
+
+	scheme := "https"
+	if c.Request.TLS == nil {
+		scheme = "http"
+	}
+	baseURL := fmt.Sprintf("%s://%s", scheme, c.Request.Host)
+	blogURL := baseURL + "/blog"
+
+	items := make([]rssItem, 0, len(posts))
+	for _, p := range posts {
+		// Use PublishedAt if set, otherwise fall back to CreatedAt
+		pubDate := p.CreatedAt.Format(time.RFC1123Z)
+		if p.PublishedAt != nil && *p.PublishedAt != "" {
+			if t, err := time.Parse(time.RFC3339, *p.PublishedAt); err == nil {
+				pubDate = t.Format(time.RFC1123Z)
+			}
+		}
+		link := fmt.Sprintf("%s/%s", blogURL, p.Slug)
+		items = append(items, rssItem{
+			Title:       p.Title,
+			Link:        link,
+			Description: p.Summary,
+			PubDate:     pubDate,
+			GUID:        link,
+		})
+	}
+
+	feed := rssFeed{
+		Version: "2.0",
+		Channel: rssChannel{
+			Title:         "Nerdlet Blog",
+			Link:          blogURL,
+			Description:   "Latest posts from Nerdlet – the smart, fun learning platform",
+			LastBuildDate: time.Now().Format(time.RFC1123Z),
+			Items:         items,
+		},
+	}
+
+	output, err := xml.MarshalIndent(feed, "", "  ")
+	if err != nil {
+		c.Status(nethttp.StatusInternalServerError)
+		return
+	}
+
+	c.Header("Content-Type", "application/rss+xml; charset=utf-8")
+	c.String(nethttp.StatusOK, xml.Header+string(output))
 }
