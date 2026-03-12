@@ -141,10 +141,10 @@ func (r *classRepository) FindStudents(classId uint) ([]*model.User, error) {
 
 func (r *classRepository) FindStudentsWithStatus(classId uint) ([]*model.ClassStudentView, error) {
 	var results []*model.ClassStudentView
-	err := r.db.Table("users").
-		Select("users.*, COALESCE(user_class_relation.status, ?) AS student_status", model.ClassStudentStatusStudying).
-		Joins("JOIN user_class_relation ON user_class_relation.user_id = users.id AND user_class_relation.class_id = ?", classId).
-		Where("users.deleted_at IS NULL").
+	err := r.db.Model(&model.User{}).
+		Select("user.*, COALESCE(user_class_relation.status, ?) AS student_status", model.ClassStudentStatusStudying).
+		Joins("JOIN user_class_relation ON user_class_relation.user_id = user.id AND user_class_relation.class_id = ?", classId).
+		Where("user.deleted_at IS NULL").
 		Scan(&results).Error
 	return results, err
 }
@@ -165,10 +165,10 @@ func (r *classRepository) UpdateStudentStatus(classId, userId uint, status int) 
 func (r *classRepository) IsStudentInOtherAdministrativeClass(userId, excludeClassId uint) (bool, error) {
 	var count int64
 	q := r.db.Model(&model.Class{}).
-		Joins("JOIN user_class_relation ON user_class_relation.class_id = classes.id").
-		Where("user_class_relation.user_id = ? AND classes.class_type = ?", userId, model.ClassTypeAdministrative)
+		Joins("JOIN user_class_relation ON user_class_relation.class_id = class.id").
+		Where("user_class_relation.user_id = ? AND class.class_type = ?", userId, model.ClassTypeAdministrative)
 	if excludeClassId != 0 {
-		q = q.Where("classes.id != ?", excludeClassId)
+		q = q.Where("class.id != ?", excludeClassId)
 	}
 	err := q.Count(&count).Error
 	return count > 0, err
@@ -198,8 +198,8 @@ func (r *classRepository) FindTeachers(classId uint) ([]*model.User, error) {
 func (r *classRepository) IsTeacherInClass(classId, userId uint) (bool, error) {
 	var count int64
 	err := r.db.Model(&model.Class{}).
-		Joins("JOIN class_teacher_relation ON class_teacher_relation.class_id = classes.id").
-		Where("classes.id = ? AND class_teacher_relation.user_id = ?", classId, userId).
+		Joins("JOIN class_teacher_relation ON class_teacher_relation.class_id = class.id").
+		Where("class.id = ? AND class_teacher_relation.user_id = ?", classId, userId).
 		Count(&count).Error
 	return count > 0, err
 }

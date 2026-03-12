@@ -155,7 +155,7 @@ func migrateAdminFlagToRBAC() {
 	}
 	// Query users that still have is_admin = true in the DB column
 	var legacyAdminIDs []uint
-	if err := db.Raw("SELECT id FROM users WHERE is_admin = true").Scan(&legacyAdminIDs).Error; err != nil {
+	if err := db.Raw("SELECT id FROM user WHERE is_admin = true").Scan(&legacyAdminIDs).Error; err != nil {
 		fmt.Println("Warning: failed to query legacy admin users:", err)
 		return
 	}
