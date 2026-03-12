@@ -203,8 +203,8 @@ func (r *userRepository) BatchDelete(ids []uint) error {
 func (r *userRepository) FindUsersWithAdminRole() ([]*model.User, error) {
 	var users []*model.User
 	err := r.db.
-		Joins("JOIN user_roles ur ON ur.user_id = users.id").
-		Joins("JOIN admin_roles ar ON ar.id = ur.admin_role_id AND (ar.slug = 'admin' OR ar.slug = 'super_admin')").
+		Joins("JOIN user_roles ur ON ur.user_id = user.id").
+		Joins("JOIN admin_role ar ON ar.id = ur.admin_role_id AND (ar.slug = 'admin' OR ar.slug = 'super_admin')").
 		Preload("Roles").
 		Find(&users).Error
 	for _, u := range users {
@@ -292,7 +292,7 @@ func (r *userRepository) buildQuery(query model.UserQuery) *gorm.DB {
 		q = q.Where("status = ?", query.Status)
 	}
 	if query.ClassId != 0 {
-		q = q.Joins("JOIN user_class_relation ON user_class_relation.user_id = users.id").
+		q = q.Joins("JOIN user_class_relation ON user_class_relation.user_id = user.id").
 			Where("user_class_relation.class_id = ?", query.ClassId)
 	}
 
