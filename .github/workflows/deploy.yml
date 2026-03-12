@@ -2,7 +2,7 @@ name: Build and Deploy
 
 on:
   push:
-    branches: [ "master", "main" ]
+    branches-ignore: []
   workflow_dispatch:
 
 env:
@@ -47,8 +47,9 @@ jobs:
         docker save ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME_API }}:latest | gzip > ltedu-api.tar.gz
         docker save ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME_WEB }}:latest | gzip > ltedu-web.tar.gz
 
-    # 3. Transfer Files
+    # 3. Transfer Files (master/main only)
     - name: Copy files to Server via SCP
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
       uses: appleboy/scp-action@master
       with:
         host: ${{ secrets.SERVER_HOST }}
@@ -57,8 +58,9 @@ jobs:
         source: "ltedu-api.tar.gz,ltedu-web.tar.gz"
         target: "~/ltedu-deploy/"
 
-    # 4. Load and Deploy
+    # 4. Load and Deploy (master/main only)
     - name: Deploy on Server
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
       uses: appleboy/ssh-action@master
       env:
         DOCKER_USERNAME: ${{ env.DOCKER_USERNAME }}

@@ -87,22 +87,22 @@ func (s *AiService) CheckQuestion(stem, markScheme, studentAnswer string, fullMa
 	return &res, nil
 }
 
-// GenerateKnowledgePoints AI生成知识点（用于KnowledgePointService）
+// GenerateKnowledgePoints generates knowledge points for a chapter using AI (English output required)
 func (s *AiService) GenerateKnowledgePoints(syllabusName, chapterName string) ([]model.AIKnowledgePointData, error) {
-	contextInfo := fmt.Sprintf("考纲: %s, 章节: %s", syllabusName, chapterName)
+	contextInfo := fmt.Sprintf("Syllabus: %s, Chapter: %s", syllabusName, chapterName)
 
 	prompt := fmt.Sprintf(`
-你是考纲专家。请为"%s"提取3-5个核心知识点。
+You are a curriculum expert. Extract 3-5 core knowledge points for "%s".
 
-要求：
-1. 知识点要具体明确，不要过于宽泛
-2. 覆盖该章节的主要考点
-3. 按重要性排序
+Requirements:
+1. Each knowledge point must be specific and clearly defined, not overly broad
+2. Cover the main examination topics of this chapter
+3. Order by importance
 
-返回严格的JSON数组格式，无其他文字：
+Return a strict JSON array with no other text:
 [{
-    "name": "知识点名称",
-    "description": "1-2句话描述该知识点的核心内容",
+    "name": "knowledge point name",
+    "description": "1-2 sentences describing the core content of this knowledge point",
     "difficulty": "basic/medium/hard",
     "estimatedMinutes": 30
 }]
@@ -123,23 +123,23 @@ func (s *AiService) GenerateKnowledgePoints(syllabusName, chapterName string) ([
 	return kpData, nil
 }
 
-// AnalyzeQuestionForKnowledgePoints AI分析题目并推荐知识点（用于KnowledgePointService）
+// AnalyzeQuestionForKnowledgePoints uses AI to analyze a question and recommend knowledge points (English output required)
 func (s *AiService) AnalyzeQuestionForKnowledgePoints(questionStem string, knowledgePointList string) ([]int, error) {
 	prompt := fmt.Sprintf(`
-你是教育专家。请分析以下题目，判断它涉及哪些知识点。
+You are an education expert. Analyze the following question and determine which knowledge points it covers.
 
-题目内容：
+Question:
 %s
 
-可选知识点列表：
+Available knowledge points:
 %s
 
-要求：
-1. 仅选择与题目直接相关的知识点
-2. 可以选择多个知识点（如果题目是综合题）
-3. 如果不确定，宁可不选
+Requirements:
+1. Only select knowledge points directly related to the question
+2. Multiple knowledge points may be selected (if the question is comprehensive)
+3. When in doubt, do not select
 
-返回JSON格式（仅包含序号数组，从1开始）：
+Return JSON format (array of indices only, 1-based):
 {"indices": [1, 3]}
 	`, questionStem, knowledgePointList)
 
