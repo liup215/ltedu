@@ -89,7 +89,7 @@ func setDB() {
 		// Migrate chapter-exam_node relationship from many2many join table to FK on Chapter.
 		// This is idempotent: if exam_node_chapters doesn't exist, the Exec is a no-op error.
 		if result := db.Exec(`
-			UPDATE chapters c
+			UPDATE lt_chapter c
 			JOIN (
 				SELECT chapter_id, MIN(syllabus_exam_node_id) AS exam_node_id
 				FROM exam_node_chapters
