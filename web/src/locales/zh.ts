@@ -1103,7 +1103,7 @@ export default {
       slugPlaceholder: '为空时自动生成',
       tagsPlaceholder: '英文逗号分隔标签',
       coverImagePlaceholder: '封面图片URL（可选）',
-      contentTip: '支持纯文本，Markdown渲染即将支持。',
+      contentTip: '支持Markdown格式。可使用 **粗体**、*斜体*、# 标题、- 列表等语法。',
       saving: '保存中...',
       deleting: '删除中...',
       requiredFields: '请填写必填字段：标题、分类、正文',

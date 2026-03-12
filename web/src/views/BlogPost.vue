@@ -51,18 +51,18 @@
         </span>
       </div>
 
-      <!-- Content -->
-      <div class="prose prose-indigo max-w-none text-gray-800 leading-relaxed whitespace-pre-wrap break-words">
-        {{ post.content }}
-      </div>
+      <!-- Content rendered as Markdown -->
+      <div class="prose prose-indigo max-w-none text-gray-800 leading-relaxed" v-html="renderedContent"></div>
     </article>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { marked } from 'marked'
+import DOMPurify from 'dompurify'
 import blogService from '../services/blogService'
 import { BLOG_CATEGORIES } from '../models/blog.model'
 import type { BlogPost } from '../models/blog.model'
@@ -72,6 +72,36 @@ const { locale } = useI18n()
 const post = ref<BlogPost | null>(null)
 const loading = ref(true)
 const categories = BLOG_CATEGORIES
+
+const renderedContent = computed(() => {
+  if (!post.value?.content) return ''
+  const html = marked.parse(post.value.content, { async: false }) as string
+  return DOMPurify.sanitize(html)
+})
+
+function updateMetaTags() {
+  if (!post.value) return
+  document.title = `${post.value.title} | Nerdlet Blog`
+  setMeta('og:title', post.value.title)
+  setMeta('og:description', post.value.summary || post.value.title)
+  setMeta('og:type', 'article')
+  if (post.value.coverImage) {
+    setMeta('og:image', post.value.coverImage)
+  }
+  setMeta('og:url', window.location.href)
+  setMeta('description', post.value.summary || post.value.title)
+}
+
+function setMeta(name: string, content: string) {
+  const attr = name.startsWith('og:') ? 'property' : 'name'
+  let el = document.querySelector(`meta[${attr}="${name}"]`) as HTMLMetaElement | null
+  if (!el) {
+    el = document.createElement('meta')
+    el.setAttribute(attr, name)
+    document.head.appendChild(el)
+  }
+  el.setAttribute('content', content)
+}
 
 onMounted(async () => {
   const slug = route.params.slug as string
@@ -84,6 +114,8 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+watch(post, updateMetaTags, { immediate: true })
 
 function categoryLabel(cat: string) {
   const found = categories.find(c => c.value === cat)
