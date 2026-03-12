@@ -1,21 +1,6 @@
 import apiClient from './apiClient'
 import type { ApiResponse } from '../models/api.model'
-import type { BlogPost, BlogPostCreateRequest, BlogPostQuery } from '../models/blog.model'
-
-interface BlogListResponse {
-  code: number
-  message: string
-  data: {
-    list: BlogPost[]
-    total: number
-  }
-}
-
-interface BlogDetailResponse {
-  code: number
-  message: string
-  data: BlogPost
-}
+import type { BlogPost, BlogPostCreateRequest, BlogPostQuery, BlogListResponse, BlogDetailResponse } from '../models/blog.model'
 
 class BlogService {
   // Public endpoints (no auth required)
