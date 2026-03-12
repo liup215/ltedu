@@ -41,6 +41,33 @@
         <button :href="href" @click="navigate" type="button">{{ $t('navbar.systemManagement') }}</button>
       </router-link>
 
+      <!-- Language Switcher Dropdown -->
+      <div class="relative">
+        <span
+          @click="toggleLangDropdown"
+          class="flex items-center cursor-pointer select-none text-gray-700 text-sm font-normal hover:text-indigo-600"
+        >
+          <span class="mr-1">{{ currentLangLabel }}</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </span>
+        <div
+          v-if="langDropdownOpen"
+          class="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200"
+        >
+          <button
+            v-for="lang in languages"
+            :key="lang.value"
+            @click="selectLanguage(lang.value)"
+            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            :class="{ 'font-bold text-indigo-600': currentLocale === lang.value }"
+          >
+            {{ lang.label }}
+          </button>
+        </div>
+      </div>
+
       <!-- Conditional rendering for Sign In / User Avatar -->
       <div v-if="!userStore.isAuthenticated" class="flex items-center">
         <router-link to="/login"
@@ -79,8 +106,35 @@
       </div>
     </div>
 
-    <!-- Mobile: right side controls (user avatar + hamburger) -->
+    <!-- Mobile: right side controls (lang switcher + user avatar + hamburger) -->
     <div class="flex md:hidden items-center gap-2">
+      <!-- Language Switcher (mobile) -->
+      <div class="relative">
+        <span
+          @click="toggleLangDropdown"
+          class="flex items-center cursor-pointer select-none text-gray-700 text-sm font-normal hover:text-indigo-600"
+        >
+          <span class="mr-1">{{ currentLangLabel }}</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </span>
+        <div
+          v-if="langDropdownOpen"
+          class="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200"
+        >
+          <button
+            v-for="lang in languages"
+            :key="lang.value"
+            @click="selectLanguage(lang.value)"
+            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            :class="{ 'font-bold text-indigo-600': currentLocale === lang.value }"
+          >
+            {{ lang.label }}
+          </button>
+        </div>
+      </div>
+
       <!-- User Avatar (mobile) -->
       <div v-if="userStore.isAuthenticated" class="relative flex items-center">
         <button @click="toggleDropdown"
@@ -163,15 +217,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useUserStore } from '../stores/userStore';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n'
 
+const { locale } = useI18n()
 const userStore = useUserStore();
 const router = useRouter();
 
 const isDropdownOpen = ref(false);
 const isMobileMenuOpen = ref(false);
+const langDropdownOpen = ref(false)
 
 const toggleDropdown = () => {
   isDropdownOpen.value = !isDropdownOpen.value;
@@ -184,6 +241,7 @@ const closeDropdown = () => {
 const toggleMobileMenu = () => {
   isMobileMenuOpen.value = !isMobileMenuOpen.value;
   isDropdownOpen.value = false;
+  langDropdownOpen.value = false;
 };
 
 const closeMobileMenu = () => {
@@ -200,6 +258,27 @@ const handleLogout = async () => {
     console.error('Logout failed:', error);
   }
 };
+
+// Language switcher logic
+const languages = [
+  { value: 'en', label: 'English' },
+  { value: 'zh', label: '中文' },
+]
+const currentLocale = ref(locale.value)
+const currentLangLabel = computed(() => {
+  const found = languages.find(l => l.value === currentLocale.value)
+  return found ? found.label : ''
+})
+function toggleLangDropdown() {
+  langDropdownOpen.value = !langDropdownOpen.value
+}
+function selectLanguage(lang: string) {
+  currentLocale.value = lang
+  locale.value = lang
+  localStorage.setItem('locale', lang)
+  langDropdownOpen.value = false
+  location.reload()
+}
 </script>
 
 <style scoped>
