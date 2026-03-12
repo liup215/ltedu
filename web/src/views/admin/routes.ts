@@ -206,6 +206,16 @@ const adminRoutes: RouteRecordRaw[] = [
         component: () => import('./BlogManagement.vue')
       },
       {
+        path: 'blog/create',
+        name: 'AdminBlogCreate',
+        component: () => import('./BlogForm.vue')
+      },
+      {
+        path: 'blog/:id/edit',
+        name: 'AdminBlogEdit',
+        component: () => import('./BlogForm.vue')
+      },
+      {
         path: 'analytics',
         name: 'AdminAnalyticsDashboard',
         component: () => import('./AnalyticsDashboard.vue')

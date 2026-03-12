@@ -96,72 +96,7 @@
       </div>
     </div>
 
-    <!-- Create/Edit Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-50 overflow-y-auto">
-      <div class="flex items-start justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75" @click="closeModal"></div>
-        <div class="inline-block align-top bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
-          <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">
-              {{ editingPost ? $t('blog.management.editPost') : $t('blog.management.createPost') }}
-            </h3>
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700">{{ $t('blog.fields.title') }} *</label>
-                <input v-model="form.title" type="text" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700">{{ $t('blog.fields.slug') }}</label>
-                <input v-model="form.slug" type="text" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500" :placeholder="$t('blog.management.slugPlaceholder')" />
-              </div>
-              <div class="flex space-x-4">
-                <div class="flex-1">
-                  <label class="block text-sm font-medium text-gray-700">{{ $t('blog.fields.category') }} *</label>
-                  <select v-model="form.category" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500">
-                    <option value="">{{ $t('blog.management.selectCategory') }}</option>
-                    <option v-for="cat in categories" :key="cat.value" :value="cat.value">
-                      {{ $i18n.locale === 'zh' ? cat.labelZh : cat.labelEn }}
-                    </option>
-                  </select>
-                </div>
-                <div class="flex-1">
-                  <label class="block text-sm font-medium text-gray-700">{{ $t('blog.fields.status') }}</label>
-                  <select v-model="form.status" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500">
-                    <option value="draft">{{ $t('blog.status.draft') }}</option>
-                    <option value="published">{{ $t('blog.status.published') }}</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700">{{ $t('blog.fields.tags') }}</label>
-                <input v-model="form.tags" type="text" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500" :placeholder="$t('blog.management.tagsPlaceholder')" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700">{{ $t('blog.fields.coverImage') }}</label>
-                <input v-model="form.coverImage" type="text" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500" :placeholder="$t('blog.management.coverImagePlaceholder')" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700">{{ $t('blog.fields.summary') }}</label>
-                <textarea v-model="form.summary" rows="2" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500"></textarea>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700">{{ $t('blog.fields.content') }} *</label>
-                <textarea v-model="form.content" rows="10" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 font-mono"></textarea>
-                <p class="mt-1 text-xs text-gray-500">{{ $t('blog.management.contentTip') }}</p>
-              </div>
-            </div>
-          </div>
-          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
-            <button @click="submitForm" :disabled="saving" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none disabled:opacity-50 text-sm">
-              {{ saving ? $t('blog.management.saving') : $t('common.save') }}
-            </button>
-            <button @click="closeModal" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none text-sm">
-              {{ $t('common.cancel') }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+
 
     <!-- Delete Confirm Modal -->
     <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center">
@@ -183,11 +118,13 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import blogService from '../../services/blogService'
 import { BLOG_CATEGORIES } from '../../models/blog.model'
 import type { BlogPost } from '../../models/blog.model'
 
 const { locale, t } = useI18n()
+const router = useRouter()
 
 const posts = ref<BlogPost[]>([])
 const loading = ref(false)
@@ -199,21 +136,6 @@ const filterCategory = ref('')
 const filterStatus = ref('')
 
 const categories = BLOG_CATEGORIES
-
-const showModal = ref(false)
-const editingPost = ref<BlogPost | null>(null)
-const saving = ref(false)
-const form = ref({
-  id: 0,
-  title: '',
-  slug: '',
-  summary: '',
-  content: '',
-  category: '',
-  tags: '',
-  coverImage: '',
-  status: 'draft',
-})
 
 const showDeleteModal = ref(false)
 const deletingPost = ref<BlogPost | null>(null)
@@ -258,54 +180,11 @@ function nextPage() {
 }
 
 function openCreateModal() {
-  editingPost.value = null
-  form.value = { id: 0, title: '', slug: '', summary: '', content: '', category: '', tags: '', coverImage: '', status: 'draft' }
-  showModal.value = true
+  router.push('/admin/blog/create')
 }
 
 function openEditModal(post: BlogPost) {
-  editingPost.value = post
-  form.value = {
-    id: post.id,
-    title: post.title,
-    slug: post.slug,
-    summary: post.summary,
-    content: post.content,
-    category: post.category,
-    tags: post.tags,
-    coverImage: post.coverImage,
-    status: post.status,
-  }
-  showModal.value = true
-}
-
-function closeModal() {
-  showModal.value = false
-}
-
-async function submitForm() {
-  if (!form.value.title || !form.value.category || !form.value.content) {
-    alert(t('blog.management.requiredFields'))
-    return
-  }
-  saving.value = true
-  try {
-    let res
-    if (editingPost.value) {
-      res = await blogService.updatePost(form.value)
-    } else {
-      const { id: _, ...createData } = form.value
-      res = await blogService.createPost(createData)
-    }
-    if (res.code === 0) {
-      closeModal()
-      loadPosts()
-    } else {
-      alert(res.message || t('blog.management.saveFailed'))
-    }
-  } finally {
-    saving.value = false
-  }
+  router.push(`/admin/blog/${post.id}/edit`)
 }
 
 function confirmDelete(post: BlogPost) {
