@@ -281,11 +281,20 @@ type MigrateReport struct {
 
 // AutoMigrateSyllabus 批量自动化处理考纲
 func (s *KnowledgePointService) AutoMigrateSyllabus(syllabusId uint, options MigrateOptions) (*MigrateReport, error) {
-	return s.AutoMigrateSyllabusWithProgress(syllabusId, options, nil)
+	return s.AutoMigrateSyllabusWithProgress(syllabusId, options, nil, nil, nil)
 }
 
-// AutoMigrateSyllabusWithProgress 批量自动化处理考纲（支持进度回调）
-func (s *KnowledgePointService) AutoMigrateSyllabusWithProgress(syllabusId uint, options MigrateOptions, onProgress func(done, total int)) (*MigrateReport, error) {
+// AutoMigrateSyllabusWithProgress 批量自动化处理考纲（支持进度回调和断点续传）
+// skipChapterIds: set of chapter IDs already successfully processed (skip them on resume)
+// onProgress:    called after each item with (done, total)
+// onChapterDone: called with a chapter ID after it is successfully processed (for resume tracking)
+func (s *KnowledgePointService) AutoMigrateSyllabusWithProgress(
+	syllabusId uint,
+	options MigrateOptions,
+	skipChapterIds map[uint]bool,
+	onProgress func(done, total int),
+	onChapterDone func(chapterId uint),
+) (*MigrateReport, error) {
 	report := &MigrateReport{}
 
 	if options.BatchSize == 0 {
@@ -330,7 +339,17 @@ func (s *KnowledgePointService) AutoMigrateSyllabusWithProgress(syllabusId uint,
 	if options.LinkQuestions {
 		total += questionCount
 	}
-	done := 0
+
+	// Count already-processed chapters so progress starts at the right offset
+	alreadyDone := 0
+	if options.GenerateKeypoints && skipChapterIds != nil {
+		for _, ch := range leafChapters {
+			if skipChapterIds[ch.ID] {
+				alreadyDone++
+			}
+		}
+	}
+	done := alreadyDone
 
 	if onProgress != nil {
 		onProgress(done, total)
@@ -339,9 +358,29 @@ func (s *KnowledgePointService) AutoMigrateSyllabusWithProgress(syllabusId uint,
 	// Step 2: 仅为叶子章节生成知识点（没有子章节的章节）
 	if options.GenerateKeypoints {
 		for _, chapter := range leafChapters {
+			// 跳过上次已成功处理的章节（断点续传）
+			if skipChapterIds != nil && skipChapterIds[chapter.ID] {
+				continue
+			}
+
+			// 先删除该章节已有的知识点，避免重复数据（幂等处理）
+			if err := repository.KnowledgePointRepo.DeleteByChapterId(chapter.ID); err != nil {
+				report.Errors = append(report.Errors,
+					fmt.Sprintf("Chapter %d (%s): failed to clear existing keypoints, skipping: %v", chapter.ID, chapter.Name, err))
+				done++
+				if onProgress != nil {
+					onProgress(done, total)
+				}
+				continue
+			}
+
 			kps, err := s.AutoGenerateFromChapter(chapter.ID)
 			if err == nil {
 				report.GeneratedKeypoints += len(kps)
+				// 通知调用方该章节已成功处理（用于断点续传记录）
+				if onChapterDone != nil {
+					onChapterDone(chapter.ID)
+				}
 			} else {
 				report.Errors = append(report.Errors,
 					fmt.Sprintf("Chapter %d (%s): %v", chapter.ID, chapter.Name, err))

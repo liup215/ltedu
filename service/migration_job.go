@@ -1,12 +1,15 @@
 package service
 
 import (
+	"edu/lib/logger"
 	"edu/model"
 	"edu/repository"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 var MigrationJobSvr = &MigrationJobService{baseService: newBaseService()}
@@ -56,7 +59,7 @@ func (s *MigrationJobService) ListJobs(query model.MigrationJobQuery) ([]model.M
 	return repository.MigrationJobRepo.FindPage(&query)
 }
 
-// RetryJob re-queues a failed job.
+// RetryJob re-queues a failed job, resuming from where it left off.
 func (s *MigrationJobService) RetryJob(id uint) (*model.MigrationJob, error) {
 	job, err := repository.MigrationJobRepo.GetByID(id)
 	if err != nil {
@@ -69,6 +72,8 @@ func (s *MigrationJobService) RetryJob(id uint) (*model.MigrationJob, error) {
 		return nil, errors.New("only failed jobs can be retried")
 	}
 
+	// Reset run-level fields but KEEP ProcessedChapterIds so the job resumes
+	// from the last successfully completed chapter.
 	job.Status = model.MigrationJobStatusPending
 	job.Progress = 0
 	job.DoneItems = 0
@@ -77,6 +82,7 @@ func (s *MigrationJobService) RetryJob(id uint) (*model.MigrationJob, error) {
 	job.Report = ""
 	job.StartedAt = nil
 	job.CompletedAt = nil
+	// ProcessedChapterIds is intentionally preserved for resume.
 
 	if err := repository.MigrationJobRepo.Update(job); err != nil {
 		return nil, fmt.Errorf("failed to reset job: %w", err)
@@ -107,6 +113,24 @@ func (s *MigrationJobService) runJob(jobID uint) {
 		return
 	}
 
+	// Decode previously processed chapter IDs for resume support.
+	// If parsing fails we start from scratch, which is safe (chapters will be
+	// re-cleaned and re-generated due to the idempotent DeleteByChapterId step).
+	var skipChapterIds map[uint]bool
+	if job.ProcessedChapterIds != "" {
+		var ids []uint
+		if jsonErr := json.Unmarshal([]byte(job.ProcessedChapterIds), &ids); jsonErr != nil {
+			// Non-fatal: fall back to full re-run without resume.
+			logger.Logger.Warn("failed to parse ProcessedChapterIds, restarting from scratch",
+				zap.Uint("jobID", jobID), zap.Error(jsonErr))
+		} else if len(ids) > 0 {
+			skipChapterIds = make(map[uint]bool, len(ids))
+			for _, id := range ids {
+				skipChapterIds[id] = true
+			}
+		}
+	}
+
 	// Progress callback: updates job in DB
 	onProgress := func(done, total int) {
 		j, err := repository.MigrationJobRepo.GetByID(jobID)
@@ -121,7 +145,31 @@ func (s *MigrationJobService) runJob(jobID uint) {
 		_ = repository.MigrationJobRepo.Update(j)
 	}
 
-	report, err := KnowledgePointSvr.AutoMigrateSyllabusWithProgress(job.SyllabusId, options, onProgress)
+	// Chapter-done callback: appends the successfully processed chapter ID to the
+	// job's ProcessedChapterIds so that a retry can resume from this point.
+	onChapterDone := func(chapterId uint) {
+		j, err := repository.MigrationJobRepo.GetByID(jobID)
+		if err != nil || j == nil {
+			return
+		}
+		var ids []uint
+		if j.ProcessedChapterIds != "" {
+			if jsonErr := json.Unmarshal([]byte(j.ProcessedChapterIds), &ids); jsonErr != nil {
+				// If the stored list is corrupt, start a fresh list rather than
+				// appending to garbage; worst-case some chapters are re-run on retry.
+				logger.Logger.Warn("failed to parse ProcessedChapterIds in onChapterDone, resetting list",
+					zap.Uint("jobID", jobID), zap.Error(jsonErr))
+				ids = nil
+			}
+		}
+		ids = append(ids, chapterId)
+		if idsJSON, jsonErr := json.Marshal(ids); jsonErr == nil {
+			j.ProcessedChapterIds = string(idsJSON)
+		}
+		_ = repository.MigrationJobRepo.Update(j)
+	}
+
+	report, err := KnowledgePointSvr.AutoMigrateSyllabusWithProgress(job.SyllabusId, options, skipChapterIds, onProgress, onChapterDone)
 
 	// Reload job to avoid overwriting concurrent updates
 	latest, dbErr := repository.MigrationJobRepo.GetByID(jobID)
