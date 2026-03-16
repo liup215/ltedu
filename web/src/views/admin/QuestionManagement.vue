@@ -47,13 +47,26 @@
   </select>
   
   <select
-    v-model="selectedKnowledgePointId"
+    v-model="selectedKnowledgePointIds"
+    multiple
     :disabled="!selectedSyllabusId"
-    class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm flex-[1_1_220px] min-w-[180px] max-w-md disabled:opacity-50 disabled:cursor-not-allowed"
+    class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm flex-[1_1_220px] min-w-[180px] max-w-md h-9 disabled:opacity-50 disabled:cursor-not-allowed"
+    :size="1"
+    :title="$t('question.selectKnowledgePoint')"
   >
-    <option :value="null">{{ $t('question.selectKnowledgePoint') }}</option>
     <option v-for="kp in knowledgePoints" :key="kp.id" :value="kp.id">{{ kp.name }}</option>
   </select>
+  <div v-if="selectedKnowledgePointIds.length > 0" class="flex flex-wrap gap-1 items-center">
+    <span
+      v-for="id in selectedKnowledgePointIds"
+      :key="id"
+      class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800"
+    >
+      {{ knowledgePointsMap.get(id) || id }}
+      <button type="button" @click="removeKnowledgePointFilter(id)" :aria-label="$t('question.removeKnowledgePointFilter')" class="hover:text-indigo-600">✕</button>
+    </span>
+    <button type="button" @click="selectedKnowledgePointIds = []" :aria-label="$t('question.clearAllKnowledgePointFilters')" class="text-xs text-gray-400 hover:text-gray-600">{{ $t('question.clearAll') }}</button>
+  </div>
   
   <select 
     v-model="selectedDifficulty"
@@ -420,11 +433,17 @@ const selectedOrganisationId = ref<number | null>(null);
 const selectedQualificationId = ref<number | null>(null);
 const selectedSyllabusId = ref<number | null>(null);
 const knowledgePoints = ref<KnowledgePoint[]>([]);
-const selectedKnowledgePointId = ref<number | null>(null);
+const selectedKnowledgePointIds = ref<number[]>([]);
 
 // Computed properties
 const totalPages = computed(() => {
   return Math.ceil(totalQuestions.value / pageSize);
+});
+
+const knowledgePointsMap = computed(() => {
+  const m = new Map<number, string>();
+  knowledgePoints.value.forEach(kp => m.set(kp.id, kp.name));
+  return m;
 });
 
 const paginationRange = computed(() => {
@@ -504,13 +523,13 @@ const fetchSyllabi = async () => {
   }
   selectedSyllabusId.value = null; // Reset syllabus selection when new list is fetched
   knowledgePoints.value = [];
-  selectedKnowledgePointId.value = null;
+  selectedKnowledgePointIds.value = [];
 };
 
 const fetchKnowledgePoints = async () => {
   if (!selectedSyllabusId.value) {
     knowledgePoints.value = [];
-    selectedKnowledgePointId.value = null;
+    selectedKnowledgePointIds.value = [];
     return;
   }
   try {
@@ -520,7 +539,11 @@ const fetchKnowledgePoints = async () => {
     console.error('Failed to fetch knowledge points:', error);
     knowledgePoints.value = [];
   }
-  selectedKnowledgePointId.value = null;
+  selectedKnowledgePointIds.value = [];
+};
+
+const removeKnowledgePointFilter = (id: number) => {
+  selectedKnowledgePointIds.value = selectedKnowledgePointIds.value.filter(v => v !== id);
 };
 
 
@@ -536,7 +559,7 @@ const fetchQuestions = async () => {
       status: selectedStatus.value ? Number(selectedStatus.value) : undefined,
       stem: searchQuery.value.trim() || undefined,
       paperName: paperNameQuery.value.trim() || undefined,
-      knowledgePointId: selectedKnowledgePointId.value ? Number(selectedKnowledgePointId.value) : undefined
+      knowledgePointIds: selectedKnowledgePointIds.value.length > 0 ? selectedKnowledgePointIds.value : undefined
     });
     questions.value = response.data.list;
     totalQuestions.value = response.data.total;
@@ -606,7 +629,7 @@ const formatDate = (dateString?: string): string => {
 
 // Search debounce
 let searchDebounceTimer: number | undefined;
-watch([searchQuery, paperNameQuery, selectedSyllabusId, selectedDifficulty, selectedStatus, selectedKnowledgePointId], () => {
+watch([searchQuery, paperNameQuery, selectedSyllabusId, selectedDifficulty, selectedStatus, selectedKnowledgePointIds], () => {
   clearTimeout(searchDebounceTimer);
   searchDebounceTimer = window.setTimeout(() => {
     currentPage.value = 1;
@@ -619,7 +642,7 @@ watch(selectedSyllabusId, (newValue) => {
     questions.value = [];
     totalQuestions.value = 0;
     knowledgePoints.value = [];
-    selectedKnowledgePointId.value = null;
+    selectedKnowledgePointIds.value = [];
   } else {
     fetchKnowledgePoints();
   }
@@ -631,7 +654,7 @@ watch(selectedOrganisationId, (newValue) => {
   qualifications.value = [];
   syllabi.value = [];
   knowledgePoints.value = [];
-  selectedKnowledgePointId.value = null;
+  selectedKnowledgePointIds.value = [];
   
   if (newValue) {
     fetchQualifications();
@@ -650,7 +673,7 @@ watch(selectedQualificationId, (newValue) => {
   selectedSyllabusId.value = null;
   syllabi.value = [];
   knowledgePoints.value = [];
-  selectedKnowledgePointId.value = null;
+  selectedKnowledgePointIds.value = [];
 
   if (newValue) {
     fetchSyllabi();

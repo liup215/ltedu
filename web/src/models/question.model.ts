@@ -72,7 +72,7 @@ export interface QuestionQuery {
   stem?: string;
   paperName?: string;
   examNodeId?: number;
-  knowledgePointId?: number;
+  knowledgePointIds?: number[];
 }
 
 export interface QuestionCreateRequest {

@@ -312,9 +312,12 @@ export default {
     save: '保存',
     saving: '保存中...',
     manageChapters: '章节管理',
-    selectKnowledgePoint: '选择知识点',
+    selectKnowledgePoint: '选择知识点（可多选）',
     knowledgePoints: '知识点',
-    noKnowledgePoints: '暂无知识点'
+    noKnowledgePoints: '暂无知识点',
+    clearAll: '清除全部',
+    removeKnowledgePointFilter: '移除该知识点筛选',
+    clearAllKnowledgePointFilters: '清除所有知识点筛选'
   },
   pastPaper: {
     title: '真题管理',

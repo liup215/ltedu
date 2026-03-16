@@ -97,9 +97,8 @@ func (r *questionRepository) applyQuestionFilters(q *gorm.DB, query *model.Quest
 			Joins("JOIN paper_codes ON paper_codes.id = past_papers.paper_code_id").
 			Where("paper_codes.exam_node_id = ?", query.ExamNodeId)
 	}
-	if query.KnowledgePointId != 0 {
-		q = q.Joins("JOIN question_keypoints ON question_keypoints.question_id = "+tableName+".id").
-			Where("question_keypoints.knowledge_point_id = ?", query.KnowledgePointId)
+	if len(query.KnowledgePointIds) > 0 {
+		q = q.Where(tableName+".id IN (SELECT question_id FROM question_keypoints WHERE knowledge_point_id IN ?)", query.KnowledgePointIds)
 	}
 	return q
 }
