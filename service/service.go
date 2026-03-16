@@ -125,6 +125,8 @@ func setDB() {
 		db.AutoMigrate(&model.UserFeedback{})
 		// Blog model
 		db.AutoMigrate(&model.BlogPost{})
+		// Migration Job model
+		db.AutoMigrate(&model.MigrationJob{})
 
 		// 初始化Repository层
 		repository.InitRepositories(db)

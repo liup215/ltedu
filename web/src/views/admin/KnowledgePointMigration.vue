@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 max-w-4xl mx-auto">
+  <div class="p-6 max-w-5xl mx-auto">
     <header class="mb-6">
       <div class="flex justify-between items-start">
         <div>
@@ -34,7 +34,7 @@
     </div>
 
     <!-- Main Form -->
-    <div class="bg-white shadow rounded-lg">
+    <div class="bg-white shadow rounded-lg mb-8">
       <div class="px-6 py-4 border-b border-gray-200">
         <h2 class="text-lg font-medium text-gray-900">{{ t('knowledgePoint.migration.options') }}</h2>
       </div>
@@ -130,76 +130,189 @@
         <div class="flex justify-end">
           <button
             type="submit"
-            :disabled="migrating || !confirmed || !selectedSyllabusId"
+            :disabled="submitting || !confirmed || !selectedSyllabusId"
             class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <svg v-if="migrating" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg v-if="submitting" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            {{ migrating ? t('knowledgePoint.migration.migrating') : t('knowledgePoint.migration.startMigration') }}
+            {{ t('knowledgePoint.migration.startMigration') }}
           </button>
         </div>
       </form>
     </div>
 
-    <!-- Migration Report -->
-    <div v-if="report" class="mt-6 bg-white shadow rounded-lg">
-      <div class="px-6 py-4 border-b border-gray-200">
-        <h2 class="text-lg font-medium text-gray-900">{{ t('knowledgePoint.migration.migrationReport') }}</h2>
+    <!-- Migration Jobs List -->
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+        <h2 class="text-lg font-medium text-gray-900">{{ t('knowledgePoint.migration.jobList') }}</h2>
+        <button
+          @click="loadJobs"
+          class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+        >
+          <svg class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+          </svg>
+          {{ t('knowledgePoint.migration.refreshJobs') }}
+        </button>
       </div>
-      <div class="px-6 py-4">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div class="bg-green-50 rounded-lg p-4">
-            <dt class="text-sm font-medium text-gray-500">{{ t('knowledgePoint.migration.generatedKeypoints') }}</dt>
-            <dd class="mt-1 text-3xl font-semibold text-green-600">{{ report.generatedKeypoints }}</dd>
-          </div>
-          <div class="bg-blue-50 rounded-lg p-4">
-            <dt class="text-sm font-medium text-gray-500">{{ t('knowledgePoint.migration.linkedQuestions') }}</dt>
-            <dd class="mt-1 text-3xl font-semibold text-blue-600">{{ report.linkedQuestions }}</dd>
-          </div>
-          <div class="bg-purple-50 rounded-lg p-4">
-            <dt class="text-sm font-medium text-gray-500">{{ t('knowledgePoint.migration.totalLinks') }}</dt>
-            <dd class="mt-1 text-3xl font-semibold text-purple-600">{{ report.totalLinks }}</dd>
-          </div>
+
+      <div v-if="loadingJobs" class="px-6 py-8 text-center text-gray-500">
+        <svg class="animate-spin h-6 w-6 mx-auto mb-2 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </div>
+
+      <div v-else-if="jobs.length === 0" class="px-6 py-8 text-center text-gray-500">
+        {{ t('knowledgePoint.migration.noJobs') }}
+      </div>
+
+      <div v-else class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ t('knowledgePoint.migration.jobId') }}</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ t('knowledgePoint.migration.jobSyllabus') }}</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ t('knowledgePoint.migration.jobStatus') }}</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ t('knowledgePoint.migration.jobProgress') }}</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ t('knowledgePoint.migration.jobCreatedAt') }}</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ t('knowledgePoint.migration.jobActions') }}</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr v-for="job in jobs" :key="job.id">
+              <td class="px-4 py-3 text-sm text-gray-900">{{ job.id }}</td>
+              <td class="px-4 py-3 text-sm text-gray-900">{{ getSyllabusName(job.syllabusId) }}</td>
+              <td class="px-4 py-3 text-sm">
+                <span :class="statusBadgeClass(job.status)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+                  <span v-if="job.status === 'running'" class="mr-1">
+                    <svg class="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  </span>
+                  {{ statusLabel(job.status) }}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-sm text-gray-900">
+                <div class="flex items-center space-x-2">
+                  <div class="flex-1 bg-gray-200 rounded-full h-2 w-24">
+                    <div
+                      class="h-2 rounded-full transition-all duration-300"
+                      :class="job.status === 'completed' ? 'bg-green-500' : job.status === 'failed' ? 'bg-red-500' : 'bg-indigo-500'"
+                      :style="{ width: job.progress + '%' }"
+                    ></div>
+                  </div>
+                  <span class="text-xs text-gray-500 w-10">{{ job.progress }}%</span>
+                </div>
+              </td>
+              <td class="px-4 py-3 text-sm text-gray-500">{{ formatDate(job.createdAt) }}</td>
+              <td class="px-4 py-3 text-sm space-x-2">
+                <button
+                  @click="viewJobDetail(job)"
+                  class="text-indigo-600 hover:text-indigo-900 text-xs font-medium"
+                >
+                  {{ t('knowledgePoint.migration.jobViewDetail') }}
+                </button>
+                <button
+                  v-if="job.status === 'failed'"
+                  @click="retryJob(job.id)"
+                  class="text-green-600 hover:text-green-900 text-xs font-medium"
+                >
+                  {{ t('knowledgePoint.migration.jobRetry') }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Job Detail Modal -->
+    <div v-if="selectedJob" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50" @click.self="selectedJob = null">
+      <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 p-6">
+        <div class="flex justify-between items-start mb-4">
+          <h3 class="text-lg font-medium text-gray-900">{{ t('knowledgePoint.migration.jobDetail') }} #{{ selectedJob.id }}</h3>
+          <button @click="selectedJob = null" class="text-gray-400 hover:text-gray-600">
+            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </button>
         </div>
 
-        <!-- Errors Section -->
-        <div v-if="report.errors && report.errors.length > 0" class="mt-4">
-          <h3 class="text-sm font-medium text-gray-700 mb-2">{{ t('knowledgePoint.migration.errors') }}</h3>
-          <div class="bg-red-50 border-l-4 border-red-400 p-4">
-            <div class="text-sm text-red-700 space-y-1">
-              <p v-for="(error, index) in report.errors" :key="index">{{ error }}</p>
-            </div>
+        <dl class="space-y-3 text-sm">
+          <div class="flex justify-between">
+            <dt class="text-gray-500">{{ t('knowledgePoint.migration.jobStatus') }}</dt>
+            <dd><span :class="statusBadgeClass(selectedJob.status)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">{{ statusLabel(selectedJob.status) }}</span></dd>
           </div>
-        </div>
-        <div v-else class="mt-4">
-          <div class="bg-green-50 border-l-4 border-green-400 p-4">
-            <p class="text-sm text-green-700">{{ t('knowledgePoint.migration.noErrors') }}</p>
+          <div class="flex justify-between">
+            <dt class="text-gray-500">{{ t('knowledgePoint.migration.jobProgress') }}</dt>
+            <dd class="text-gray-900">{{ selectedJob.progress }}% ({{ selectedJob.doneItems }}/{{ selectedJob.totalItems }})</dd>
           </div>
-        </div>
+          <div v-if="selectedJob.startedAt" class="flex justify-between">
+            <dt class="text-gray-500">{{ t('knowledgePoint.migration.jobStartedAt') }}</dt>
+            <dd class="text-gray-900">{{ formatDate(selectedJob.startedAt) }}</dd>
+          </div>
+          <div v-if="selectedJob.completedAt" class="flex justify-between">
+            <dt class="text-gray-500">{{ t('knowledgePoint.migration.jobCompletedAt') }}</dt>
+            <dd class="text-gray-900">{{ formatDate(selectedJob.completedAt) }}</dd>
+          </div>
+          <div v-if="selectedJob.errorMessage" class="mt-2">
+            <dt class="text-gray-500 mb-1">{{ t('knowledgePoint.migration.jobErrorMessage') }}</dt>
+            <dd class="bg-red-50 border-l-4 border-red-400 p-3 text-red-700 text-xs">{{ selectedJob.errorMessage }}</dd>
+          </div>
+          <div v-if="selectedJobReport" class="mt-2">
+            <dt class="text-gray-500 mb-2">{{ t('knowledgePoint.migration.jobReport') }}</dt>
+            <dd>
+              <div class="grid grid-cols-3 gap-3">
+                <div class="bg-green-50 rounded p-2 text-center">
+                  <div class="text-lg font-semibold text-green-600">{{ selectedJobReport.generatedKeypoints }}</div>
+                  <div class="text-xs text-gray-500">{{ t('knowledgePoint.migration.jobDetailGeneratedKeypoints') }}</div>
+                </div>
+                <div class="bg-blue-50 rounded p-2 text-center">
+                  <div class="text-lg font-semibold text-blue-600">{{ selectedJobReport.linkedQuestions }}</div>
+                  <div class="text-xs text-gray-500">{{ t('knowledgePoint.migration.jobDetailLinkedQuestions') }}</div>
+                </div>
+                <div class="bg-purple-50 rounded p-2 text-center">
+                  <div class="text-lg font-semibold text-purple-600">{{ selectedJobReport.totalLinks }}</div>
+                  <div class="text-xs text-gray-500">{{ t('knowledgePoint.migration.jobDetailTotalLinks') }}</div>
+                </div>
+              </div>
+              <div v-if="selectedJobReport.errors?.length" class="mt-3">
+                <div class="text-xs font-medium text-gray-500 mb-1">{{ t('knowledgePoint.migration.jobDetailErrors') }}</div>
+                <div class="bg-red-50 border-l-4 border-red-400 p-3 max-h-40 overflow-y-auto">
+                  <p v-for="(err, i) in selectedJobReport.errors" :key="i" class="text-xs text-red-700">{{ err }}</p>
+                </div>
+              </div>
+            </dd>
+          </div>
+        </dl>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { push } from 'notivue'
 import knowledgePointService from '../../services/knowledgePointService'
 import syllabusService from '../../services/syllabusService'
-import type { MigrateReport } from '../../models/knowledgePoint.model'
+import type { MigrationJob, MigrateReport } from '../../models/knowledgePoint.model'
 import type { Syllabus } from '../../models/syllabus.model'
 
 const route = useRoute()
 const { t } = useI18n()
 const syllabuses = ref<Syllabus[]>([])
 const selectedSyllabusId = ref<number | null>(null)
-const migrating = ref(false)
+const submitting = ref(false)
 const confirmed = ref(false)
-const report = ref<MigrateReport | null>(null)
+const jobs = ref<MigrationJob[]>([])
+const loadingJobs = ref(false)
+const selectedJob = ref<MigrationJob | null>(null)
 
 const options = ref({
   generateKeypoints: true,
@@ -207,15 +320,31 @@ const options = ref({
   batchSize: 50
 })
 
+let pollTimer: ReturnType<typeof setInterval> | null = null
+
 onMounted(async () => {
-  await loadSyllabuses()
-  
+  await Promise.all([loadSyllabuses(), loadJobs()])
+
   // Check if syllabusId is provided in query parameters
   const querySyllabusId = route.query.syllabusId
   if (querySyllabusId && !isNaN(Number(querySyllabusId))) {
     selectedSyllabusId.value = Number(querySyllabusId)
   }
+
+  // Poll for job updates every 5 seconds if there are running/pending jobs
+  pollTimer = setInterval(pollActiveJobs, 5000)
 })
+
+onUnmounted(() => {
+  if (pollTimer) clearInterval(pollTimer)
+})
+
+async function pollActiveJobs() {
+  const hasActive = jobs.value.some(j => j.status === 'pending' || j.status === 'running')
+  if (hasActive) {
+    await loadJobs()
+  }
+}
 
 async function loadSyllabuses() {
   try {
@@ -225,33 +354,110 @@ async function loadSyllabuses() {
     }
   } catch (error) {
     console.error('Failed to load syllabuses:', error)
-    push.error('Failed to load syllabuses')
+  }
+}
+
+async function loadJobs() {
+  loadingJobs.value = true
+  try {
+    const response = await knowledgePointService.listMigrationJobs({ pageIndex: 1, pageSize: 50 })
+    if (response.code === 0) {
+      jobs.value = response.data.list
+    }
+  } catch (error) {
+    console.error('Failed to load migration jobs:', error)
+    push.error(t('knowledgePoint.migration.loadJobsError'))
+  } finally {
+    loadingJobs.value = false
   }
 }
 
 async function startMigration() {
   if (!selectedSyllabusId.value) return
-  
+
   try {
-    migrating.value = true
-    report.value = null
-    
-    const response = await knowledgePointService.migrateSyllabus({
+    submitting.value = true
+
+    const response = await knowledgePointService.createMigrationJob({
       syllabusId: selectedSyllabusId.value,
       options: options.value
     })
-    
+
     if (response.code === 0) {
-      report.value = response.data
       push.success(t('knowledgePoint.migration.migrationSuccess'))
+      confirmed.value = false
+      await loadJobs()
     } else {
       throw new Error(response.msg)
     }
   } catch (error: any) {
-    console.error('Migration failed:', error)
+    console.error('Failed to create migration job:', error)
     push.error(error.response?.data?.msg || t('knowledgePoint.migration.migrationError'))
   } finally {
-    migrating.value = false
+    submitting.value = false
   }
 }
+
+async function retryJob(id: number) {
+  try {
+    const response = await knowledgePointService.retryMigrationJob(id)
+    if (response.code === 0) {
+      push.success(t('knowledgePoint.migration.retrySuccess'))
+      await loadJobs()
+    } else {
+      throw new Error(response.msg)
+    }
+  } catch (error: any) {
+    push.error(error.response?.data?.msg || t('knowledgePoint.migration.retryError'))
+  }
+}
+
+function viewJobDetail(job: MigrationJob) {
+  selectedJob.value = job
+}
+
+function getSyllabusName(syllabusId: number): string {
+  const s = syllabuses.value.find(s => s.id === syllabusId)
+  return s ? `${s.name} (${s.code})` : `#${syllabusId}`
+}
+
+function statusLabel(status: string): string {
+  const map: Record<string, string> = {
+    pending: t('knowledgePoint.migration.statusPending'),
+    running: t('knowledgePoint.migration.statusRunning'),
+    completed: t('knowledgePoint.migration.statusCompleted'),
+    failed: t('knowledgePoint.migration.statusFailed')
+  }
+  return map[status] ?? status
+}
+
+function statusBadgeClass(status: string): string {
+  const map: Record<string, string> = {
+    pending: 'bg-yellow-100 text-yellow-800',
+    running: 'bg-blue-100 text-blue-800',
+    completed: 'bg-green-100 text-green-800',
+    failed: 'bg-red-100 text-red-800'
+  }
+  return map[status] ?? 'bg-gray-100 text-gray-800'
+}
+
+function formatDate(dateStr?: string): string {
+  if (!dateStr) return '-'
+  return new Date(dateStr).toLocaleString()
+}
+
+function parsedReport(job: MigrationJob): MigrateReport | null {
+  if (!job.report) return null
+  try {
+    return JSON.parse(job.report) as MigrateReport
+  } catch {
+    return null
+  }
+}
+
+const selectedJobReport = computed<MigrateReport | null>(() => {
+  if (!selectedJob.value) return null
+  return parsedReport(selectedJob.value)
+})
 </script>
+

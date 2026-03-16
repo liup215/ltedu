@@ -10,7 +10,11 @@ import type {
   AutoLinkRequest,
   AutoLinkResponse,
   MigrateSyllabusRequest,
-  MigrateSyllabusResponse
+  MigrateSyllabusResponse,
+  MigrationJobCreateRequest,
+  MigrationJobListRequest,
+  MigrationJobResponse,
+  MigrationJobListResponse
 } from '../models/knowledgePoint.model'
 
 class KnowledgePointService {
@@ -73,6 +77,31 @@ class KnowledgePointService {
   async migrateSyllabus(request: MigrateSyllabusRequest): Promise<MigrateSyllabusResponse> {
     const client = await apiClient()
     const response = await client.post('/api/v1/syllabus/auto-migrate-keypoints', request)
+    return response.data
+  }
+
+  // Migration Job APIs
+  async createMigrationJob(request: MigrationJobCreateRequest): Promise<MigrationJobResponse> {
+    const client = await apiClient()
+    const response = await client.post('/api/v1/migration-job/create', request)
+    return response.data
+  }
+
+  async getMigrationJob(id: number): Promise<MigrationJobResponse> {
+    const client = await apiClient()
+    const response = await client.post('/api/v1/migration-job/byId', { id })
+    return response.data
+  }
+
+  async listMigrationJobs(request: MigrationJobListRequest): Promise<MigrationJobListResponse> {
+    const client = await apiClient()
+    const response = await client.post('/api/v1/migration-job/list', request)
+    return response.data
+  }
+
+  async retryMigrationJob(id: number): Promise<MigrationJobResponse> {
+    const client = await apiClient()
+    const response = await client.post('/api/v1/migration-job/retry', { id })
     return response.data
   }
 }

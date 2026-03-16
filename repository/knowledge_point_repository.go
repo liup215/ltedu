@@ -10,6 +10,7 @@ type IKnowledgePointRepository interface {
 	Create(kp *model.KnowledgePoint) error
 	Update(kp *model.KnowledgePoint) error
 	Delete(id uint) error
+	DeleteByChapterId(chapterId uint) error
 	FindByID(id uint) (*model.KnowledgePoint, error)
 	FindByChapterId(chapterId uint) ([]model.KnowledgePoint, error)
 	FindBySyllabusId(syllabusId uint) ([]model.KnowledgePoint, error)
@@ -37,6 +38,10 @@ func (r *KnowledgePointRepository) Update(kp *model.KnowledgePoint) error {
 
 func (r *KnowledgePointRepository) Delete(id uint) error {
 	return r.db.Delete(&model.KnowledgePoint{}, id).Error
+}
+
+func (r *KnowledgePointRepository) DeleteByChapterId(chapterId uint) error {
+	return r.db.Where("chapter_id = ?", chapterId).Delete(&model.KnowledgePoint{}).Error
 }
 
 func (r *KnowledgePointRepository) FindByID(id uint) (*model.KnowledgePoint, error) {

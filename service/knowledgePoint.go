@@ -281,6 +281,20 @@ type MigrateReport struct {
 
 // AutoMigrateSyllabus 批量自动化处理考纲
 func (s *KnowledgePointService) AutoMigrateSyllabus(syllabusId uint, options MigrateOptions) (*MigrateReport, error) {
+	return s.AutoMigrateSyllabusWithProgress(syllabusId, options, nil, nil, nil)
+}
+
+// AutoMigrateSyllabusWithProgress 批量自动化处理考纲（支持进度回调和断点续传）
+// skipChapterIds: set of chapter IDs already successfully processed (skip them on resume)
+// onProgress:    called after each item with (done, total)
+// onChapterDone: called with a chapter ID after it is successfully processed (for resume tracking)
+func (s *KnowledgePointService) AutoMigrateSyllabusWithProgress(
+	syllabusId uint,
+	options MigrateOptions,
+	skipChapterIds map[uint]bool,
+	onProgress func(done, total int),
+	onChapterDone func(chapterId uint),
+) (*MigrateReport, error) {
 	report := &MigrateReport{}
 
 	if options.BatchSize == 0 {
@@ -293,29 +307,87 @@ func (s *KnowledgePointService) AutoMigrateSyllabus(syllabusId uint, options Mig
 		return report, fmt.Errorf("failed to get chapters: %w", err)
 	}
 
+	// Compute leaf chapters first for progress tracking
+	var leafChapters []*model.Chapter
+	for _, chapter := range chapters {
+		hasChildren, err := repository.ChapterRepo.HasChildren(chapter.ID)
+		if err != nil {
+			report.Errors = append(report.Errors,
+				fmt.Sprintf("Chapter %d (%s): failed to check children: %v", chapter.ID, chapter.Name, err))
+			continue
+		}
+		if hasChildren {
+			continue
+		}
+		leafChapters = append(leafChapters, chapter)
+	}
+
+	// Compute question count for progress tracking
+	var questionCount int
+	if options.LinkQuestions {
+		query := &model.QuestionQueryRequest{SyllabusId: syllabusId}
+		questions, err := repository.QuestionRepo.FindAll(query)
+		if err == nil {
+			questionCount = len(questions)
+		}
+	}
+
+	total := 0
+	if options.GenerateKeypoints {
+		total += len(leafChapters)
+	}
+	if options.LinkQuestions {
+		total += questionCount
+	}
+
+	// Count already-processed chapters so progress starts at the right offset
+	alreadyDone := 0
+	if options.GenerateKeypoints && skipChapterIds != nil {
+		for _, ch := range leafChapters {
+			if skipChapterIds[ch.ID] {
+				alreadyDone++
+			}
+		}
+	}
+	done := alreadyDone
+
+	if onProgress != nil {
+		onProgress(done, total)
+	}
+
 	// Step 2: 仅为叶子章节生成知识点（没有子章节的章节）
 	if options.GenerateKeypoints {
-		for _, chapter := range chapters {
-			// 检查是否为叶子节点（没有子章节）
-			hasChildren, err := repository.ChapterRepo.HasChildren(chapter.ID)
-			if err != nil {
+		for _, chapter := range leafChapters {
+			// 跳过上次已成功处理的章节（断点续传）
+			if skipChapterIds != nil && skipChapterIds[chapter.ID] {
+				continue
+			}
+
+			// 先删除该章节已有的知识点，避免重复数据（幂等处理）
+			if err := repository.KnowledgePointRepo.DeleteByChapterId(chapter.ID); err != nil {
 				report.Errors = append(report.Errors,
-					fmt.Sprintf("Chapter %d (%s): failed to check children: %v", chapter.ID, chapter.Name, err))
+					fmt.Sprintf("Chapter %d (%s): failed to clear existing keypoints, skipping: %v", chapter.ID, chapter.Name, err))
+				done++
+				if onProgress != nil {
+					onProgress(done, total)
+				}
 				continue
 			}
 
-			// 跳过非叶子节点
-			if hasChildren {
-				continue
-			}
-
-			// 为叶子节点生成知识点
 			kps, err := s.AutoGenerateFromChapter(chapter.ID)
 			if err == nil {
 				report.GeneratedKeypoints += len(kps)
+				// 通知调用方该章节已成功处理（用于断点续传记录）
+				if onChapterDone != nil {
+					onChapterDone(chapter.ID)
+				}
 			} else {
 				report.Errors = append(report.Errors,
 					fmt.Sprintf("Chapter %d (%s): %v", chapter.ID, chapter.Name, err))
+			}
+			done++
+			if onProgress != nil {
+				onProgress(done, total)
 			}
 			time.Sleep(1 * time.Second) // 防止AI接口限流
 		}
@@ -341,6 +413,11 @@ func (s *KnowledgePointService) AutoMigrateSyllabus(syllabusId uint, options Mig
 			} else {
 				report.Errors = append(report.Errors,
 					fmt.Sprintf("Question %d: %v", question.ID, err))
+			}
+
+			done++
+			if onProgress != nil {
+				onProgress(done, total)
 			}
 
 			// 批量处理时添加延迟

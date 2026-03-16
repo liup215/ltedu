@@ -109,3 +109,52 @@ export interface MigrateSyllabusResponse {
   msg: string
   data: MigrateReport
 }
+
+// Migration Job types
+export type MigrationJobStatus = 'pending' | 'running' | 'completed' | 'failed'
+
+export interface MigrationJob {
+  id: number
+  syllabusId: number
+  status: MigrationJobStatus
+  options: string  // JSON string
+  progress: number
+  totalItems: number
+  doneItems: number
+  report: string  // JSON string
+  errorMessage: string
+  createdBy: number
+  startedAt?: string
+  completedAt?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface MigrationJobCreateRequest {
+  syllabusId: number
+  options: MigrateOptions
+}
+
+export interface MigrationJobListRequest {
+  syllabusId?: number
+  status?: MigrationJobStatus
+  pageIndex?: number
+  pageSize?: number
+}
+
+export interface MigrationJobResponse {
+  code: number
+  msg: string
+  data: MigrationJob
+}
+
+export interface MigrationJobListResponse {
+  code: number
+  msg: string
+  data: {
+    list: MigrationJob[]
+    total: number
+    page: number
+    pageSize: number
+  }
+}
