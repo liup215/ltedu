@@ -97,6 +97,9 @@ func (r *questionRepository) applyQuestionFilters(q *gorm.DB, query *model.Quest
 			Joins("JOIN paper_codes ON paper_codes.id = past_papers.paper_code_id").
 			Where("paper_codes.exam_node_id = ?", query.ExamNodeId)
 	}
+	if len(query.KnowledgePointIds) > 0 {
+		q = q.Where(tableName+".id IN (SELECT question_id FROM question_keypoints WHERE knowledge_point_id IN ?)", query.KnowledgePointIds)
+	}
 	return q
 }
 
@@ -120,7 +123,8 @@ func (r *questionRepository) FindPage(query *model.QuestionQueryRequest, offset,
 		Preload("PastPaper.PaperSeries").
 		Preload("PastPaper.PaperSeries.Syllabus").
 		Preload("PastPaper.PaperSeries.Syllabus.Qualification").
-		Preload("PastPaper.PaperSeries.Syllabus.Qualification.Organisation")
+		Preload("PastPaper.PaperSeries.Syllabus.Qualification.Organisation").
+		Preload("KnowledgePoints")
 
 	q = r.applyQuestionFilters(q, query, tableName)
 

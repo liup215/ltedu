@@ -311,7 +311,13 @@ export default {
     cancel: 'Cancel',
     save: 'Save',
     saving: 'Saving...',
-    manageChapters: 'Manage Chapters'
+    manageChapters: 'Manage Chapters',
+    selectKnowledgePoint: 'Select Knowledge Points',
+    knowledgePoints: 'Knowledge Points',
+    noKnowledgePoints: 'No knowledge points',
+    clearAll: 'Clear all',
+    removeKnowledgePointFilter: 'Remove knowledge point filter',
+    clearAllKnowledgePointFilters: 'Clear all knowledge point filters'
   },
   pastPaper: {
     title: 'Past Paper Management',

@@ -3,6 +3,7 @@
 import type { ApiResponse } from './api.model';
 import type { PastPaper } from './pastPaper.model';
 import type { Syllabus } from './syllabus.model';
+import type { KnowledgePoint } from './knowledgePoint.model';
 
 
 export interface Question {
@@ -19,6 +20,7 @@ export interface Question {
   createdAt?: string;
   updatedAt?: string;
   indexInPastPaper: number;
+  knowledgePoints?: KnowledgePoint[];
 }
 
 export interface QuestionContent {
@@ -70,6 +72,7 @@ export interface QuestionQuery {
   stem?: string;
   paperName?: string;
   examNodeId?: number;
+  knowledgePointIds?: number[];
 }
 
 export interface QuestionCreateRequest {
