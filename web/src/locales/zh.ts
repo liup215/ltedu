@@ -311,7 +311,10 @@ export default {
     cancel: '取消',
     save: '保存',
     saving: '保存中...',
-    manageChapters: '章节管理'
+    manageChapters: '章节管理',
+    selectKnowledgePoint: '选择知识点',
+    knowledgePoints: '知识点',
+    noKnowledgePoints: '暂无知识点'
   },
   pastPaper: {
     title: '真题管理',

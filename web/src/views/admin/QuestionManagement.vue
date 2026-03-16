@@ -46,6 +46,15 @@
     <option v-for="syllabus in syllabi" :key="syllabus.id" :value="syllabus.id">{{ syllabus.name }}</option>
   </select>
   
+  <select
+    v-model="selectedKnowledgePointId"
+    :disabled="!selectedSyllabusId"
+    class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm flex-[1_1_220px] min-w-[180px] max-w-md disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    <option :value="null">{{ $t('question.selectKnowledgePoint') }}</option>
+    <option v-for="kp in knowledgePoints" :key="kp.id" :value="kp.id">{{ kp.name }}</option>
+  </select>
+  
   <select 
     v-model="selectedDifficulty"
     class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm flex-[1_1_180px] min-w-[140px] max-w-md"
@@ -277,6 +286,20 @@
               <span v-if="question.indexInPastPaper"> - Q{{ question.indexInPastPaper }}</span>
             </div>
           </div>
+
+          <!-- Knowledge Points -->
+          <div v-if="question.knowledgePoints && question.knowledgePoints.length > 0" class="mb-4">
+            <h4 class="text-sm font-medium text-gray-700 mb-2">{{ $t('question.knowledgePoints') }}:</h4>
+            <div class="flex flex-wrap gap-1">
+              <span
+                v-for="kp in question.knowledgePoints"
+                :key="kp.id"
+                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800"
+              >
+                {{ kp.name }}
+              </span>
+            </div>
+          </div>
         </div>
 
         <!-- Card Footer -->
@@ -361,6 +384,8 @@ import qualificationService from '../../services/qualificationService';
 import type { Qualification } from '../../models/qualification.model';
 import syllabusService from '../../services/syllabusService';
 import type { Syllabus } from '../../models/syllabus.model';
+import knowledgePointService from '../../services/knowledgePointService';
+import type { KnowledgePoint } from '../../models/knowledgePoint.model';
 import { 
   DIFFICULTY_NAMES, 
   QUESTION_STATUS_NAMES,
@@ -394,6 +419,8 @@ const syllabi = ref<Syllabus[]>([]);
 const selectedOrganisationId = ref<number | null>(null);
 const selectedQualificationId = ref<number | null>(null);
 const selectedSyllabusId = ref<number | null>(null);
+const knowledgePoints = ref<KnowledgePoint[]>([]);
+const selectedKnowledgePointId = ref<number | null>(null);
 
 // Computed properties
 const totalPages = computed(() => {
@@ -476,6 +503,24 @@ const fetchSyllabi = async () => {
     syllabi.value = [];
   }
   selectedSyllabusId.value = null; // Reset syllabus selection when new list is fetched
+  knowledgePoints.value = [];
+  selectedKnowledgePointId.value = null;
+};
+
+const fetchKnowledgePoints = async () => {
+  if (!selectedSyllabusId.value) {
+    knowledgePoints.value = [];
+    selectedKnowledgePointId.value = null;
+    return;
+  }
+  try {
+    const response = await knowledgePointService.getBySyllabus(selectedSyllabusId.value);
+    knowledgePoints.value = response.data?.list || [];
+  } catch (error) {
+    console.error('Failed to fetch knowledge points:', error);
+    knowledgePoints.value = [];
+  }
+  selectedKnowledgePointId.value = null;
 };
 
 
@@ -490,7 +535,8 @@ const fetchQuestions = async () => {
       difficult: selectedDifficulty.value ? Number(selectedDifficulty.value) : undefined,
       status: selectedStatus.value ? Number(selectedStatus.value) : undefined,
       stem: searchQuery.value.trim() || undefined,
-      paperName: paperNameQuery.value.trim() || undefined
+      paperName: paperNameQuery.value.trim() || undefined,
+      knowledgePointId: selectedKnowledgePointId.value ? Number(selectedKnowledgePointId.value) : undefined
     });
     questions.value = response.data.list;
     totalQuestions.value = response.data.total;
@@ -560,7 +606,7 @@ const formatDate = (dateString?: string): string => {
 
 // Search debounce
 let searchDebounceTimer: number | undefined;
-watch([searchQuery, paperNameQuery, selectedSyllabusId, selectedDifficulty, selectedStatus], () => {
+watch([searchQuery, paperNameQuery, selectedSyllabusId, selectedDifficulty, selectedStatus, selectedKnowledgePointId], () => {
   clearTimeout(searchDebounceTimer);
   searchDebounceTimer = window.setTimeout(() => {
     currentPage.value = 1;
@@ -572,6 +618,10 @@ watch(selectedSyllabusId, (newValue) => {
   if (!newValue) { // If syllabus is cleared
     questions.value = [];
     totalQuestions.value = 0;
+    knowledgePoints.value = [];
+    selectedKnowledgePointId.value = null;
+  } else {
+    fetchKnowledgePoints();
   }
 });
 
@@ -580,6 +630,8 @@ watch(selectedOrganisationId, (newValue) => {
     selectedSyllabusId.value = null;
   qualifications.value = [];
   syllabi.value = [];
+  knowledgePoints.value = [];
+  selectedKnowledgePointId.value = null;
   
   if (newValue) {
     fetchQualifications();
@@ -597,6 +649,8 @@ watch(selectedOrganisationId, (newValue) => {
 watch(selectedQualificationId, (newValue) => {
   selectedSyllabusId.value = null;
   syllabi.value = [];
+  knowledgePoints.value = [];
+  selectedKnowledgePointId.value = null;
 
   if (newValue) {
     fetchSyllabi();

@@ -104,13 +104,14 @@ func (q *Question) Format() error {
 }
 
 type QuestionQueryRequest struct {
-	ID          uint   `json:"id"`
-	Stem        string `json:"stem"`
-	SyllabusId  uint   `json:"syllabusId"`
-	Difficult   int    `json:"difficult"`
-	Status      int    `json:"Status"`
-	PastPaperId uint   `json:"pastPaperId"`
-	PaperName   string `json:"paperName"`
-	ExamNodeId  uint   `json:"examNodeId"`
+	ID               uint   `json:"id"`
+	Stem             string `json:"stem"`
+	SyllabusId       uint   `json:"syllabusId"`
+	Difficult        int    `json:"difficult"`
+	Status           int    `json:"Status"`
+	PastPaperId      uint   `json:"pastPaperId"`
+	PaperName        string `json:"paperName"`
+	ExamNodeId       uint   `json:"examNodeId"`
+	KnowledgePointId uint   `json:"knowledgePointId"`
 	Page
 }
