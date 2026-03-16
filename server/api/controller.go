@@ -418,6 +418,12 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/question/auto-link-keypoints-intelligent", v1.KnowledgePointCtrl.AutoLinkQuestionIntelligent)
 	r.POST("/v1/syllabus/auto-migrate-keypoints", v1.KnowledgePointCtrl.AutoMigrateSyllabus)
 
+	// Migration Job endpoints
+	r.POST("/v1/migration-job/create", v1.MigrationJobCtrl.Create)
+	r.POST("/v1/migration-job/byId", v1.MigrationJobCtrl.GetByID)
+	r.POST("/v1/migration-job/list", v1.MigrationJobCtrl.List)
+	r.POST("/v1/migration-job/retry", v1.MigrationJobCtrl.Retry)
+
 	// Learning Plan endpoints
 	r.POST("/v1/learning-plan/create", v1.LearningPlanCtrl.CreatePlan)
 	r.POST("/v1/learning-plan/edit", v1.LearningPlanCtrl.UpdatePlan)

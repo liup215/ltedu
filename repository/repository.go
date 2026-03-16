@@ -54,6 +54,7 @@ var (
 	AuditLogRepo                 IAuditLogRepository
 	FeedbackRepo                 IFeedbackRepository
 	BlogPostRepo                  IBlogPostRepository
+	MigrationJobRepo              IMigrationJobRepository
 )
 
 func GetTableName(db *gorm.DB, model interface{}) string {
@@ -119,5 +120,6 @@ func InitRepositories(db *gorm.DB) {
 	AuditLogRepo = NewAuditLogRepository(db)
 	FeedbackRepo = NewFeedbackRepository(db)
 	BlogPostRepo = NewBlogPostRepository(db)
+	MigrationJobRepo = NewMigrationJobRepository(db)
 	// ... 其他repository按需添加
 }
