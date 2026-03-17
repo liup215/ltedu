@@ -93,9 +93,11 @@ func (r *questionRepository) applyQuestionFilters(q *gorm.DB, query *model.Quest
 			Where("PastPaper.name LIKE ?", "%"+query.PaperName+"%")
 	}
 	if query.ExamNodeId != 0 {
-		q = q.Joins("JOIN past_papers ON past_papers.id = "+tableName+".past_paper_id").
-			Joins("JOIN paper_codes ON paper_codes.id = past_papers.paper_code_id").
-			Where("paper_codes.exam_node_id = ?", query.ExamNodeId)
+		pastPaperTable := GetTableName(r.db, &model.PastPaper{})
+		paperCodeTable := GetTableName(r.db, &model.PaperCode{})
+		q = q.Joins("JOIN "+pastPaperTable+" ON "+pastPaperTable+".id = "+tableName+".past_paper_id").
+			Joins("JOIN "+paperCodeTable+" ON "+paperCodeTable+".id = "+pastPaperTable+".paper_code_id").
+			Where(paperCodeTable+".exam_node_id = ?", query.ExamNodeId)
 	}
 	if len(query.KnowledgePointIds) > 0 {
 		q = q.Where(tableName+".id IN (SELECT question_id FROM question_keypoints WHERE knowledge_point_id IN ?)", query.KnowledgePointIds)
