@@ -61,10 +61,12 @@ func (r *KnowledgePointRepository) FindByChapterId(chapterId uint) ([]model.Know
 
 func (r *KnowledgePointRepository) FindBySyllabusId(syllabusId uint) ([]model.KnowledgePoint, error) {
 	var kps []model.KnowledgePoint
-	err := r.db.Joins("JOIN chapters ON chapters.id = knowledge_points.chapter_id").
-		Where("chapters.syllabus_id = ?", syllabusId).
+	chapterTable := GetTableName(r.db, &model.Chapter{})
+	kpTable := GetTableName(r.db, &model.KnowledgePoint{})
+	err := r.db.Joins("JOIN "+chapterTable+" ON "+chapterTable+".id = "+kpTable+".chapter_id").
+		Where(chapterTable+".syllabus_id = ?", syllabusId).
 		Preload("Chapter").
-		Order("knowledge_points.chapter_id ASC, knowledge_points.order_index ASC").
+		Order(kpTable+".chapter_id ASC, "+kpTable+".order_index ASC").
 		Find(&kps).Error
 	return kps, err
 }
@@ -80,8 +82,10 @@ func (r *KnowledgePointRepository) FindAll(query *model.KnowledgePointQuery) ([]
 	}
 
 	if query.SyllabusId != 0 {
-		db = db.Joins("JOIN chapters ON chapters.id = knowledge_points.chapter_id").
-			Where("chapters.syllabus_id = ?", query.SyllabusId)
+		chapterTable := GetTableName(r.db, &model.Chapter{})
+		kpTable := GetTableName(r.db, &model.KnowledgePoint{})
+		db = db.Joins("JOIN "+chapterTable+" ON "+chapterTable+".id = "+kpTable+".chapter_id").
+			Where(chapterTable+".syllabus_id = ?", query.SyllabusId)
 	}
 
 	if query.Name != "" {
