@@ -145,7 +145,7 @@ func (svr *RecommendationService) GetQuestionRecommendations(studentID uint) (*m
 			KnowledgePointID uint
 		}
 		var rows []qkRow
-		if err := db.Table("question_keypoints").
+		if err := db.Table(db.NamingStrategy.JoinTableName("question_keypoints")).
 			Select("question_id, knowledge_point_id").
 			Where("knowledge_point_id IN ?", kpIDs).
 			Find(&rows).Error; err != nil {
