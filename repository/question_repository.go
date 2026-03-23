@@ -100,7 +100,8 @@ func (r *questionRepository) applyQuestionFilters(q *gorm.DB, query *model.Quest
 			Where(paperCodeTable+".exam_node_id = ?", query.ExamNodeId)
 	}
 	if len(query.KnowledgePointIds) > 0 {
-		q = q.Where(tableName+".id IN (SELECT question_id FROM question_keypoints WHERE knowledge_point_id IN ?)", query.KnowledgePointIds)
+		kpJoinTable := r.db.NamingStrategy.JoinTableName("question_keypoints")
+		q = q.Where(tableName+".id IN (SELECT question_id FROM "+kpJoinTable+" WHERE knowledge_point_id IN ?)", query.KnowledgePointIds)
 	}
 	return q
 }
@@ -204,15 +205,18 @@ func (r *questionRepository) FindByIDs(ids []uint) ([]*model.Question, error) {
 }
 
 func (r *questionRepository) AddKnowledgePoint(questionId, knowledgePointId uint) error {
-	return r.db.Exec("INSERT IGNORE INTO question_keypoints (question_id, knowledge_point_id) VALUES (?, ?)",
+	kpJoinTable := r.db.NamingStrategy.JoinTableName("question_keypoints")
+	return r.db.Exec("INSERT IGNORE INTO "+kpJoinTable+" (question_id, knowledge_point_id) VALUES (?, ?)",
 		questionId, knowledgePointId).Error
 }
 
 func (r *questionRepository) RemoveKnowledgePoint(questionId, knowledgePointId uint) error {
-	return r.db.Exec("DELETE FROM question_keypoints WHERE question_id = ? AND knowledge_point_id = ?",
+	kpJoinTable := r.db.NamingStrategy.JoinTableName("question_keypoints")
+	return r.db.Exec("DELETE FROM "+kpJoinTable+" WHERE question_id = ? AND knowledge_point_id = ?",
 		questionId, knowledgePointId).Error
 }
 
 func (r *questionRepository) ClearKnowledgePoints(questionId uint) error {
-	return r.db.Exec("DELETE FROM question_keypoints WHERE question_id = ?", questionId).Error
+	kpJoinTable := r.db.NamingStrategy.JoinTableName("question_keypoints")
+	return r.db.Exec("DELETE FROM "+kpJoinTable+" WHERE question_id = ?", questionId).Error
 }
