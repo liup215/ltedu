@@ -9,8 +9,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"go.uber.org/zap"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 var KnowledgePointSvr = &KnowledgePointService{
@@ -105,7 +106,7 @@ func (s *KnowledgePointService) AutoLinkQuestionToKeypoints(questionId, chapterI
 	}
 
 	if len(keypoints) == 0 {
-		return nil, errors.New("no knowledge points available for linking")
+		return []uint{}, nil
 	}
 
 	// 构建知识点列表字符串
@@ -222,7 +223,7 @@ func (s *KnowledgePointService) AutoLinkQuestionToKeypointsIntelligent(questionI
 	}
 
 	if len(relevantKeypoints) == 0 {
-		return nil, errors.New("no knowledge points available for linking")
+		return []uint{}, nil
 	}
 
 	// 安全检查：如果相关知识点数量过多，使用限制策略
@@ -504,8 +505,12 @@ func (s *KnowledgePointService) generateKnowledgePoints(syllabusName, chapterNam
 	}
 
 	// 解析AI响应
+	jsonStr := extractJSONFromAIResponse(aiResponse)
+	if jsonStr == "" {
+		return nil, fmt.Errorf("failed to parse AI response: empty response")
+	}
 	var kpData []model.AIKnowledgePointData
-	err = json.Unmarshal([]byte(aiResponse), &kpData)
+	err = json.Unmarshal([]byte(jsonStr), &kpData)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse AI response: %w", err)
 	}
@@ -539,10 +544,14 @@ func (s *KnowledgePointService) analyzeQuestionForKnowledgePoints(questionStem s
 	}
 
 	// 解析AI响应
+	jsonStr := extractJSONFromAIResponse(aiResponse)
+	if jsonStr == "" {
+		return nil, fmt.Errorf("failed to parse AI response: empty response")
+	}
 	var result struct {
 		Indices []int `json:"indices"`
 	}
-	err = json.Unmarshal([]byte(aiResponse), &result)
+	err = json.Unmarshal([]byte(jsonStr), &result)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse AI response: %w", err)
 	}
@@ -576,16 +585,20 @@ func (s *KnowledgePointService) analyzeQuestionForChapters(questionStem string, 
 	}
 
 	// 解析AI响应
+	jsonStr := extractJSONFromAIResponse(aiResponse)
+	if jsonStr == "" {
+		return nil, fmt.Errorf("failed to parse AI chapter response: empty response")
+	}
 	var result struct {
 		ChapterIndices []int `json:"chapterIndices"`
 	}
-	err = json.Unmarshal([]byte(aiResponse), &result)
+	err = json.Unmarshal([]byte(jsonStr), &result)
 	if err != nil {
 		// 尝试备用解析格式
 		var altResult struct {
 			Indices []int `json:"indices"`
 		}
-		err2 := json.Unmarshal([]byte(aiResponse), &altResult)
+		err2 := json.Unmarshal([]byte(jsonStr), &altResult)
 		if err2 != nil {
 			return nil, fmt.Errorf("failed to parse AI chapter response: %w", err)
 		}
