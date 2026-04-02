@@ -114,8 +114,12 @@ Return a strict JSON array with no other text:
 	}
 
 	// 解析AI响应
+	jsonStr := extractJSONFromAIResponse(aiResponse)
+	if jsonStr == "" {
+		return nil, fmt.Errorf("failed to parse AI response: empty response")
+	}
 	var kpData []model.AIKnowledgePointData
-	err = json.Unmarshal([]byte(aiResponse), &kpData)
+	err = json.Unmarshal([]byte(jsonStr), &kpData)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse AI response: %w", err)
 	}
@@ -149,10 +153,14 @@ Return JSON format (array of indices only, 1-based):
 	}
 
 	// 解析AI响应
+	jsonStr := extractJSONFromAIResponse(aiResponse)
+	if jsonStr == "" {
+		return nil, fmt.Errorf("failed to parse AI response: empty response")
+	}
 	var result struct {
 		Indices []int `json:"indices"`
 	}
-	err = json.Unmarshal([]byte(aiResponse), &result)
+	err = json.Unmarshal([]byte(jsonStr), &result)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse AI response: %w", err)
 	}
