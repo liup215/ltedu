@@ -235,6 +235,7 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/paper/exam/question/update", v1.PaperCtrl.UpdateExamPaperQuestion)
 	r.POST("/v1/paper/exam/create", v1.PaperCtrl.CreateExamPaper)
 	r.POST("/v1/paper/exam/edit", v1.PaperCtrl.EditExamPaper)
+	r.POST("/v1/paper/exam/delete", v1.PaperCtrl.DeleteExamPaper)
 
 	r.POST("/v1/question/create", v1.QuestionCtrl.CreateQuestion)
 	r.POST("/v1/question/edit", v1.QuestionCtrl.EditQuestion)

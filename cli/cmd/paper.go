@@ -289,4 +289,5 @@ func init() {
 	paperCmd.AddCommand(pastPaperCmd)
 	paperCmd.AddCommand(paperCodeCmd)
 	paperCmd.AddCommand(paperSeriesCmd)
+	paperCmd.AddCommand(examPaperCmd)
 }
