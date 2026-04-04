@@ -225,6 +225,7 @@ var questionUnlinkKPCmd = &cobra.Command{
 var (
 	questionCreateSyllabusID        uint
 	questionCreatePastPaperID       uint
+	questionCreateIndexInPastPaper  int
 	questionCreateStem              string
 	questionCreateDifficult         int
 	questionCreateContentsFile      string
@@ -233,13 +234,19 @@ var (
 
 var questionCreateCmd = &cobra.Command{
 	Use:   "create",
-	Short: "Create a new question (requires --syllabus-id, --stem, and --contents-file)",
+	Short: "Create a new question (requires --syllabus-id, --stem, --past-paper-id, --index-in-past-paper, and --contents-file)",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if questionCreateSyllabusID == 0 {
 			return fmt.Errorf("--syllabus-id is required")
 		}
 		if questionCreateStem == "" {
 			return fmt.Errorf("--stem is required")
+		}
+		if questionCreatePastPaperID == 0 {
+			return fmt.Errorf("--past-paper-id is required")
+		}
+		if questionCreateIndexInPastPaper == 0 {
+			return fmt.Errorf("--index-in-past-paper is required")
 		}
 		if questionCreateContentsFile == "" {
 			return fmt.Errorf("--contents-file is required")
@@ -274,10 +281,9 @@ var questionCreateCmd = &cobra.Command{
 			"syllabusId":       questionCreateSyllabusID,
 			"stem":             questionCreateStem,
 			"difficult":        difficult,
+			"pastPaperId":      questionCreatePastPaperID,
+			"indexInPastPaper": questionCreateIndexInPastPaper,
 			"questionContents": questionContents,
-		}
-		if questionCreatePastPaperID != 0 {
-			q["pastPaperId"] = questionCreatePastPaperID
 		}
 
 		var createResult struct {
@@ -332,7 +338,8 @@ func init() {
 	questionUnlinkKPCmd.Flags().UintVar(&questionUnlinkKPKnowledgePointID, "knowledge-point-id", 0, "Knowledge point ID to unlink (required)")
 
 	questionCreateCmd.Flags().UintVar(&questionCreateSyllabusID, "syllabus-id", 0, "Syllabus ID (required)")
-	questionCreateCmd.Flags().UintVar(&questionCreatePastPaperID, "past-paper-id", 0, "Past paper ID (optional)")
+	questionCreateCmd.Flags().UintVar(&questionCreatePastPaperID, "past-paper-id", 0, "Past paper ID (required)")
+	questionCreateCmd.Flags().IntVar(&questionCreateIndexInPastPaper, "index-in-past-paper", 0, "Index of question within the past paper (required)")
 	questionCreateCmd.Flags().StringVar(&questionCreateStem, "stem", "", "Question stem text (required)")
 	questionCreateCmd.Flags().IntVar(&questionCreateDifficult, "difficult", 1, "Difficulty level 1-5 (default 1)")
 	questionCreateCmd.Flags().StringVar(&questionCreateContentsFile, "contents-file", "", "Path to question contents JSON file (required)")
