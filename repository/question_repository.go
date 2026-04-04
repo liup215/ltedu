@@ -59,6 +59,7 @@ func (r *questionRepository) FindByID(id uint) (*model.Question, error) {
 		Preload("PastPaper.PaperSeries.Syllabus").
 		Preload("PastPaper.PaperSeries.Syllabus.Qualification").
 		Preload("PastPaper.PaperSeries.Syllabus.Qualification.Organisation").
+		Preload("KnowledgePoints").
 		Where("id = ?", id).First(&q).Error
 	if gorm.ErrRecordNotFound == err {
 		return nil, nil
@@ -102,6 +103,11 @@ func (r *questionRepository) applyQuestionFilters(q *gorm.DB, query *model.Quest
 	if len(query.KnowledgePointIds) > 0 {
 		kpJoinTable := r.db.NamingStrategy.JoinTableName("question_keypoints")
 		q = q.Where(tableName+".id IN (SELECT question_id FROM "+kpJoinTable+" WHERE knowledge_point_id IN ?)", query.KnowledgePointIds)
+	}
+	if query.ChapterId != 0 {
+		kpJoinTable := r.db.NamingStrategy.JoinTableName("question_keypoints")
+		kpTable := GetTableName(r.db, &model.KnowledgePoint{})
+		q = q.Where(tableName+".id IN (SELECT qk.question_id FROM "+kpJoinTable+" qk JOIN "+kpTable+" kp ON qk.knowledge_point_id = kp.id WHERE kp.chapter_id = ?)", query.ChapterId)
 	}
 	return q
 }

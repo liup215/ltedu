@@ -107,6 +107,7 @@ type QuestionQueryRequest struct {
 	ID                uint   `json:"id"`
 	Stem              string `json:"stem"`
 	SyllabusId        uint   `json:"syllabusId"`
+	ChapterId         uint   `json:"chapterId"`
 	Difficult         int    `json:"difficult"`
 	Status            int    `json:"Status"`
 	PastPaperId       uint   `json:"pastPaperId"`

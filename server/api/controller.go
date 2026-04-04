@@ -240,6 +240,8 @@ func (h *Handler) authRout(r *gin.RouterGroup) {
 	r.POST("/v1/question/create", v1.QuestionCtrl.CreateQuestion)
 	r.POST("/v1/question/edit", v1.QuestionCtrl.EditQuestion)
 	r.POST("/v1/question/delete", v1.QuestionCtrl.DeleteQuestion)
+	r.POST("/v1/question/link-knowledge-point", v1.QuestionCtrl.LinkKnowledgePoint)
+	r.POST("/v1/question/unlink-knowledge-point", v1.QuestionCtrl.UnlinkKnowledgePoint)
 
 	r.POST("/v1/vocabularySet/create", v1.VocabularyCtrl.CreateVocabularySet)
 	r.POST("/v1/vocabularySet/delete", v1.VocabularyCtrl.DeleteVocabularySet)

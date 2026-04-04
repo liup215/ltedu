@@ -123,12 +123,70 @@ func (ctrl *QuestionController) CreateQuestion(c *gin.Context) {
 		return
 	}
 
-	_, err = ctrl.questionSvr.CreateQuestion(o, user.ID)
+	newID, err := ctrl.questionSvr.CreateQuestion(o, user.ID)
 	if err != nil {
 		http.ErrorData(c, "添加失败:"+err.Error(), nil)
 		return
 	}
-	http.SuccessData(c, "添加成功!", nil)
+	http.SuccessData(c, "添加成功!", gin.H{"id": newID})
+}
+
+// @Summary      关联知识点到题目
+// @Description  为题目添加知识点关联
+// @Tags         题目管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "题目ID和知识点ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/question/link-knowledge-point [post]
+func (ctrl *QuestionController) LinkKnowledgePoint(c *gin.Context) {
+	var req struct {
+		QuestionId       uint `json:"questionId" binding:"required"`
+		KnowledgePointId uint `json:"knowledgePointId" binding:"required"`
+	}
+
+	if err := c.BindJSON(&req); err != nil {
+		http.ErrorData(c, "参数解析失败", nil)
+		return
+	}
+
+	if err := ctrl.questionSvr.LinkKnowledgePoint(req.QuestionId, req.KnowledgePointId); err != nil {
+		http.ErrorData(c, err.Error(), nil)
+		return
+	}
+
+	http.SuccessData(c, "Knowledge point linked to question!", nil)
+}
+
+// @Summary      取消题目与知识点的关联
+// @Description  删除题目与知识点的关联关系
+// @Tags         题目管理
+// @Accept       json
+// @Produce      json
+// @Param        body  body  map[string]interface{}  true  "题目ID和知识点ID"
+// @Success      200   {object}  map[string]interface{}  "成功"
+// @Failure      400   {object}  map[string]interface{}  "参数错误"
+// @Security     BearerAuth
+// @Router       /v1/question/unlink-knowledge-point [post]
+func (ctrl *QuestionController) UnlinkKnowledgePoint(c *gin.Context) {
+	var req struct {
+		QuestionId       uint `json:"questionId" binding:"required"`
+		KnowledgePointId uint `json:"knowledgePointId" binding:"required"`
+	}
+
+	if err := c.BindJSON(&req); err != nil {
+		http.ErrorData(c, "参数解析失败", nil)
+		return
+	}
+
+	if err := ctrl.questionSvr.UnlinkKnowledgePoint(req.QuestionId, req.KnowledgePointId); err != nil {
+		http.ErrorData(c, err.Error(), nil)
+		return
+	}
+
+	http.SuccessData(c, "Knowledge point unlinked from question!", nil)
 }
 
 // @Summary      编辑题目
