@@ -103,6 +103,26 @@ func (svr *QuestionService) DeleteQuestion(id uint) error {
 	return repository.QuestionRepo.Delete(id)
 }
 
+func (svr *QuestionService) LinkKnowledgePoint(questionId, knowledgePointId uint) error {
+	if questionId == 0 {
+		return errors.New("question ID不能为空")
+	}
+	if knowledgePointId == 0 {
+		return errors.New("knowledge point ID不能为空")
+	}
+	return repository.QuestionRepo.AddKnowledgePoint(questionId, knowledgePointId)
+}
+
+func (svr *QuestionService) UnlinkKnowledgePoint(questionId, knowledgePointId uint) error {
+	if questionId == 0 {
+		return errors.New("question ID不能为空")
+	}
+	if knowledgePointId == 0 {
+		return errors.New("knowledge point ID不能为空")
+	}
+	return repository.QuestionRepo.RemoveKnowledgePoint(questionId, knowledgePointId)
+}
+
 // 生成练习题
 func (svr *QuestionService) GenerateQuestionExercise(query model.QuestionQueryRequest) (list []*model.Question, err error) {
 	total, err := repository.QuestionRepo.Count(&query)
