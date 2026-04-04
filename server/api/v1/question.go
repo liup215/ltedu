@@ -157,7 +157,7 @@ func (ctrl *QuestionController) LinkKnowledgePoint(c *gin.Context) {
 		return
 	}
 
-	http.SuccessData(c, "Knowledge point linked to question!", nil)
+	http.SuccessData(c, "知识点关联成功!", nil)
 }
 
 // @Summary      取消题目与知识点的关联
@@ -186,7 +186,7 @@ func (ctrl *QuestionController) UnlinkKnowledgePoint(c *gin.Context) {
 		return
 	}
 
-	http.SuccessData(c, "Knowledge point unlinked from question!", nil)
+	http.SuccessData(c, "知识点取消关联成功!", nil)
 }
 
 // @Summary      编辑题目
