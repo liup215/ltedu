@@ -229,12 +229,13 @@ var (
 	questionCreateStem              string
 	questionCreateDifficult         int
 	questionCreateContentsFile      string
+	questionCreateContentsJSON      string
 	questionCreateKnowledgePointIDs string
 )
 
 var questionCreateCmd = &cobra.Command{
 	Use:   "create",
-	Short: "Create a new question (requires --syllabus-id, --stem, --past-paper-id, --index-in-past-paper, and --contents-file)",
+	Short: "Create a new question (requires --syllabus-id, --stem, --past-paper-id, --index-in-past-paper, and --question-contents or --contents-file)",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if questionCreateSyllabusID == 0 {
 			return fmt.Errorf("--syllabus-id is required")
@@ -248,14 +249,20 @@ var questionCreateCmd = &cobra.Command{
 		if questionCreateIndexInPastPaper == 0 {
 			return fmt.Errorf("--index-in-past-paper is required")
 		}
-		if questionCreateContentsFile == "" {
-			return fmt.Errorf("--contents-file is required")
+		if questionCreateContentsJSON == "" && questionCreateContentsFile == "" {
+			return fmt.Errorf("--question-contents or --contents-file is required")
 		}
 
-		// Read the contents file
-		data, err := os.ReadFile(questionCreateContentsFile)
-		if err != nil {
-			return fmt.Errorf("failed to read contents file %q: %w", questionCreateContentsFile, err)
+		// Resolve the raw JSON bytes: inline flag takes priority over file
+		var data []byte
+		if questionCreateContentsJSON != "" {
+			data = []byte(questionCreateContentsJSON)
+		} else {
+			var err error
+			data, err = os.ReadFile(questionCreateContentsFile)
+			if err != nil {
+				return fmt.Errorf("failed to read contents file %q: %w", questionCreateContentsFile, err)
+			}
 		}
 
 		// Parse contents: accept either {"parts": [...]} or a plain array
@@ -266,7 +273,7 @@ var questionCreateCmd = &cobra.Command{
 		if json.Unmarshal(data, &wrapper) == nil && wrapper.Parts != nil {
 			questionContents = wrapper.Parts
 		} else if err := json.Unmarshal(data, &questionContents); err != nil {
-			return fmt.Errorf("contents file must be a JSON object with a \"parts\" array or a JSON array: %w", err)
+			return fmt.Errorf("question contents must be a JSON array or an object with a \"parts\" array: %w", err)
 		}
 
 		difficult := questionCreateDifficult
@@ -342,7 +349,8 @@ func init() {
 	questionCreateCmd.Flags().IntVar(&questionCreateIndexInPastPaper, "index-in-past-paper", 0, "Index of question within the past paper (required)")
 	questionCreateCmd.Flags().StringVar(&questionCreateStem, "stem", "", "Question stem text (required)")
 	questionCreateCmd.Flags().IntVar(&questionCreateDifficult, "difficult", 1, "Difficulty level 1-5 (default 1)")
-	questionCreateCmd.Flags().StringVar(&questionCreateContentsFile, "contents-file", "", "Path to question contents JSON file (required)")
+	questionCreateCmd.Flags().StringVar(&questionCreateContentsJSON, "question-contents", "", "Question contents as inline JSON array (required if --contents-file is not set)")
+	questionCreateCmd.Flags().StringVar(&questionCreateContentsFile, "contents-file", "", "Path to question contents JSON file (required if --question-contents is not set)")
 	questionCreateCmd.Flags().StringVar(&questionCreateKnowledgePointIDs, "knowledge-point-ids", "", "Knowledge point IDs to link (comma-separated, optional)")
 
 	questionCmd.AddCommand(questionListCmd)
