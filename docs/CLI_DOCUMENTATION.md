@@ -430,6 +430,49 @@ Get a past paper by ID.
 edu-cli paper past get 50
 ```
 
+### `paper past create`
+
+Create a new past paper.  
+创建新真题。
+
+| Flag | Default | Description |
+|---|---|---|
+| `--name` | | Past paper name (required) / 真题名称（必填） |
+| `--syllabus-id` | | Syllabus ID (required) / 考纲 ID（必填） |
+| `--year` | | Year of the past paper (required) / 年份（必填） |
+| `--code-id` | | Paper code ID (required) / 试卷代码 ID（必填） |
+| `--series-id` | | Paper series ID (required) / 试卷系列 ID（必填） |
+
+```bash
+edu-cli paper past create --name "2023 真题" --syllabus-id 3 --year 2023 --code-id 7 --series-id 2
+```
+
+### `paper past edit`
+
+Edit a past paper.  
+修改真题信息。
+
+| Flag | Default | Description |
+|---|---|---|
+| `--id` | | Past paper ID (required) / 真题 ID（必填） |
+| `--name` | | New name / 新名称 |
+| `--year` | | New year / 新年份 |
+| `--code-id` | | New paper code ID / 新试卷代码 ID |
+| `--series-id` | | New paper series ID / 新试卷系列 ID |
+
+```bash
+edu-cli paper past edit --id 50 --name "Updated 2023 真题"
+```
+
+### `paper past delete <id>`
+
+Delete a past paper by ID.  
+按 ID 删除真题。
+
+```bash
+edu-cli paper past delete 50
+```
+
 ### `paper code list`
 
 List paper codes.  
