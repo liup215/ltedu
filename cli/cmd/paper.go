@@ -104,6 +104,15 @@ var pastPaperCreateCmd = &cobra.Command{
 		if pastPaperCreateSyllabusID == 0 {
 			return fmt.Errorf("--syllabus-id is required")
 		}
+		if pastPaperCreateYear == 0 {
+			return fmt.Errorf("--year is required")
+		}
+		if pastPaperCreateCodeID == 0 {
+			return fmt.Errorf("--code-id is required")
+		}
+		if pastPaperCreateSeriesID == 0 {
+			return fmt.Errorf("--series-id is required")
+		}
 		c := client.NewClient()
 		body := map[string]interface{}{
 			"name":          pastPaperCreateName,

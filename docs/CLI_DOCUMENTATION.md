@@ -439,12 +439,12 @@ Create a new past paper.
 |---|---|---|
 | `--name` | | Past paper name (required) / 真题名称（必填） |
 | `--syllabus-id` | | Syllabus ID (required) / 考纲 ID（必填） |
-| `--year` | | Year of the past paper / 年份 |
-| `--code-id` | | Paper code ID / 试卷代码 ID |
-| `--series-id` | | Paper series ID / 试卷系列 ID |
+| `--year` | | Year of the past paper (required) / 年份（必填） |
+| `--code-id` | | Paper code ID (required) / 试卷代码 ID（必填） |
+| `--series-id` | | Paper series ID (required) / 试卷系列 ID（必填） |
 
 ```bash
-edu-cli paper past create --name "2023 真题" --syllabus-id 3 --year 2023
+edu-cli paper past create --name "2023 真题" --syllabus-id 3 --year 2023 --code-id 7 --series-id 2
 ```
 
 ### `paper past edit`

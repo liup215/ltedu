@@ -9,12 +9,12 @@ edu-cli paper past create [flags]
 ### Options
 
 ```
-      --code-id uint       Paper code ID
+      --code-id uint       Paper code ID (required)
   -h, --help               help for create
       --name string        Past paper name (required)
-      --series-id uint     Paper series ID
+      --series-id uint     Paper series ID (required)
       --syllabus-id uint   Syllabus ID (required)
-      --year int           Year of the past paper
+      --year int           Year of the past paper (required)
 ```
 
 ### SEE ALSO
