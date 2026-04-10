@@ -86,6 +86,101 @@ var pastPaperGetCmd = &cobra.Command{
 	},
 }
 
+var (
+	pastPaperCreateName       string
+	pastPaperCreateSyllabusID uint
+	pastPaperCreateYear       int
+	pastPaperCreateCodeID     uint
+	pastPaperCreateSeriesID   uint
+)
+
+var pastPaperCreateCmd = &cobra.Command{
+	Use:   "create",
+	Short: "Create a new past paper (创建真题)",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if pastPaperCreateName == "" {
+			return fmt.Errorf("--name is required")
+		}
+		if pastPaperCreateSyllabusID == 0 {
+			return fmt.Errorf("--syllabus-id is required")
+		}
+		c := client.NewClient()
+		body := map[string]interface{}{
+			"name":          pastPaperCreateName,
+			"syllabusId":    pastPaperCreateSyllabusID,
+			"year":          pastPaperCreateYear,
+			"paperCodeId":   pastPaperCreateCodeID,
+			"paperSeriesId": pastPaperCreateSeriesID,
+		}
+		var result interface{}
+		if err := c.PostAndDecode("/v1/paper/past/create", body, &result); err != nil {
+			return err
+		}
+		fmt.Println("Past paper created successfully.")
+		prettyPrint(result)
+		return nil
+	},
+}
+
+var (
+	pastPaperEditID       uint
+	pastPaperEditName     string
+	pastPaperEditYear     int
+	pastPaperEditCodeID   uint
+	pastPaperEditSeriesID uint
+)
+
+var pastPaperEditCmd = &cobra.Command{
+	Use:   "edit",
+	Short: "Edit a past paper (修改真题)",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if pastPaperEditID == 0 {
+			return fmt.Errorf("--id is required")
+		}
+		c := client.NewClient()
+		body := map[string]interface{}{
+			"id": pastPaperEditID,
+		}
+		if pastPaperEditName != "" {
+			body["name"] = pastPaperEditName
+		}
+		if pastPaperEditYear != 0 {
+			body["year"] = pastPaperEditYear
+		}
+		if pastPaperEditCodeID != 0 {
+			body["paperCodeId"] = pastPaperEditCodeID
+		}
+		if pastPaperEditSeriesID != 0 {
+			body["paperSeriesId"] = pastPaperEditSeriesID
+		}
+		var result interface{}
+		if err := c.PostAndDecode("/v1/paper/past/edit", body, &result); err != nil {
+			return err
+		}
+		fmt.Println("Past paper updated successfully.")
+		prettyPrint(result)
+		return nil
+	},
+}
+
+var pastPaperDeleteCmd = &cobra.Command{
+	Use:   "delete <id>",
+	Short: "Delete a past paper by ID (删除真题)",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		id, err := strconv.Atoi(args[0])
+		if err != nil {
+			return fmt.Errorf("invalid id: %s", args[0])
+		}
+		c := client.NewClient()
+		if err := c.PostAndDecode("/v1/paper/past/delete", map[string]interface{}{"id": id}, nil); err != nil {
+			return err
+		}
+		fmt.Printf("Past paper %d deleted successfully.\n", id)
+		return nil
+	},
+}
+
 // ---- paper code subcommand ----
 
 var paperCodeCmd = &cobra.Command{
@@ -259,8 +354,23 @@ func init() {
 	pastPaperListCmd.Flags().UintVar(&pastPaperListCodeID, "code-id", 0, "Filter by paper code ID")
 	pastPaperListCmd.Flags().UintVar(&pastPaperListSeriesID, "series-id", 0, "Filter by paper series ID")
 
+	pastPaperCreateCmd.Flags().StringVar(&pastPaperCreateName, "name", "", "Past paper name (required)")
+	pastPaperCreateCmd.Flags().UintVar(&pastPaperCreateSyllabusID, "syllabus-id", 0, "Syllabus ID (required)")
+	pastPaperCreateCmd.Flags().IntVar(&pastPaperCreateYear, "year", 0, "Year of the past paper")
+	pastPaperCreateCmd.Flags().UintVar(&pastPaperCreateCodeID, "code-id", 0, "Paper code ID")
+	pastPaperCreateCmd.Flags().UintVar(&pastPaperCreateSeriesID, "series-id", 0, "Paper series ID")
+
+	pastPaperEditCmd.Flags().UintVar(&pastPaperEditID, "id", 0, "Past paper ID (required)")
+	pastPaperEditCmd.Flags().StringVar(&pastPaperEditName, "name", "", "New name")
+	pastPaperEditCmd.Flags().IntVar(&pastPaperEditYear, "year", 0, "New year")
+	pastPaperEditCmd.Flags().UintVar(&pastPaperEditCodeID, "code-id", 0, "New paper code ID")
+	pastPaperEditCmd.Flags().UintVar(&pastPaperEditSeriesID, "series-id", 0, "New paper series ID")
+
 	pastPaperCmd.AddCommand(pastPaperListCmd)
 	pastPaperCmd.AddCommand(pastPaperGetCmd)
+	pastPaperCmd.AddCommand(pastPaperCreateCmd)
+	pastPaperCmd.AddCommand(pastPaperEditCmd)
+	pastPaperCmd.AddCommand(pastPaperDeleteCmd)
 
 	// Paper code flags
 	paperCodeListCmd.Flags().IntVar(&paperCodeListPage, "page", 1, "Page number")

@@ -11,6 +11,9 @@ Manage past papers (真题管理)
 ### SEE ALSO
 
 * [edu-cli paper](edu-cli_paper.md)	 - Manage papers (试卷 & 真题管理)
+* [edu-cli paper past create](edu-cli_paper_past_create.md)	 - Create a new past paper (创建真题)
+* [edu-cli paper past delete](edu-cli_paper_past_delete.md)	 - Delete a past paper by ID (删除真题)
+* [edu-cli paper past edit](edu-cli_paper_past_edit.md)	 - Edit a past paper (修改真题)
 * [edu-cli paper past get](edu-cli_paper_past_get.md)	 - Get a past paper by ID
 * [edu-cli paper past list](edu-cli_paper_past_list.md)	 - List past papers
 
